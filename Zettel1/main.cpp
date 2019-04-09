@@ -161,7 +161,8 @@ int main()
     MatrixXd Ac2 = Ac1.transpose();
     luc.compute(At);
     MatrixXd Loesung = luc.solve(Ac2);
-    cout << Loesung << endl;
+    // Transponierte Lösung anzeigen, ist egal, ob nochmal transponiert wird in diesem Fall
+    cout << Loesung.transpose() << endl;
 
 
 
