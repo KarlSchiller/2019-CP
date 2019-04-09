@@ -1,6 +1,8 @@
 *.pdf
 *.jpg
 build/
+*.pro
+*.pro.user
 
 # Prerequisites
 *.d
