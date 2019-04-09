@@ -47,12 +47,12 @@ int main()
         }
     }
     cout << endl;
-    for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-            cout << U[i][j] << " ";
-        }
-        cout << "\n";
-    }
+    //for (int i = 0; i < N; i++){
+    //    for (int j = 0; j < N; j++){
+    //        cout << U[i][j] << " ";
+    //    }
+    //    cout << "\n";
+    //}
     cout << endl;
 
     // Aufgabenteil b)
@@ -81,7 +81,7 @@ int main()
     for (int i = 0; i < N; i++){
         for (int j = i + 1; j < N; j++){
             // Betragsgrößtes element finden
-                int max = abs(Ub[i+1][0]);
+                int max = abs(Ub[i+1][i]);
                 int max_i = i+1;
                 for (int m = i+1; m < N; m++){
                     for(int k = 0; k <N; k++){
@@ -91,7 +91,7 @@ int main()
                         }
                     }
                 }
-                cout << max << " ";
+               // cout << max << " ";
                 // cout << " \n";
                 // zeilen tauschen
                 for (int l = 0; l < N; l++){
@@ -118,32 +118,52 @@ int main()
             }
            // cout << "\n";
         }
-    cout << endl;
+        // cout << endl;
 
 
 
-    for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-            cout << Ub[i][j] << " ";
-        }
-        cout << "\n";
-    }
-    cout << endl;
+    // for (int i = 0; i < N; i++){
+    //     for (int j = 0; j < N; j++){
+    //         cout << Lb[i][j] << " ";
+    //     }
+    //     cout << "\n";
+    // }
+    // cout << endl;
 
     // Aufgabenteil c)
     // Matrix A initialisieren
-    Matrix3i Ac;
-    Ac(0, 0) = 1;
-    Ac(0, 1) = 2;
-    Ac(0, 2) = 4;
-    Ac(1, 0) = -2;
-    Ac(1, 1) = 1;
-    Ac(1, 2) = 0;
-    Ac(2, 0) = 4;
-    Ac(2, 1) = 2;
-    Ac(2, 2) = -4;
-    cout << Ac << endl;
-    Matrix3i Lol = Ac.PartialPivLU<Matrix3i>().matrixLU();
+    MatrixXd Ac(3,3);
+    Ac << 1, 2, 4, -2, 1, 0, 4, 2, -4;
+    // cout << Ac << endl;
+    MatrixXd M = Ac;
+    PartialPivLU<Ref<MatrixXd> > lu(M);
+    cout << M << endl;
+    cout << endl;
+
+    // Definition von U und L, gewonnen aus M
+    MatrixXd Uc(3,3);
+    Uc << 4, 2, -4, 0, 2, -2, 0, 0, 6.5;
+    MatrixXd Lc(3,3);
+    Lc << 1, 0, 0, -0.5, 1, 0, 0.25, 0.75, 1;
+    // Lc*Uc ergibt das Pivotisierte A
+    cout << Lc*Uc << endl;
+    cout << endl;
+    // Daher kenne ich die Pivotisierungsmatrix :)
+    MatrixXd Pc(3, 3);
+    Pc << 0, 0, 1, 0, 1, 0, 1, 0, 0;
+    PartialPivLU<Ref<MatrixXd> > luc(Pc);
+    MatrixXd Pc1 = luc.solve(Lc*Uc);
+    cout << Pc1 << endl;
+    cout << endl;
+    // Also wenn man die Pivotisierungsmatrix kennt, kann man mit solve wieder A herausbekommen
+    MatrixXd At = Ac.transpose();
+    MatrixXd Ac1 = Lc*Uc;
+    MatrixXd Ac2 = Ac1.transpose();
+    luc.compute(At);
+    MatrixXd Loesung = luc.solve(Ac2);
+    cout << Loesung << endl;
+
+
 
 
     cout << "Ende des Programms" <<endl;
