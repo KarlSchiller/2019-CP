@@ -1,5 +1,5 @@
 #include <iostream>
-#include <../Eigen/Dense>
+#include <eigen/Dense>
 
 // using Eigen::Matrix3i;
 // using Eigen::PartialPivLU;
@@ -143,7 +143,7 @@ int main()
     Ac(2, 1) = 2;
     Ac(2, 2) = -4;
     cout << Ac << endl;
-    Matrix3i Lol = Ac.PartialPivLU<Matrix3i>().matrixLU();
+ //   Matrix3i Lol = Ac.PartialPivLU<Matrix3i>().matrixLU();
 
 
     cout << "Ende des Programms" <<endl;
