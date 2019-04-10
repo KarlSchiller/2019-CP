@@ -23,6 +23,7 @@ void euler_symm(int n, double y_0, double delta_t, double* y){
 
 int main(){
 
+  cout << "Beginn des Programms!" << endl;
   double y_0 = 1.0;
   double delta_t = 0.2;
   int n = 10/delta_t;
@@ -35,7 +36,7 @@ int main(){
   ofstream myfile;
   myfile.open("euler_vergleich.txt", ios::trunc);
   myfile << "# n*delta_t euler-normal euler-symm analytisch" << endl;
-  myfile << "t; normal; symm; ana" << endl;
+  myfile << "t;normal;symm;ana" << endl;
   for(int i=0; i<=n; i++){
     myfile << i*delta_t << "; ";
     myfile << y_normal[i] << "; ";
@@ -44,5 +45,6 @@ int main(){
   }
   myfile.close();
 
+  cout << "Ende des Programms!" << endl;
   return 0;
 }
