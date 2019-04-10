@@ -1,0 +1,46 @@
+\section{Aufgabe 1}
+\subsection{a)}
+Die LU-Zerlegung ohne Pivotisierung wurde implementiert, das Ergebnis lautet
+\begin{equation}
+  L =
+  \begin{pmatrix}
+    1 & 0 & 0 & 0 \\
+    -4 & 1 & 0 & 0 \\
+    2 & 2 & 1 & 0 \\
+    6 & 1 & 2 & 1 \\
+  \end{pmatrix}
+  \ \text{und} \ U =
+  \begin{pmatrix}
+    1 & 5 & -4 & 2 \\
+    0 & 3 & -2 & 3 \\
+    0 & 0 & 2 & -3 \\
+    0 & 0 & 0 & 4 \\
+  \end{pmatrix} \, .
+\end{equation}
+\subsection{b)}
+\subsection{c)}
+Mittels der Methode \textsc{Eigen::PartialPivLU::matrixLU} wurde die Matrix bestimmt,
+die die Elemente der LU-Zerlegung enthält:
+\begin{equation}
+  M =
+  \begin{pmatrix}
+    4 & 2 & -4 \\
+    -0,5 & 2 & -2 \\
+    0,25 & 0,75 & 6,5 \\
+  \end{pmatrix} \, .
+\end{equation}
+Dann wurde das Problem $PA = LU$ umgestellt zu
+\begin{align}
+  PA &= (A^{\symup T}P^{\symup T})^{\symup T} = LU \\
+  \Leftrightarrow A^{\symup T}P^{\symup T} &= (LU)^{\symup T} \label{eqn:c} \, .
+\end{align}
+Dann wurde auf \eqref{eqn:c} die \textsc{solve}-Methode angewendet, um die Matrix
+$P$ herauszufinden. Es ergibt sich
+\begin{equation}
+  P^{\symup T} = P = 
+  \begin{pmatrix}
+    0 & 0 & 1 \\
+    0 & 1 & 0 \\
+    1 & 0 & 0 \\
+  \end{pmatrix} \, .
+\end{equation}

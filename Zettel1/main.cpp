@@ -166,9 +166,6 @@ int main()
     // Transponierte Lösung anzeigen, ist egal, ob nochmal transponiert wird in diesem Fall
     cout << Loesung.transpose() << endl;
 
-
-
-
     cout << "Ende des Programms" <<endl;
     return 0;
 }
