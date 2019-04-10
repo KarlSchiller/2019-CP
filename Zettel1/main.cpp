@@ -77,12 +77,14 @@ int main()
             Ub[i][j] = Ab[i][j];
         }
     }
+    int max = 0;
+    int max_i = 0;
     // Initialisierung beendet
     for (int i = 0; i < N; i++){
         for (int j = i + 1; j < N; j++){
             // Betragsgrößtes element finden
-                int max = abs(Ub[i+1][i]);
-                int max_i = i+1;
+                max = abs(Ub[i+1][i]);
+                max_i = i+1;
                 for (int m = i+1; m < N; m++){
                     for(int k = 0; k <N; k++){
                         if(abs(Ub[m+1][k]) > max){
