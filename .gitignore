@@ -1,5 +1,7 @@
 *.pdf
 *.jpg
+*.pro
+*.pro.user
 build/
 *.pro
 *.pro.user
