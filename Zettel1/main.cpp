@@ -9,7 +9,9 @@ using namespace Eigen;
 int main()
 {
     cout << "Beginn des Programms" << endl;
-    int N = 4;
+    // Aufgabenteil a)
+    //  Intitialisieren der benötigten Variablen
+    const int N = 4;
     int A[4][4] = {
         {1, 5, -4, 2},
         {-4, -17, 14, -5},
@@ -26,18 +28,17 @@ int main()
             U[i][j] = A[i][j];
         }
     }
-// intitialisieren beendet
-    int rij = 0;
-    for (int i = 0; i < N; i++){
+    // Intitialisieren beendet
+    double rij = 0;
+    for (int i = 0; i < N-1; i++){
         for (int j = i + 1; j < N; j++){
+            // Das Element rij bestimmen
             rij = U[j][i]/U[i][i];
             for (int k = 0; k < N; k++){
-                if (A[i][i] != 0){
-                   // cout << j  << " " << rij << " ";
-                   // cout << endl;
-                   // cout << U[j][k]-rij*U[i][k] << " ";
+                // Fall abfangen, dass U[i][i] 0 ist, denn ansonsten ist Pivotisierung notwendig
+                if (U[i][i] != 0){
                     U[j][k] = (U[j][k])-(U[i][k]*rij);
-                    L[j][i] = rij; // L ist richtig
+                    L[j][i] = rij;
                 }
                 else{
                     cout << "Pivotisierung notwendig!";
@@ -46,14 +47,14 @@ int main()
             }
         }
     }
-    cout << endl;
+    // Nur für die Ausgabe der in a) bearbeiteten Matrizen
     //for (int i = 0; i < N; i++){
     //    for (int j = 0; j < N; j++){
     //        cout << U[i][j] << " ";
     //    }
     //    cout << "\n";
     //}
-    cout << endl;
+    //cout << endl;
 
     // Aufgabenteil b)
     // initialisieren
@@ -67,8 +68,8 @@ int main()
     for (int i = 0; i < N; i++){
         P[i][i] = 1;
     }
-    int Lb[N][N]{};
-    int Ub[N][N]{};
+    double Lb[N][N]{};
+    double Ub[N][N]{};
     for (int i = 0; i < N; i++){
         Lb[i][i] = 1;
     }
@@ -80,57 +81,58 @@ int main()
     int max = 0;
     int max_i = 0;
     // Initialisierung beendet
-    for (int i = 0; i < N; i++){
-        for (int j = i + 1; j < N; j++){
-            // Betragsgrößtes element finden
+    for (int i = 0; i < N-1; i++){
+        // Betragsgrößtes element finden
                 max = abs(Ub[i+1][i]);
                 max_i = i+1;
-                for (int m = i+1; m < N; m++){
-                    for(int k = 0; k <N; k++){
-                        if(abs(Ub[m+1][k]) > max){
-                            max_i = m;
-                            max = abs(Ub[m+1][k]);
+                for (int m = i+1; m < N - 1; m++){
+                        if(abs(Ub[m+1][i]) > max){
+                            max_i = m + 1;
+                            max = abs(Ub[m+1][i]);
                         }
                     }
-                }
-               // cout << max << " ";
-                // cout << " \n";
+                //cout << max_i << " " <<  max << " ";
+                //cout << " \n";
+
                 // zeilen tauschen
                 for (int l = 0; l < N; l++){
                     int c = Ub[i][l];
                     Ub[i][l] = Ub[max_i][l];
                     Ub[max_i][l] = c;
                 }
+
                 for (int l = 0; l < N; l++){
-                    int c = P[i][l];
-                    P[i][l] = P[max_i][l];
-                    P[max_i][l] = c;
+                    int c = P[l][i];
+                    P[l][i] = P[l][max_i];
+                    P[l][max_i] = c;
                 }
                 for (int l = 0; l < i; l++){
                     int c = Lb[i][l];
                     Lb[i][l] = Lb[max_i][l];
                     Lb[max_i][l] = c;
                 }
-                rij = Ub[j][i]/Ub[i][i];
-            for (int k = 0; k < N; k++){
-                   // cout << Ub[j][k]-rij*Ub[i][k] << " ";
-                    Ub[j][k] = (Ub[j][k])-(Ub[i][k]*rij);
-                    Lb[j][i] = rij; // L ist richtig
+                // LU-Zerlegung durchführen
+                for (int j = i + 1; j < N; j++){
+                    cout << endl;
+                    // Das Element rij bestimmen
+                    cout << "Ubji " << Ub[j][i] << " " << "Ubii " << Ub[i][i] << " " << "rij " << Ub[j][i]/Ub[i][i] << endl;
+                    rij = Ub[j][i]/Ub[i][i];
+                    for (int k = 0; k < N; k++){
+                        Ub[j][k] = (Ub[j][k])-(Ub[i][k]*rij);
+                        Lb[j][i] = rij;
+                        cout << "Ubik " << (Ub[i][k]) << " " << "abgez. " << (Ub[i][k]*rij) << endl;
+                    }
                 }
-            }
-           // cout << "\n";
         }
-        // cout << endl;
+        cout << endl;
 
-
-
-    // for (int i = 0; i < N; i++){
-    //     for (int j = 0; j < N; j++){
-    //         cout << Lb[i][j] << " ";
-    //     }
-    //     cout << "\n";
-    // }
-    // cout << endl;
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+            cout << P[i][j] << " ";
+        }
+        cout << "\n";
+    }
+    cout << endl;
 
     // Aufgabenteil c)
     // Matrix A initialisieren
@@ -139,8 +141,8 @@ int main()
     // cout << Ac << endl;
     MatrixXd M = Ac;
     PartialPivLU<Ref<MatrixXd> > lu(M);
-    cout << M << endl;
-    cout << endl;
+    //cout << M << endl;
+    //cout << endl;
 
     // Definition von U und L, gewonnen aus M
     MatrixXd Uc(3,3);
@@ -148,15 +150,16 @@ int main()
     MatrixXd Lc(3,3);
     Lc << 1, 0, 0, -0.5, 1, 0, 0.25, 0.75, 1;
     // Lc*Uc ergibt das Pivotisierte A
-    cout << Lc*Uc << endl;
-    cout << endl;
+    //cout << Lc*Uc << endl;
+    //cout << endl;
     // Daher kenne ich die Pivotisierungsmatrix :)
     MatrixXd Pc(3, 3);
     Pc << 0, 0, 1, 0, 1, 0, 1, 0, 0;
+    //cout << Pc*Lc*Uc << endl;
     PartialPivLU<Ref<MatrixXd> > luc(Pc);
     MatrixXd Pc1 = luc.solve(Lc*Uc);
-    cout << Pc1 << endl;
-    cout << endl;
+
+    //cout << endl;
     // Also wenn man die Pivotisierungsmatrix kennt, kann man mit solve wieder A herausbekommen
     MatrixXd At = Ac.transpose();
     MatrixXd Ac1 = Lc*Uc;
@@ -164,7 +167,11 @@ int main()
     luc.compute(At);
     MatrixXd Loesung = luc.solve(Ac2);
     // Transponierte Lösung anzeigen, ist egal, ob nochmal transponiert wird in diesem Fall
-    cout << Loesung.transpose() << endl;
+   // cout << Loesung.transpose() << endl;
+    //MatrixXd Ax(4, 4);
+    //Ax << 1, 5, -4, 2, 1, 5, -22, 13, -4, 17, 14, 5, 2, 16, -10, 7;
+    //PartialPivLU<Ref<MatrixXd> > test(Ax);
+    //cout << Ax << endl;
 
     cout << "Ende des Programms" <<endl;
     return 0;

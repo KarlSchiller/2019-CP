@@ -18,6 +18,40 @@ Die LU-Zerlegung ohne Pivotisierung wurde implementiert, das Ergebnis lautet
   \end{pmatrix} \, .
 \end{equation}
 \subsection{b)}
+Die LU-Zerlegung mit Pivotisierung wurde implementiert, allerdings sind die Ergebnisse
+numerisch sehr instabil und starken Rundungsfehlern unterlegen,
+deswegen wurden manche Ergebnisse vom Computer zu 0 gerundet,
+allerdings erkennt man die Strukturen in den Matrizen
+\begin{equation}
+  L =
+  \begin{pmatrix}
+    1 & 0 & 0 & 0 \\
+    -0,5 & 1 & 0 & 0 \\
+    0 & 0.367347 & 1 & 0 \\
+    0 & 0 & 0 & 1 \\
+  \end{pmatrix}
+  \ \text{und} \ U =
+  \begin{pmatrix}
+    -4 & 17 & 14 & 5 \\
+    0 & 24,5 & -3 & 9,5 \\
+    0 & 0 & -16,898 & 10,5102 \\
+    0 & 0 & 0 & 0 \\
+  \end{pmatrix} \, .
+\end{equation}
+Falls man die LU-Zerlegung mit Pivotisierung für diese Matrix mal mit \textsc{Eigen}
+durchführt, zeigen sich Abweichungen bei manchen Matrixelementen. Die liegt daran,
+dass wir mehr Rundungsfehler machen als die Methode der \textsc{Eigen}-Bibliothek.
+Für die Permutationsmatrix ergibt sich
+\begin{equation}
+  P =
+  \begin{pmatrix}
+    0 & 0 & 0 & 1 \\
+    0 & 0 & 1 & 0 \\
+    1 & 0 & 0 & 0 \\
+    0 & 1 & 0 & 0 \\
+  \end{pmatrix} \, .
+\end{equation}
+
 \subsection{c)}
 Mittels der Methode \textsc{Eigen::PartialPivLU::matrixLU} wurde die Matrix bestimmt,
 die die Elemente der LU-Zerlegung enthält:
@@ -37,7 +71,7 @@ Dann wurde das Problem $PA = LU$ umgestellt zu
 Dann wurde auf \eqref{eqn:c} die \textsc{solve}-Methode angewendet, um die Matrix
 $P$ herauszufinden. Es ergibt sich
 \begin{equation}
-  P^{\symup T} = P = 
+  P^{\symup T} = P =
   \begin{pmatrix}
     0 & 0 & 1 \\
     0 & 1 & 0 \\
