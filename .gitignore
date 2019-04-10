@@ -5,6 +5,7 @@
 build/
 *.pro
 *.pro.user
+*.txt
 
 # Prerequisites
 *.d
