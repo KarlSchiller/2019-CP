@@ -91,25 +91,30 @@ int main()
                             max = abs(Ub[m+1][i]);
                         }
                     }
-                //cout << max_i << " " <<  max << " ";
-                //cout << " \n";
+                /* Nachgeprüfen, ob der maximale Wert != 0,
+                 * ansonsten hat auch die Pivotisierung nicht geholfen
+                 * und es wird durch 0 geteilt */
+                if(max != 0){
+                    // zeilen tauschen
+                    for (int l = 0; l < N; l++){
+                        int c = Ub[i][l];
+                        Ub[i][l] = Ub[max_i][l];
+                        Ub[max_i][l] = c;
+                    }
 
-                // zeilen tauschen
-                for (int l = 0; l < N; l++){
-                    int c = Ub[i][l];
-                    Ub[i][l] = Ub[max_i][l];
-                    Ub[max_i][l] = c;
+                    for (int l = 0; l < N; l++){
+                        int c = P[l][i];
+                        P[l][i] = P[l][max_i];
+                        P[l][max_i] = c;
+                    }
+                    for (int l = 0; l < i; l++){
+                        int c = Lb[i][l];
+                        Lb[i][l] = Lb[max_i][l];
+                        Lb[max_i][l] = c;
+                    }
                 }
-
-                for (int l = 0; l < N; l++){
-                    int c = P[l][i];
-                    P[l][i] = P[l][max_i];
-                    P[l][max_i] = c;
-                }
-                for (int l = 0; l < i; l++){
-                    int c = Lb[i][l];
-                    Lb[i][l] = Lb[max_i][l];
-                    Lb[max_i][l] = c;
+                else {
+                    cout << "Pivotisierung fehlgeschlagen!" << endl;
                 }
                 // LU-Zerlegung durchführen
                 for (int j = i + 1; j < N; j++){
@@ -138,11 +143,8 @@ int main()
     // Matrix A initialisieren
     MatrixXd Ac(3,3);
     Ac << 1, 2, 4, -2, 1, 0, 4, 2, -4;
-    // cout << Ac << endl;
     MatrixXd M = Ac;
     PartialPivLU<Ref<MatrixXd> > lu(M);
-    //cout << M << endl;
-    //cout << endl;
 
     // Definition von U und L, gewonnen aus M
     MatrixXd Uc(3,3);
@@ -153,21 +155,19 @@ int main()
     //cout << Lc*Uc << endl;
     //cout << endl;
     // Daher kenne ich die Pivotisierungsmatrix :)
-    MatrixXd Pc(3, 3);
-    Pc << 0, 0, 1, 0, 1, 0, 1, 0, 0;
+    //MatrixXd Pc(3, 3);
+    //Pc << 0, 0, 1, 0, 1, 0, 1, 0, 0;
     //cout << Pc*Lc*Uc << endl;
-    PartialPivLU<Ref<MatrixXd> > luc(Pc);
-    MatrixXd Pc1 = luc.solve(Lc*Uc);
-
-    //cout << endl;
-    // Also wenn man die Pivotisierungsmatrix kennt, kann man mit solve wieder A herausbekommen
+    /*Man kann aber auch ohne Vorwissen über die Pivotisierungsmatrix die Gleichung lösen: */
+    /* Über Transponieren und umstellen der Gleichung PA = LU die Pivotisierungmatrix
+    rechts von der A-Matrix schreiben, um über solve die Lösung zu bekommen.*/
     MatrixXd At = Ac.transpose();
     MatrixXd Ac1 = Lc*Uc;
     MatrixXd Ac2 = Ac1.transpose();
-    luc.compute(At);
-    MatrixXd Loesung = luc.solve(Ac2);
+    lu.compute(At);
+    MatrixXd Loesung = lu.solve(Ac2);
     // Transponierte Lösung anzeigen, ist egal, ob nochmal transponiert wird in diesem Fall
-   // cout << Loesung.transpose() << endl;
+    cout << Loesung.transpose() << endl;
     //MatrixXd Ax(4, 4);
     //Ax << 1, 5, -4, 2, 1, 5, -22, 13, -4, 17, 14, 5, 2, 16, -10, 7;
     //PartialPivLU<Ref<MatrixXd> > test(Ax);
