@@ -14,7 +14,10 @@ light: dokument.tex
 	-output-directory=build \
 	dokument.tex
 
-FORCE:
+FORCE: build/leastsquares.pdf | build
+
+build/leastsquares.pdf: aufgabe2-plot.py | build
+	python aufgabe2-plot.py
 
 build:
 	mkdir -p build/
