@@ -118,14 +118,13 @@ int main()
                 }
                 // LU-Zerlegung durchführen
                 for (int j = i + 1; j < N; j++){
-                    cout << endl;
                     // Das Element rij bestimmen
-                    cout << "Ubji " << Ub[j][i] << " " << "Ubii " << Ub[i][i] << " " << "rij " << Ub[j][i]/Ub[i][i] << endl;
+                    // cout << "Ubji " << Ub[j][i] << " " << "Ubii " << Ub[i][i] << " " << "rij " << Ub[j][i]/Ub[i][i] << endl;
                     rij = Ub[j][i]/Ub[i][i];
                     for (int k = 0; k < N; k++){
                         Ub[j][k] = (Ub[j][k])-(Ub[i][k]*rij);
                         Lb[j][i] = rij;
-                        cout << "Ubik " << (Ub[i][k]) << " " << "abgez. " << (Ub[i][k]*rij) << endl;
+                       // cout << "Ubik " << (Ub[i][k]) << " " << "abgez. " << (Ub[i][k]*rij) << endl;
                     }
                 }
         }
