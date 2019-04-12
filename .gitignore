@@ -1,10 +1,12 @@
+# Do not upload created and compiled content
 *.pdf
-*.jpg
 *.pro
 *.pro.user
 build/
-*.pro
-*.pro.user
+*.zip
+
+# other
+*.jpg
 *.txt
 
 # Prerequisites
