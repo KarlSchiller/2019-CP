@@ -3,6 +3,7 @@
 *.pro
 *.pro.user
 build/
+build*/
 *.zip
 
 # other
