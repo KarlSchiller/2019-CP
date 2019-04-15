@@ -62,7 +62,7 @@ int main()
     cout << "Beginn des Programms!" << endl;
     // Einlesen
     MatrixXd M;
-    const int k = 10;
+    const int k = 50;
     loadData(M, "../Dateien/Bild", 512, 512);
     cout << M.rows() << "x" << M.cols() << endl;
     // SVD durchführen
@@ -79,8 +79,12 @@ int main()
     MatrixXd approxA = approxU*approxW*approxV.transpose();
 
     ofstream file;
-    file.open("bild_10.txt", ios::trunc);
+    file.open("bild_50.txt", ios::trunc);
     //file << "# Array" << endl;
+    for (int i = 0; i < k; i++){
+        file << i << ";";
+    }
+    file << endl;
     for (int i=0; i < k; i++){
         for (int j = 0; j < k; j++){
             file << approxA(i, j) << "; ";
