@@ -6,6 +6,7 @@ TeXOptions = -lualatex \
 				 -output-directory=build
 
 build/dokument.pdf: FORCE | build
+	python aufgabe1-plot.py
 	latexmk $(TexOptions) dokument.tex
 
 light: dokument.tex
@@ -15,7 +16,7 @@ light: dokument.tex
 	dokument.tex
 
 FORCE:
-	
+
 build:
 	mkdir -p build/
 
