@@ -43,5 +43,5 @@ def plot_testpicture():
     plt.clf()
 
 
-#  plot_eigenvalues()
+plot_eigenvalues()
 plot_testpicture()
