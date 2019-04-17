@@ -65,42 +65,50 @@ int main()
     cout << "Beginn des Programms!" << endl;
     // Einlesen der Daten
     MatrixXd M;
-    const int k = 50;
-    loadData(M, "../Dateien/Bild", 512, 512);
+    int k[3] = {10, 20, 50};
+    loadData(M, "Dateien/Bild", 512, 512);
     cout << M.rows() << "x" << M.cols() << endl;
     // SVD durchführen
     BDCSVD<MatrixXd> svd(M, ComputeFullU|ComputeFullV);
     VectorXd sing = svd.singularValues();
-
-    // Approximation der Singulärwerte und umschreiben in eine Diagonalmatrix
-    VectorXd approx = sort_vec(sing, k);
-    MatrixXd approxW = approx.asDiagonal();
-
-    // Approximation der U- und der V-Matrix
     MatrixXd U = svd.matrixU();
     MatrixXd V = svd.matrixV();
-    MatrixXd approxU = sort_mat(U, k);
-    MatrixXd approxV = sort_mat(V, k);
 
-    // Transformieren der Matrix
-    MatrixXd approxA = approxU*approxW*approxV.transpose();
-
-    // Auslesen in eine txt-Datei
+    // Initialisieren der Variablen
+    VectorXd approx;
+    MatrixXd approxW, approxU, approxV, approxA;
     ofstream file;
-    string filename = "bild_"+to_string(k)+".txt";
-    file.open(filename, ios::trunc);
-    //file << "# Array" << endl;
-    for (int i = 0; i < k; i++){
-        file << i << ";";
+    string filename;
+
+    // Durchführen für die verschiedenen k-Werte
+    for (int l=0; l<3; l++){
+      // Approximation der Singulärwerte und umschreiben in eine Diagonalmatrix
+      approx = sort_vec(sing, k[l]);
+      approxW = approx.asDiagonal();
+
+      // Approximation der U- und der V-Matrix
+      approxU = sort_mat(U, k[l]);
+      approxV = sort_mat(V, k[l]);
+
+      // Transformieren der Matrix
+      approxA = approxU*approxW*approxV.transpose();
+
+      // Auslesen in eine txt-Datei
+      filename = "build/bild_"+to_string(k[l])+".txt";
+      file.open(filename, ios::trunc);
+      //file << "# Array" << endl;
+      for (int i = 0; i < k[l]; i++){
+          file << i << ";";
+      }
+      file << endl;
+      for (int i=0; i < k[l]; i++){
+          for (int j = 0; j < k[l]; j++){
+              file << approxA(i, j) << "; ";
+          }
+          file << endl;
+      }
+      file.close();
     }
-    file << endl;
-    for (int i=0; i < k; i++){
-        for (int j = 0; j < k; j++){
-            file << approxA(i, j) << "; ";
-        }
-        file << endl;
-    }
-    file.close();
     cout << "Ende des Programms!" << endl;
     return 0;
 }
