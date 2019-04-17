@@ -25,9 +25,10 @@ int main()
     // SVD durchführen
     cout << "\tFuehre SVD durch" << endl;
     MatrixXd A = TRAIN;
-    BDCSVD<MatrixXd> svd(A, ComputeFullV|EigenvaluesOnly);
+    BDCSVD<MatrixXd> svd(A, ComputeThinU);
     VectorXd sing = svd.singularValues();
-    // MatrixXd V = svd.matrixV();
+    // cout << "U Thin " << svd.matrixU().rows() << "x" << svd.matrixU().cols() << endl;
+    // MatrixXd U = svd.matrixU();
 
     // Speichere Sprektrum zum plotten im build-Ordner
     cout << "\tSpeichern der Eigenwerte" << endl;
@@ -39,30 +40,27 @@ int main()
     }
     outfile.close();
 
-    // Nehme die ersten k Eigenwerte
-    int k = 200;
-    // MatrixXd reducedV = svd.matrixV().block(0,0,k,10304);
-    // cout << reducedV.rows() << "x" << reducedV.cols() << endl;
-
     // Transformiere erstes Bild des Trainingsdatensatzes
     cout << "\tTrafo des ersten Bildes des Trainingsdatensatzes" << endl;
     VectorXd training_pic = A.col(0);
-    VectorXd transformed_pic = VectorXd::Zero(10304);
-    cout << "transformed pic " << transformed_pic.size() << endl;
-    cout << "V column 0      " << svd.matrixV().row(0).size() << endl;
-    // for(int i=0; i<k; i++){
-      // transformed_pic = transformed_pic + training_pic.dot(svd.matrixV().col(i))*svd.matrixV().col(i);
-    // }
+    // Nehme die ersten k Eigenwerte
+    int k[2] = {200, 300};
+    for(int l=0; l<2; l++)
+    {
+      VectorXd transformed_pic = VectorXd::Zero(10304);
+      for(int i=0; i<k[l]; i++){
+        transformed_pic = transformed_pic + training_pic.dot(svd.matrixU().col(i))*svd.matrixU().col(i);
+      }
 
-    // // Speichere das erste Bild und die transformierte Version
-    // cout << "\tSpeichern des ersten Bildes und der Trafo" << endl;
-    // // ofstream firstpic;
-    // outfile.open("build/aufg2-firstpic.txt", ios::trunc);
-    // outfile << "input; k200" << endl;
-    // for (int i=0; i<10304; i++){
-      // outfile << training_pic(i) << transformed_pic(i) << endl;
-    // }
-    // outfile.close();
+      // Speichere das erste Bild und die transformierte Version
+      cout << "\tSpeichern des ersten Bildes und der Trafo" << endl;
+      string filename = "build/aufg2-k" + to_string(k[l]) + ".txt";
+      outfile.open(filename, ios::trunc);
+      for (int i=0; i<10304; i++){
+        outfile << training_pic(i) << "; "<< transformed_pic(i) << endl;
+      }
+      outfile.close();
+    }
 
 
     // Teil b)

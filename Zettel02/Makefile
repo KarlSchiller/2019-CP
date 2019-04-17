@@ -15,7 +15,34 @@ light: dokument.tex
 	-output-directory=build \
 	dokument.tex
 
-FORCE:
+FORCE: build/aufg2-eigenvalues.pdf \
+	build/aufg2-testpic.pdf \
+	build/aufg2-k200.pdf \
+	build/aufg2-k300.pdf
+
+build/aufg2-eigenvalues.pdf: build/aufg2-eigenvalues.txt | build
+	python aufgabe2-plot.py
+
+build/aufg2-k200.pdf: build/aufg2-k200.txt | build
+	python aufgabe2-plot.py
+
+build/aufg2-k300.pdf: build/aufg2-k300.txt | build
+	python aufgabe2-plot.py
+
+build/aufg2-eigenvalues.txt: build/aufg2 | build
+	build/aufg2
+
+build/aufg2-k200.txt: build/aufg2 | build
+	build/aufg2
+
+build/aufg2-k300.txt: build/aufg2 | build
+	build/aufg2
+
+build/aufg2: aufgabe2.cpp | build
+	g++ aufgabe2.cpp -o build/aufg2
+
+aufg2: build/aufg2-k200.pdf | build
+
 
 build:
 	mkdir -p build/
