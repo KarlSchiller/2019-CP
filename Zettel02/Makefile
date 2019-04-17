@@ -41,7 +41,8 @@ build/aufg2-k300.txt: build/aufg2 | build
 build/aufg2: aufgabe2.cpp | build
 	g++ aufgabe2.cpp -o build/aufg2
 
-aufg2: build/aufg2-k200.pdf | build
+aufg2: build/aufg2 | build
+	build/aufg2
 
 
 build:
