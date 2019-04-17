@@ -87,7 +87,8 @@ int main()
 
     // Auslesen in eine txt-Datei
     ofstream file;
-    file.open("bild_50.txt", ios::trunc);
+    string filename = "bild_"+to_string(k)+".txt";
+    file.open(filename, ios::trunc);
     //file << "# Array" << endl;
     for (int i = 0; i < k; i++){
         file << i << ";";
