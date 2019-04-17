@@ -6,11 +6,11 @@ import pandas as pd
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
-df_10 = pd.read_csv('Aufgabe1/bild_10.txt', decimal='.', delimiter=';')
+df_10 = pd.read_csv('build/bild_10.txt', decimal='.', delimiter=';')
 df_10 = df_10.loc[:, ~df_10.columns.str.contains('^Unnamed')]
-df_20 = pd.read_csv('Aufgabe1/bild_20.txt', decimal='.', delimiter=';')
+df_20 = pd.read_csv('build/bild_20.txt', decimal='.', delimiter=';')
 df_20 = df_20.loc[:, ~df_20.columns.str.contains('^Unnamed')]
-df_50 = pd.read_csv('Aufgabe1/bild_50.txt', decimal='.', delimiter=';')
+df_50 = pd.read_csv('build/bild_50.txt', decimal='.', delimiter=';')
 df_50 = df_50.loc[:, ~df_50.columns.str.contains('^Unnamed')]
 
 
