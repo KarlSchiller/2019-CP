@@ -9,6 +9,7 @@ build*/
 # other
 *.jpg
 *.txt
+*.html
 
 # Prerequisites
 *.d
