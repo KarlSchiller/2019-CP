@@ -1,6 +1,6 @@
 #include <iostream>
-#include <eigen/Dense>
-#include <eigen/Eigenvalues>
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 #include <tuple>
 
 using namespace std;

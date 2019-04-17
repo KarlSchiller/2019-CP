@@ -1,5 +1,5 @@
 #include <iostream>
-#include <eigen/Dense>
+#include <Eigen/Dense>
 
 // using Eigen::Matrix3i;
 // using Eigen::PartialPivLU;

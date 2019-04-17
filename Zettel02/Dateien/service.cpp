@@ -1,6 +1,6 @@
 #include <fstream>
 #include <vector>
-#include <eigen/Dense>
+#include <Eigen/Dense>
 
 
 int loadData(Eigen::MatrixXd &mat, std::string filename, size_t row, size_t col)
