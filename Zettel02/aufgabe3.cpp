@@ -35,6 +35,7 @@ double berechne_s(double &t){
     return berechne_c(t)*t;
 }
 
+// t berechnen
 double berechne_t(double &Omega){
     if(Omega > 0){
         return 1/(Omega + sqrt(Omega*Omega + 1));
@@ -44,6 +45,7 @@ double berechne_t(double &Omega){
     }
 }
 
+// Off berechnen
 double berechne_off(MatrixXd &A){
     int N = A.cols();
     double summe = 0;
@@ -57,11 +59,11 @@ double berechne_off(MatrixXd &A){
     return summe;
 }
 
+// Transformationmatrix bestimmen
 MatrixXd trafo_matrix(MatrixXd &A, int &zeile, int &spalte){
     const int N = A.cols();
     MatrixXd M(N, N);
     double omega = (A(spalte, spalte) - A(zeile, zeile))/(2*A(zeile, spalte));
-    cout << endl;
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
             if ((i == zeile && j == zeile) || (i == spalte && j== spalte)){
@@ -97,8 +99,8 @@ int main()
     A << 1, -2, 2, 4, -2, 3, -1, 0, 2, -1, 6, 3, 4, 0, 3, 5;
 
     // Berechnen der Eigenwerte mithilfe von Eigen
-    //VectorXcd eigenv = A.eigenvalues();
-    //cout << "Eigenwerte: " << endl << eigenv << endl;
+    VectorXcd eigenv = A.eigenvalues();
+    cout << "Eigenwerte: " << endl << eigenv << endl;
 
     // Aufgabenteil b)
     // Größtes Nebendiagonalelement bestimmen
@@ -106,11 +108,11 @@ int main()
     double max, off;
     MatrixXd A_Trafo, z;
     do {
-        cout << "Iteration: " << lol << endl;
+        // cout << "Iteration: " << lol << endl;
         // Maximales Nebendiagonalelement finden
         tie(zeile_max, spalte_max, max) = finde_neben(A);
         //cout << "Max finden ausgeführt!" << endl;
-        cout << "Zeile: " << zeile_max << " Spalte: " << spalte_max << endl;
+        // cout << "Zeile: " << zeile_max << " Spalte: " << spalte_max << endl;
 
         // Trafo-Matrix berechnen
         z = trafo_matrix(A, zeile_max, spalte_max);
