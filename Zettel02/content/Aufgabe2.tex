@@ -1,1 +1,99 @@
-\section{Aufgabe 2}
+\section*{Aufgabe 2}
+
+\subsection*{Teil a)}
+
+Zur Lösung des Problems
+\begin{equation*}
+  \mathbf{A} \vec{v} = \lambda \vec{v}
+\end{equation*}
+wird eine SVD der Matrix $\mathbf{A}$ mit der Bibliothek \textsc{Eigen} durchgeführt,
+welche die Dimension $N \times M$ hat,
+mit $M = 360$ Trainingsbildern und $N = 92 \times 112 = 10304$ Pixeln der Bilder.
+Die Singulärwertzerlegung der Form
+\begin{equation*}
+  \mathbf{A} = \mathbf{U}\: \mathbf{W}\: \mathbf{V}^T
+\end{equation*}
+enthält auf der Diagonalen von $\mathbf{W}$ die Eigenwerte der
+Kovarianzmatrix $\mathbf{A}^T \mathbf{A}$,
+die in Abbildung \ref{fig:Eigenwertspektrum} dargestellt sind.
+\begin{figure}
+  \centering
+  \includegraphics[width=.8\textwidth]{build/aufg2-eigenvalues.pdf}
+  \caption{Eigenwerte der Kovarianzmatrix $\mathbf{A}^T \mathbf{A}$.}
+  \label{fig:Eigenwertspektrum}
+\end{figure}
+Hieraus lässt sich erkennen, dass die Eigenwerte bereits nach Größe geordnet sind.
+Dies motiviert die Verwendung der ersten $k$ Vektoren der Matrix $\mathbf{U}$
+als Basis für eine Projektion der Bilder in einen reduzierten Eigenraum.
+(Aus Vorlesung: $\vec{u}_\text{i} \cdot \vec{u}_\text{j} = \delta_\text{ij}$)
+Aus diesem Grund müssen die ersten $k$ Vektoren der Matrix $\mathbf{U}$ mitberechnet
+werden, dies geschieht über das Argument \textsc{ComputeThinU}.
+
+Als Test wird das erste Bild des Trainingsdatensatzes
+(also der erste Vektor $\vec{a}_\text{i}$)
+mit
+\begin{equation}
+  \vec{a}_\text{i} =
+  \sum_j^k \left<\vec{a}_\text{i}, \vec{u}_\text{j}\right> \vec{u}_\text{j}
+  = \sum_j^k w_\text{j} \vec{u}_\text{j}
+  \label{eqn:Trafo}
+\end{equation}
+in den reduzierten Eigenraum transformiert.
+Für zwei verschiedene Werte von $k$ ist das Ergebnis im Verlgeich zum Original
+in Abbildung \ref{fig:Testpicture} dargestellt.
+Wie erwartet wird die Rekonstruktion bei höherem $k$ genauer.
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\textwidth]{build/aufg2-testpic.pdf}
+    \caption{Original.}
+    \label{sub:original}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\textwidth]{build/aufg2-k200.pdf}
+    \caption{$k = 200$}
+    \label{sub:k200}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\textwidth]{build/aufg2-k300.pdf}
+    \caption{$k = 300$}
+    \label{sub:k300}
+  \end{subfigure}
+  \caption{Erstes Bild des Trainingsdatensatzes mit zwei Rekonstruktionen.}
+  \label{fig:Testpicture}
+\end{figure}
+
+\subsection*{Teil b)}
+
+Es werden 40 Testbilder eingelesen und in den Eigenraum transformiert.
+Hier wird nun der volle Eigenraum aus 360 Vektoren verwendet (Alle weiteren Vektoren
+der Matrix $\mathbf{U}$ werden zusätzlich erzeugt und enthalten keine Informationen über
+den Datensatz).
+Im Folgenden wird
+$\mathbf{U} = \left(\vec{u}_\text{1}, ..., \vec{u}_\text{360}\right)$
+gesetzt, also alle künstlichen Vektoren weggelassen.
+Nach Formel \eqref{eqn:Trafo} kann die Transformation der Testbilder-Matrix $\mathbf{M}$
+mit
+\begin{equation*}
+  \mathbf{U}^T \: \mathbf{M} \equiv \mathbf{W} \quad
+  \text{dim}\!\left[\mathbf{W}\right] = 360 \times 40
+\end{equation*}
+vollzogen werden.
+Jeder Vektor $\vec{w}_\text{i}$ enthält dann die Transformationskoeffizienten
+des Testbildes $\vec{m}_\text{i}$.
+Ebenso wird auch der Trainingsdatensatz transformiert.
+
+Anschließend wird jeder Vektor der Transformationskoeffizienten der Testdaten mit denen
+der Trainingsdaten verglichen und der passendste Vektor der Trainingsdaten gesucht.
+Dazu wird die Euklidische Distanz
+\begin{equation*}
+  d\!\left(\vec{w}_\text{train}, \vec{w}_\text{test}\right) =
+  \sqrt{\left(\vec{w}_\text{train} - \vec{w}_\text{test}\right) \cdot
+  \left(\vec{w}_\text{train} - \vec{w}_\text{test}\right)}
+\end{equation*}
+zwischen den jeweiligen beiden Vektoren gebildet
+und für jedes Testbild das Trainingsbild mit der geringsten Distanz ausgewählt.
+
+Das erste Testbild ist den ersten neun Trainingsbildern zugehörig,
+das nächste Testbild den nächsten neun und so weiter. Mit Hilfe dieses
+Algorigthmus werden von 40 Trainingsbildern nur 3 falsch zugeordnet.
