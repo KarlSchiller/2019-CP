@@ -1,105 +1,57 @@
 #include <iostream>
-#include <fstream>
-#include <vector>
+// #include <fstream>
 #include <Eigen/Dense>
-#include <math.h>  // sqrt()
-#include <tuple>
-// #include "Dateien/service.cpp"
+#include <Eigen/Eigenvalues>
+#include <math.h>
 
 using namespace std;
 using namespace Eigen;
 
-
-// Maximales Nebendiagonalelement finden
-tuple<int, int, double> finde_neben(MatrixXd &M){
-    // Dimension herausfinden
-    int N = M.cols();
-    int zeile, spalte;
-    double max = 0;
-    for(int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-            if (i != j){
-                if(abs(M(i, j)) > max){
-                    max = abs(M(i, j));
-                    zeile = i;
-                    spalte = j;
-                }
-            }
-        }
-    }
-    return make_tuple(zeile, spalte, max);
-}
-// Aufruf der Methode mit:
-// tie(zeile_max, spalte_max, max) = finde_neben(A);
-
-// Approximation der Singulärwerte
-VectorXd sort_vec(VectorXd &vector, int k){
-    VectorXd approx(k);
-        for (int i = 0; i < k; i++){
-            approx(i) = vector(i);
-        }
-    return approx;
+// init hamilton in position representation
+MatrixXd hamilton_pos_repr(float delta, float lam, int dim)
+{
+  MatrixXd h(dim,dim);
+  // non-diagonal
+  h.diagonal<1>() = -pow(delta,-2)*ArrayXd::Ones(dim-1);
+  h.diagonal<-1>() = -pow(delta,-2)*ArrayXd::Ones(dim-1);
+  // diagonal
+  ArrayXd tempvector = ArrayXd::Ones(dim);
+  for (int i=0; i<dim; i++)
+  {
+    tempvector(i) = 2*pow(delta,-2)+delta*delta*i*i+lam*pow(delta,4)*pow(i,4);
+  }
+  h.diagonal() = tempvector;
+  return h;
 }
 
-// Approximation der Matrizen
-MatrixXd sort_mat(MatrixXd &M, int k) {
-    MatrixXd approx(k, k);
-    for (int i = 0; i < k; i++){
-        for (int j = 0; j < k; j++){
-            approx(i, j) = M(i, j);
-        }
-    }
-    return approx;
-}
 
 int main()
 {
-    // cout << "Beginn des Programms!" << endl;
-    // // Einlesen der Daten
-    // MatrixXd M;
-    // int k[3] = {10, 20, 50};
-    // cout << M.rows() << "x" << M.cols() << endl;
-    // // SVD durchführen
-    // BDCSVD<MatrixXd> svd(M, ComputeFullU|ComputeFullV);
-    // VectorXd sing = svd.singularValues();
-    // MatrixXd U = svd.matrixU();
-    // MatrixXd V = svd.matrixV();
+  cout << "Aufgabe 2" << endl;
 
-    // // Initialisieren der Variablen
-    // VectorXd approx;
-    // MatrixXd approxW, approxU, approxV, approxA;
-    // ofstream file;
-    // string filename;
+  const int L = 10;
+  const float delta = 0.1;  // discretization steps
+  const float lam = 0.2;  // lambda, distortion
 
-    // // Durchführen für die verschiedenen k-Werte
-    // for (int l=0; l<3; l++){
-      // // Approximation der Singulärwerte und umschreiben in eine Diagonalmatrix
-      // approx = sort_vec(sing, k[l]);
-      // approxW = approx.asDiagonal();
+  cout << "\tTeil a)" << endl;
+  const int dim = L/delta;
+  cout << "\tDimension " << dim << endl;
 
-      // // Approximation der U- und der V-Matrix
-      // approxU = sort_mat(U, k[l]);
-      // approxV = sort_mat(V, k[l]);
+  // init hamilton
+  MatrixXd h = hamilton_pos_repr(delta, lam, dim);
 
-      // // Transformieren der Matrix
-      // approxA = approxU*approxW*approxV.transpose();
+  // compute eigenvalues
+  VectorXd eivals = h.eigenvalues().real();
+  std::sort(eivals.data(), eivals.data()+eivals.size());
+  cout << "\t10 minor eigenvalues:" << endl
+    << "\t" << eivals.head(10).transpose() << endl;
 
-      // // Auslesen in eine txt-Datei
-      // filename = "build/bild_"+to_string(k[l])+".txt";
-      // file.open(filename, ios::trunc);
-      // //file << "# Array" << endl;
-      // for (int i = 0; i < k[l]; i++){
-          // file << i << ";";
-      // }
-      // file << endl;
-      // for (int i=0; i < k[l]; i++){
-          // for (int j = 0; j < k[l]; j++){
-              // file << approxA(i, j) << "; ";
-          // }
-          // file << endl;
-      // }
-      // file.close();
-    // }
-    // cout << "Ende des Programms!" << endl;
-    return 0;
+  cout << "\tTeilb)" << endl;
+
+  // Save to file
+  // filename = "build/bild_"+to_string(k[l])+".txt";
+  // file.open(filename, ios::trunc);
+  // //file << "# Array" << endl;
+  // file.close();
+  return 0;
 }
