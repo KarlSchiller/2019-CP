@@ -17,10 +17,16 @@ light: dokument.tex
 FORCE:
 
 build/aufg1: aufgabe1.cpp | build
-	g++ aufgabe1.cpp -o -pedantic build/aufg1
+	g++ aufgabe1.cpp -pedantic -o build/aufg1
+
+aufg1: build/aufg1 | build
+	build/aufg1
 
 build/aufg2: aufgabe2.cpp | build
-	g++ aufgabe2.cpp -o -pedantic build/aufg2
+	g++ aufgabe2.cpp -pedantic -o build/aufg2
+
+aufg2: build/aufg2 | build
+	build/aufg2
 
 build:
 	mkdir -p build/
