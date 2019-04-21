@@ -1,5 +1,5 @@
 #include <iostream>
-// #include <fstream>
+#include <fstream>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <math.h>
@@ -73,7 +73,7 @@ int main()
 {
   cout << "Aufgabe 2" << endl;
 
-  cout << "\tTeil a)" << endl;
+  cout << "\tTeil b)" << endl;
   int L = 10;
   float delta = 0.1;  // discretization steps
   float lam = 0.2;  // lambda, distortion
@@ -81,17 +81,29 @@ int main()
   ArrayXd eivals = ahOszi_pos(L, delta, lam);
   cout << "\t10 minor eigenvalues:" << endl << "\t" << eivals.transpose() << endl;
 
-  cout << "\tTeil b)" << endl;
+  cout << "\tTeil c)" << endl;
   int N = 50;
   cout << "\tDimension " << N+1 << endl;
   eivals = ahOszi_en(N, lam);
   cout << "\t10 minor eigenvalues:" << endl << "\t" << eivals.transpose() << endl;
 
-  cout << "\tTeil c)" << endl;
-  // Save to file
-  // filename = "build/bild_"+to_string(k[l])+".txt";
-  // file.open(filename, ios::trunc);
-  // //file << "# Array" << endl;
-  // file.close();
+  cout << "\tTeil d)" << endl;
+  ofstream enfile;
+  ofstream posfile;
+  string filename_en = "build/aufg2-energy.txt";
+  string filename_pos = "build/aufg2-position.txt";
+  enfile.open(filename_en, ios::trunc);
+  posfile.open(filename_pos, ios::trunc);
+  enfile << "n 0 1 2 3 4 5 6 7 8 9" << endl;
+  posfile << "n 0 1 2 3 4 5 6 7 8 9" << endl;
+  double n[] = {10, 20, 40, 80, 100, 200, 400};
+  for (int i=0; i<7; i++)
+  {
+    double d = 2*L/n[i];
+    enfile << n[i] << " " << ahOszi_en(n[i], lam).transpose() << endl;
+    posfile << n[i] << " " << ahOszi_pos(L, d, lam).transpose() << endl;
+  }
+  enfile.close();
+  posfile.close();
   return 0;
 }
