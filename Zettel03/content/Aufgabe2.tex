@@ -1,5 +1,143 @@
 \section*{Aufgabe 2}
 
+\subsection*{2.a)}
+
+Die Schrödingergleichung des anharmonischen Oszillators
+\begin{equation*}
+  \left[-\frac{\hbar^2}{2 m}\partial^2_\text{x} +
+  \frac{1}{2} m \omega^2 x^2 + \lambda x^4\right] \psi\!\left(x\right)
+  = E \psi\!\left(x\right)
+\end{equation*}
+wird durch eine Koordinatentransformation
+\begin{equation*}
+  x = \alpha \xi\text{,} \quad E = \beta \varepsilon\text{,} \quad \lambda = \gamma \tilde{\lambda}
+\end{equation*}
+in eine dimensionslose Form gebracht. Einsetzen ergibt
+\begin{align*}
+  \left[-\frac{\hbar^2}{2 m} \partial^2_\xi + \frac{1}{2} m \omega^2 \alpha^2 \xi^2
+  + \gamma \tilde{\lambda} \alpha^4 \xi^4\right] \psi\!\left(\xi\right)
+  &= \beta \varepsilon \psi\!\left(\xi\right) \\
+  \Leftrightarrow \left[-\partial^2_\xi +
+  \underbracket{\frac{m^2 \omega^2}{\hbar^2} \alpha^2}_{\Rightarrow\left|\alpha\right|=\frac{\hbar}{\m \omega}} \xi^2
+  + \frac{2 m}{\hbar^2} \gamma \tilde{\lambda} \alpha^4 \xi^4\right] \psi\!\left(\xi\right)
+  &= \underbracket{\frac{2 m}{\hbar^2} \beta}_{\Rightarrow \beta=\frac{\hbar^2}{2 m}}
+  \varepsilon \psi\!\left(\xi\right) \\
+  \Leftrightarrow \left[-\partial^2_\xi + \xi^2
+  + \underbracket{\gamma \frac{2 \hbar^4 m}{\hbar^2 m^4 \omega^4}}_{\Rightarrow \gamma = \frac{m^3 \omega^4}{2 \hbar^2}}
+  \tilde{\lambda} \xi^4\right] \psi\!\left(\xi\right)
+  &= \varepsilon \psi\!\left(\xi\right) \\
+  \Leftrightarrow \left[-\partial^2_\xi + \xi^2 + \tilde{\lambda} \xi^4\right] \psi\!\left(\xi\right)
+  &= \varepsilon \psi\!\left(\xi\right)
+\end{align*}
+
+\subsection*{2.b)}
+
+Der Ortsraum wird mit auf einem Interval $\xi = \left[-L; L\right]$ diskretisiert
+durch $\xi_\text{n} = n \increment\xi$.
+Somit ergibt sich der Hamiltonoperator in Ortsdarstellung zu
+\begin{equation*}
+  \Braket{\xi_\text{n} | \hat{H} | \xi_\text{m}} =
+  -\frac{1}{\left(\increment \xi\right)}
+  \left(\delta_\text{n,m-1} + \delta_\text{n,m+1} -2 \delta_\text{n,m} \right)
+  + \left[\left(\increment \xi\right)^2 n^2 +
+  \tilde{\lambda} \left(\increment \xi\right)^4 n^4\right] \delta_\text{n,m}
+\end{equation*}
+
+Für $\tilde{\lambda} = \num{0.2}$, $L = \num{10}$ und
+$\left(\increment \xi\right) = \num{0.1}$ egeben sich die 10 niedrigsten Eigenwerte
+durch Diagonalisierung zu
+\begin{gather*}
+  \num{1.1174} \quad \num{3.53373} \quad \num{6.26136} \quad \num{9.22317} \quad \num{12.3776} \\
+  \num{15.6969} \quad \num{19.1609} \quad \num{22.7538} \quad  \num{26.463} \quad \num{30.2779}
+\end{gather*}
+
+\subsection*{2.c)}
+
+Nun werden die Eigenwerte noch einmal anders berechnet.
+Dazu wird ein Unterraum der Besetzungszahl-Eigenzustände des ungestörten Problems betrachtet.
+
+Die Matrixelemente des ungestörten Hamiltons $\hat{H}_0$ sind bekannt als
+\begin{equation*}
+  \Braket{n | \hat{H}_0 | m} = \left(2n+1\right) \delta_\text{n,m}.
+\end{equation*}
+Der Störterm $\hat{H}_\text{st}$ ergibt sich laut Aufgabenstellung zu
+\begin{align}
+  4 \tilde{\lambda} \Braket{n | \xi^4 | m}
+  &= \sqrt{m \left(m-1\right) \left(m-2\right) \left(m-3\right)}\:\delta_\text{n,m-4}\nonumber\\
+  &+ \sqrt{\left(m+1\right) \left(m+2\right) \left(m+3\right) \left(m+4\right)}
+    \:\delta_\text{n,m+4}\nonumber\\
+  &+ \sqrt{m \left(m-1\right)}\left(4m-2\right)\delta_\text{n,m-2}\nonumber\\
+  &+ \sqrt{\left(m+1\right) \left(m+2\right)}\left(4m+6\right)\delta_\text{n,m+2}\nonumber\\
+  &+ \left(6m\left(m+1\right)+3\right)\delta_\text{n,m}
+  .
+  \label{eqn:Stoerterm}
+\end{align}
+Damit ist der gesamte Hamilton durch $\hat{H} = \hat{H}_0 + \hat{H}_\text{St}$ gegeben.
+
+Zunächst wird gezeigt, dass der $\xi^4$-Term hermitesch ist, dass also
+\begin{equation*}
+  \Braket{n | \hat{H}_\text{St} | m} = \Braket{m | \hat{H}_\text{St} | n}
+\end{equation*}
+gilt. Die Einträge in $\hat{H}_\text{St}$ sind reell,
+daher entfällt die komplexe Konjugation.
+\begin{align*}
+  4 \Braket{n | \xi^4 | m}
+  &= \sqrt{n \left(n-1\right) \left(n-2\right) \left(n-3\right)}\:\delta_\text{m,n-4}\\
+  &+ \sqrt{\left(n+1\right) \left(n+2\right) \left(n+3\right) \left(n+4\right)}
+    \:\delta_\text{n,m+4} \\
+  &+ \sqrt{n \left(n-1\right)}\left(4n-2\right)\delta_\text{m,n-2} \\
+  &+ \sqrt{\left(n+1\right) \left(n+2\right)}\left(4n+6\right)\delta_\text{m,n+2} \\
+  &+ \left(6n\left(n+1\right)+3\right)\delta_\text{n,m}
+\end{align*}
+Nun wird für den Index $n$ der Index $m$ eingesetzt. Dabei ist die Relation zwischen
+den Indices durch das jeweilige Koneckerdelta gegeben.
+\begin{align*}
+  4 \Braket{n | \xi^4 | m}
+  &= \sqrt{\left(m+4\right) \left(m+4-1\right) \left(m+4-2\right) \left(m+4-3\right)}\:\delta_\text{m,n-4}\\
+  &+ \sqrt{\left(m-4+1\right) \left(m-4+2\right) \left(m-4+3\right) \left(m-4+4\right)}
+    \:\delta_\text{n,m+4} \\
+  &+ \sqrt{\left(m+2\right) \left(m+2-1\right)}\left(4\left(m+2\right)-2\right)\delta_\text{m,n-2} \\
+  &+ \sqrt{\left(m-2+1\right) \left(m-2+2\right)}\left(4\left(m-2\right)+6\right)\delta_\text{m,n+2} \\
+  &+ \left(6m\left(m+1\right)+3\right)\delta_\text{n,m} \\
+  \\
+  &= \sqrt{\left(m+1\right) \left(m+2\right) \left(m+3\right) \left(m+4\right)}\:\delta_\text{m,n-4}\\
+  &+ \sqrt{m \left(m-1\right) \left(m-2\right) \left(m-3\right)}
+    \:\delta_\text{n,m+4} \\
+  &+ \sqrt{\left(m+1\right) \left(m+2\right)}\left(4m+6\right)\delta_\text{m,n-2} \\
+  &+ \sqrt{m \left(m-1\right)}\left(4m-2\right)\delta_\text{m,n+2} \\
+  &+ \left(6m\left(m+1\right)+3\right)\delta_\text{n,m} \\
+  \\
+  &= 4 \Braket{m | \xi^4 | n}
+\end{align*}
+Das letzte Gleichheitszeichen gilt aufgrund
+\begin{align*}
+  \delta_\text{n,m-4} &=
+  \begin{cases}
+    1 & n=m-4 \\
+    0 & \text{sonst}
+  \end{cases}
+  =
+  \begin{cases}
+    1 & m=n+4 \\
+    0 & \text{sonst}
+  \end{cases}
+  = \delta_\text{m,n+4} \\
+  &\text{und analog} \\
+  \delta_\text{n,m+4} &= \delta_\text{m,n-4} \\
+  \delta_\text{n,m-2} &= \delta_\text{m,n+2} \\
+  \delta_\text{n,m+2} &= \delta_\text{m,n-2}
+  .
+\end{align*}
+
+Für $\tilde{\lambda} = \num{0.2}$ und $N = \num{50}$ bei
+$n \in \left\{0;1;...;N\right\}$ ergeben sich die 10 niedrigsten Eigenwerte zu
+\begin{gather*}
+  \num{1.11829} \quad \num{3.53901} \quad \num{6.27725} \quad \num{9.25777} \quad \num{12.4406} \\
+  \num{15.7995} \quad \num{19.3157} \quad \num{22.9746} \quad \num{26.7649} \quad \num{30.6773}
+\end{gather*}
+
+\subsection*{2.d)}
+
 % Das Bild wurde mit der vor-implementierten Methode eingelesen und es wurde
 % eine SVD durchgeführt. Anschließend wurde eine Rang-$k$-Approximation durchgeführt.
 % Die so entstandene Matrix wurde in einer txt-Datei gespeichert und mit einem
