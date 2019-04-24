@@ -9,21 +9,24 @@ using namespace Eigen;
 
 // Approximation der Singulärwerte
 VectorXd sort_vec(VectorXd &vector, int k){
-    VectorXd approx(k);
-        for (int i = 0; i < k; i++){
-            approx(i) = vector(i);
-        }
-    return approx;
+    VectorXd approx();
+        //for (int i = 0; i < k; i++){
+        //    approx(i) = vector(i);
+        //}
+    return vector;
 }
 
 // Approximation der Matrizen
 MatrixXd sort_mat(MatrixXd &M, int k) {
-    MatrixXd approx(k, k);
-    for (int i = 0; i < k; i++){
-        for (int j = 0; j < k; j++){
-            approx(i, j) = M(i, j);
-        }
-    }
+    MatrixXd approx(512, 512);
+    approx = M;
+    //for (int i = 0; i < k; i++){
+    //    for (int j = 0; j < k; j++){
+    //        approx(i, j) = M(i, j);
+    //    }
+    //}
+    int zeros = 512 - k;
+    approx.rightCols(zeros).setZero();
     return approx;
 }
 
@@ -64,12 +67,12 @@ int main()
       filename = "build/bild_"+to_string(k[l])+".txt";
       file.open(filename, ios::trunc);
       //file << "# Array" << endl;
-      for (int i = 0; i < k[l]; i++){
+      for (int i = 0; i < 512; i++){
           file << i << ";";
       }
       file << endl;
-      for (int i=0; i < k[l]; i++){
-          for (int j = 0; j < k[l]; j++){
+      for (int i=0; i < 512; i++){
+          for (int j = 0; j < 512; j++){
               file << approxA(i, j) << "; ";
           }
           file << endl;
