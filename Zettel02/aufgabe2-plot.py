@@ -30,17 +30,17 @@ def plot_testpicture():
     k200 = np.resize(np.array([k200]), new_shape=(112, 92))
     k300 = np.resize(np.array([k300]), new_shape=(112, 92))
 
-    plt.imshow(origpic, cmap='binary', vmin=0, vmax=255)
+    plt.imshow(origpic, cmap='gray', vmin=0, vmax=255)
     plt.colorbar()
     plt.savefig('build/aufg2-testpic.pdf', bbox_inches='tight')
     plt.clf()
 
-    plt.imshow(k200, cmap='binary', vmin=0, vmax=255)
+    plt.imshow(k200, cmap='gray', vmin=0, vmax=255)
     plt.colorbar()
     plt.savefig('build/aufg2-k200.pdf', bbox_inches='tight')
     plt.clf()
 
-    plt.imshow(k300, cmap='binary', vmin=0, vmax=255)
+    plt.imshow(k300, cmap='gray', vmin=0, vmax=255)
     plt.colorbar()
     plt.savefig('build/aufg2-k300.pdf', bbox_inches='tight')
     plt.clf()
