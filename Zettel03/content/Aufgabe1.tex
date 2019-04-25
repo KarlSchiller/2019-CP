@@ -11,7 +11,62 @@ Mit der Euler-Langrange-Gleichung
   0 = \frac{\symup d}{\symup dt} \frac{\partial L}{\partial \dot{u_i}} - \frac{\partial L}{\partial u_i}
 \end{equation*}
 folgt
-\begin{align*}
+\begin{align}
   \frac{\symup d}{\symup dt} m_i \dot{u_i} &= -k_{i-1}(u_i - u_{i-1}) + k_i(u_{i+1}-u_i) \\
   \Leftrightarrow \ m_i \ddot{u}_i &= k_{i-1} u_{i-1} - k_{i-1} u_i + k_i u_{i+1} - k_i u_i
+  \label{eqn:1} \, .
+\end{align}
+Nun werden die Massenmatrix $\underline{\underline{M}}$ mit
+\begin{equation*}
+  \underline{\underline{M}} = \begin{bmatrix}
+    m_1 & 0 & \dots & \\
+    0 & m_2 & 0 & \dots \\
+    \vdots & 0 & \ddots & 0 \\
+    0 & 0 & 0  & m_N \\
+\end{bmatrix}
+\end{equation*}
+und die Matrix der Federkonstanten $\underline{\underline{K}}$ mit
+\begin{equation*}
+  \underline{\underline{K}} = \begin{bmatrix}
+  -k_1 & k_1 & 0 & \dots \\
+  k_1 & -k_1-k_2 & k_2 & 0 & \dots \\
+  0 & k_2 & -k_2-k_3 & k_3 & 0 \\
+  \vdots & 0 & \ddots & \ddots & \vdots \\
+  & & & k_{N-1} & -k_{N-1} \\
+  \end{bmatrix}
+\end{equation*}
+aufgestellt und \eqref{eqn:1} zu
+\begin{align}
+  \underline{\underline{M}} \, \ddot{\vec{u}} - \underline{\underline{K}} \, \vec{u} = \vec{0} \\
+  \left(-\omega^2\underline{\underline{M}} - \underline{\underline{K}} \right) \vec{u} = \vec{0}
+  \label{eqn:2}
+\end{align}
+umgestellt. Dabei wurde der Ansatz $u_i \propto \symup e^{i \omega t}$ verwendet.
+Nun wird \eqref{eqn:2} in eine Eigenwertgleichung überführt:
+\begin{align*}
+  \left(-\omega^2 \mathbb{1} +
+  \underline{\underline{M}} - \underline{\underline{K}} \right)
+  \vec{u} &= \vec{0} \\
+  \underline{\underline{M}} - \underline{\underline{K}} &\equiv \underline{\underline{A}} \\
+  \left(\underline{\underline{A}} -\omega^2 \mathbb{1} \right) \vec{u} &= \vec{0} \, .
 \end{align*}
+Dann wird durch die \textsc{Eigen}-Bibliothek die Eigenwerte bestimmt, aus denen wegen
+$\lambda = \omega^2$ noch die Wurzel gezogen werden muss, um die Eigenfrequenzen
+des Systems zu erhalten.
+
+\subsection*{Aufgabenteil b)}
+Es wurden die angegebenen Größen implementiert und der Algorithmus durchlaufen.
+Allerdings liegt die maximale Eigenfrequenz über dem angegebenen Wert.
+\begin{table}
+  \caption{Eigenfrequenzen}
+  \label{tab:1}
+  \begin{tabular}{c c c c c c c c c c}
+    \toprule
+    $\omega_1$ & $\omega_2$ & $\omega_3$ & $\omega_4$ & $\omega_5$ & $\omega_6$ &
+    $\omega_7$ & $\omega_8$ & $\omega_9$ & $\omega_{10}$ \\
+    \midrule
+    1.57777 & 2.57907 & 2.99416 & 3.22374 & 3.41898 & 3.69576 & 4.04046 & 4.44884 &
+    4.93309 & 5.54081 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
