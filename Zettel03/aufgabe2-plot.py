@@ -18,6 +18,16 @@ plt.rc('figure', figsize=(4.8, 4.8))  # default 6.4, 4.8
 #  plt.savefig('build/10.pdf')
 #  plt.clf()
 
+df_energy = pd.read_csv('build/aufg2-energy.txt', decimal='.', delimiter=' ')
+fig = plt.figure()
+for i in range(0, 10):
+    plt.plot(df_energy.n, df_energy['{}'.format(i)], 'x', label='en {}'.format(i))
+plt.xlabel(r'$N$')
+plt.yscale('log')
+plt.legend(loc='best')
+fig.savefig('build/aufg2-vergleich.pdf', bbox_inches='tight')
+fig.clf()
+
 
 def plot_eigenvalues():
     # plotte das Eigenwertspektrum
@@ -55,7 +65,3 @@ def plot_testpicture():
     plt.colorbar()
     plt.savefig('build/aufg2-k300.pdf', bbox_inches='tight')
     plt.clf()
-
-
-plot_eigenvalues()
-plot_testpicture()
