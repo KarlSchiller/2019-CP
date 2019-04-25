@@ -100,8 +100,9 @@ int main()
   enfile << "n;0;1;2;3;4;5;6;7;8;9" << endl;
   posfile << "n;0;1;2;3;4;5;6;7;8;9" << endl;
   // double n[] = {10, 20, 40, 80, 100, 200, 400};
-  double n[] = {10, 20, 40, 80, 100, 200};
-  for (int i=0; i<6; i++)
+  // double n[] = {10, 20, 40, 80, 100, 200};
+  ArrayXd n = ArrayXd::LinSpaced(20,10,200);
+  for (int i=0; i<20; i++)
   {
     enfile << n[i] << ";";
     posfile << n[i] << ";";
@@ -109,8 +110,8 @@ int main()
     VectorXd evEnergy = ahOszi_en(n[i], lam);
     VectorXd evPosition = ahOszi_pos(L, d, lam);
     for (int k=0; k<10; k++){
-      enfile << setprecision(10) << evEnergy(k);
-      posfile << setprecision(10) << evPosition(k);
+      enfile << setprecision(40) << evEnergy(k);
+      posfile << setprecision(40) << evPosition(k);
       if(k<9){
         enfile << ";";
         posfile << ";";
