@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
@@ -11,7 +12,7 @@ using namespace Eigen;
 MatrixXd hamilton_pos_repr(float delta, float lam, int dim)
 {
   int length = 2*dim+1;
-  MatrixXd h(length,length);
+  MatrixXd h = MatrixXd::Zero(length, length);
   // non-diagonal
   h.diagonal<1>() = -pow(delta,-2)*ArrayXd::Ones(length-1);
   h.diagonal<-1>() = -pow(delta,-2)*ArrayXd::Ones(length-1);
@@ -20,7 +21,8 @@ MatrixXd hamilton_pos_repr(float delta, float lam, int dim)
   for (int i=0; i<length; i++)
   {
     int n = i-dim;
-    tempvector(i) = 2*pow(delta,-2)+delta*delta*n*n+lam*pow(delta,4)*pow(n,4);
+    tempvector(i) = 2/(delta*delta)+delta*delta*n*n+lam*delta*n*delta*n*delta*n*delta*n;
+    // tempvector(i) = 2*pow(delta,-2)+delta*delta*n*n+lam*pow(delta,4)*pow(n,4);
   }
   h.diagonal() = tempvector;
   return h;
@@ -32,6 +34,7 @@ ArrayXd ahOszi_pos(int L, float delta, float lam)
 {
   // init hamilton
   MatrixXd h = hamilton_pos_repr(delta, lam, L/delta);
+  // cout << h.topLeftCorner(15,15) << endl;
   // compute eigenvalues
   VectorXd eivals = h.eigenvalues().real();
   std::sort(eivals.data(), eivals.data()+eivals.size());
@@ -74,9 +77,9 @@ int main()
   cout << "Aufgabe 2" << endl;
 
   cout << "\tTeil b)" << endl;
-  int L = 10;
-  float delta = 0.1;  // discretization steps
-  float lam = 0.2;  // lambda, distortion
+  const int L = 10;
+  const float delta = 0.1;  // discretization steps
+  const float lam = 0.2;  // lambda, distortion
   cout << "\tLength " << L/delta << ", Dimension of Matrix " << 2*L/delta+1 << endl;
   ArrayXd eivals = ahOszi_pos(L, delta, lam);
   cout << "\t10 minor eigenvalues:" << endl << "\t" << eivals.transpose() << endl;
@@ -94,14 +97,27 @@ int main()
   string filename_pos = "build/aufg2-position.txt";
   enfile.open(filename_en, ios::trunc);
   posfile.open(filename_pos, ios::trunc);
-  enfile << "n 0 1 2 3 4 5 6 7 8 9" << endl;
-  posfile << "n 0 1 2 3 4 5 6 7 8 9" << endl;
-  double n[] = {10, 20, 40, 80, 100, 200, 400};
-  for (int i=0; i<7; i++)
+  enfile << "n;0;1;2;3;4;5;6;7;8;9" << endl;
+  posfile << "n;0;1;2;3;4;5;6;7;8;9" << endl;
+  // double n[] = {10, 20, 40, 80, 100, 200, 400};
+  double n[] = {10, 20, 40, 80, 100, 200};
+  for (int i=0; i<6; i++)
   {
+    enfile << n[i] << ";";
+    posfile << n[i] << ";";
     double d = 2*L/n[i];
-    enfile << n[i] << " " << ahOszi_en(n[i], lam).transpose() << endl;
-    posfile << n[i] << " " << ahOszi_pos(L, d, lam).transpose() << endl;
+    VectorXd evEnergy = ahOszi_en(n[i], lam);
+    VectorXd evPosition = ahOszi_pos(L, d, lam);
+    for (int k=0; k<10; k++){
+      enfile << setprecision(10) << evEnergy(k);
+      posfile << setprecision(10) << evPosition(k);
+      if(k<9){
+        enfile << ";";
+        posfile << ";";
+      }
+    }
+    enfile << endl;
+    posfile << endl;
   }
   enfile.close();
   posfile.close();

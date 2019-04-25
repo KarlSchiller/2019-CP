@@ -18,10 +18,11 @@ plt.rc('figure', figsize=(4.8, 4.8))  # default 6.4, 4.8
 #  plt.savefig('build/10.pdf')
 #  plt.clf()
 
-df_energy = pd.read_csv('build/aufg2-energy.txt', decimal='.', delimiter=' ')
+df_energy = pd.read_csv('build/aufg2-energy.txt', decimal='.', delimiter=';')
 fig = plt.figure()
 for i in range(0, 10):
-    plt.plot(df_energy.n, df_energy['{}'.format(i)], 'x', label='en {}'.format(i))
+    plt.plot(df_energy.n, df_energy['{}'.format(i)][0]-df_energy['{}'.format(i)], 'x', label='en {}'.format(i))
+#  plt.plot(df_energy.n, df_energy['1'][0]-df_energy['1'], 'x', label='en 1')
 plt.xlabel(r'$N$')
 plt.yscale('log')
 plt.legend(loc='best')
