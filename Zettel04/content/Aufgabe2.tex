@@ -1,1 +1,27 @@
 \section*{Aufgabe 2}
+Die angegebenen Algorithmen zur Bestimmung eindimensionaler Integrale wurden
+implementiert. Dabei ergeben sich die Ergebnisse, die in Tabelle \ref{tab:1}
+dargestellt sind.
+
+\begin{table}
+  \centering
+  \caption{Ergebnisse der numerischen Integration}
+  \label{tab:1}
+  \begin{tabular}{c | c c c}
+    \toprule
+    Funktion & Trapezregel & Mittelpunktsregel & Simpsonregel \\
+    \midrule
+    $\symup e^{-x}/x$ & 0.21938407 & 0.21938282 & 0.21938411 \\
+    $\sin(\frac{1}{x})\, x$ & 0.37852998 & 0.37853005 & 0.37853125 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Wie zu sehen ist, gleichen sich die Ergebnisse für die erste Funktion bis
+einschließlich zur fünften Nachkommastelle. Ab der sechsten Nachkommastelle
+beginnt die Mittelpunktsregel leicht abzuweichen, während Trapez- und Simpsonregel,
+gerundet auf diese Nachkommastelle das gleiche Ergebnis haben.
+
+Bei der zweiten Funktion haben alle drei Ergebnisse gerundet auf die fünfte
+Nachkommastelle das gleiche Ergebnis. Ab der sechsten gehen die Ergebnisse auseinander,
+allerdings nicht so stark wie bei der ersten Funktion.

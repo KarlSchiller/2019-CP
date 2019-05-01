@@ -2,6 +2,7 @@
 #include <fstream>
 #include <Eigen/Dense>
 #include <math.h>
+#include <iomanip>
 
 using namespace std;
 using namespace Eigen;
@@ -69,49 +70,106 @@ int main()
 {
   cout << "Beginn des Programms!" << endl;
   // Initialisieren der Größen
-  double a=0.0;
-  double b =1.0;
+  double a_2=0.0, a_1=1.0;
+  double b_2 =1.0, b_1=100.0;
   double N = 2.0;
-  double res1 = 0, res2=0, res3 = 0, abweichung=0, zwischen;
-  // Erster Durchlauf
-  res3 = simpson(funk_2, a, b, N);
-  zwischen = res3;
+  double res1_1 = 0, res2_1=0, res3_1 = 0, abweichung_1=0, zwischen_1;
+  double res1_2 = 0, res2_2=0, res3_2 = 0, abweichung_2=0, zwischen_2;
+  // Erster Durchlauf mit Simpsonsregel
+  res3_1 = simpson(funk_1, a_1, b_1, N);
+  zwischen_1 = res3_1;
+  res3_2 = simpson(funk_2, a_2, b_2, N);
+  zwischen_2 = res3_2;
 
-  // Zweiter Durchlauf
+  // Zweiter Durchlauf mit Simpsonregel
+  // Funktion 1
   do{
     N = N*2;
-    res3 = simpson(funk_2, a, b, N);
-    abweichung = 1 - res3/zwischen;
-    zwischen = res3;
-  }while(abs(abweichung) >= 1e-4);
+    res3_1 = simpson(funk_1, a_1, b_1, N);
 
-  // Erster Durchlauf
-  res2 = mittel(funk_2, a, b, N);
-  zwischen = res2;
+    abweichung_1 = 1 - res3_1/zwischen_1;
 
-  // Zweiter Durchlauf
+    zwischen_1 = res3_1;
+  }while(abs(abweichung_1) >= 1e-4);
+
+  // Funktion 2
   do{
     N = N*2;
-    res2 = mittel(funk_2, a, b, N);
-    abweichung = 1 - res2/zwischen;
-    zwischen = res2;
-  }while(abs(abweichung) >= 1e-4);
+    res3_2 = simpson(funk_2, a_2, b_2, N);
 
-  // Erster Durchlauf
-  res1 = trapez(funk_2, a, b, N);
-  zwischen = res1;
+    abweichung_2 = 1 - res3_2/zwischen_2;
 
-  // Zweiter Durchlauf
+    zwischen_2 = res3_2;
+  }while(abs(abweichung_2) >= 1e-4);
+
+  // Erster Durchlauf Mittelpunktsregel
+  //N = 2.0;
+  res2_1 = mittel(funk_1, a_1, b_1, N);
+  zwischen_1 = res2_1;
+  res2_2 = mittel(funk_2, a_2, b_2, N);
+  zwischen_2 = res2_2;
+
+  // Zweiter Durchlauf Mittelpunktsregel
+  // Funktion 1
   do{
     N = N*2;
-    res1 = trapez(funk_2, a, b, N);
-    abweichung = 1 - res1/zwischen;
-    zwischen = res1;
-  }while(abs(abweichung) >= 1e-4);
+    res2_1 = mittel(funk_1, a_1, b_1, N);
 
-  cout << "Trapez: " <<  res1 << endl;
-  cout << "Mittel: " <<  res2 << endl;
-  cout << "Simpson: " <<  res3 << endl;
+    abweichung_1 = 1 - res2_1/zwischen_1;
+
+    zwischen_1 = res2_1;
+  }while(abs(abweichung_1) >= 1e-4);
+
+  // Funktion 2
+  do{
+    N = N*2;
+    res2_2 = mittel(funk_2, a_2, b_2, N);
+
+    abweichung_2 = 1 - res2_2/zwischen_2;
+
+    zwischen_2 = res2_2;
+  }while(abs(abweichung_2) >= 1e-4);
+
+  // Erster Durchlauf mit Trapezregel
+  //N = 2.0;
+  res1_1 = trapez(funk_1, a_1, b_1, N);
+  zwischen_1 = res1_1;
+  res1_2 = trapez(funk_2, a_2, b_2, N);
+  zwischen_2 = res1_2;
+
+  // Zweiter Durchlauf mit Trapezregel
+  // Funktion 1
+  do{
+    N = N*2;
+    res1_1 = trapez(funk_1, a_1, b_1, N);
+
+    abweichung_1 = 1 - res1_1/zwischen_1;
+
+    zwischen_1 = res1_1;
+  }while(abs(abweichung_1) >= 1e-4);
+
+  // Funktion 2
+  do{
+    N = N*2;
+    res1_2 = trapez(funk_2, a_2, b_2, N);
+
+    abweichung_2 = 1 - res1_2/zwischen_2;
+
+    zwischen_2 = res1_2;
+  }while(abs(abweichung_2) >= 1e-4);
+
+  // Ausgabe der Ergebnisse
+  cout << "Erste Funktion: " << endl;
+  cout << "Trapez: " << setprecision(8) <<  res1_1 << endl;
+  cout << "Mittel: " << setprecision(8) <<  res2_1 << endl;
+  cout << "Simpson: " << setprecision(8) <<  res3_1 << endl;
+
+  cout << endl;
+  cout << "Zweite Funktion: " << endl;
+  cout << "Trapez: " << setprecision(8) <<  res1_2 << endl;
+  cout << "Mittel: " << setprecision(8) <<  res2_2 << endl;
+  cout << "Simpson: " << setprecision(8) <<  res3_2 << endl;
+
   cout << "Ende des Programms!" << endl;
   return 0;
 }
