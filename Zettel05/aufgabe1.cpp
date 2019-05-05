@@ -1,106 +1,54 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <Eigen/Dense>
 #include <math.h>  // sqrt()
-#include <tuple>
-#include "Dateien/service.cpp"
 
 using namespace std;
 using namespace Eigen;
 
-
-// Maximales Nebendiagonalelement finden
-tuple<int, int, double> finde_neben(MatrixXd &M){
-    // Dimension herausfinden
-    int N = M.cols();
-    int zeile, spalte;
-    double max = 0;
-    for(int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-            if (i != j){
-                if(abs(M(i, j)) > max){
-                    max = abs(M(i, j));
-                    zeile = i;
-                    spalte = j;
-                }
-            }
-        }
+// Simpsonregel
+double simpson(double (*funptr)(double, double, double, double), double a,
+double b, int N, double x, double x_strich, double y_strich){
+  double h = (b-a)/N;
+  double n = N/2;
+  double res=0, x2k=0, x2k1 = 0;
+  if(fmod(N, 2) ==0){
+    for(int i = 1; i<n; i++){
+      x2k = a + i*2*h;
+      res += 2*funptr(x, x_strich, y_strich,x2k);
     }
-    return make_tuple(zeile, spalte, max);
-}
-// Aufruf der Methode mit:
-// tie(zeile_max, spalte_max, max) = finde_neben(A);
-
-// Approximation der Singulärwerte
-VectorXd sort_vec(VectorXd &vector, int k){
-    VectorXd approx(k);
-        for (int i = 0; i < k; i++){
-            approx(i) = vector(i);
-        }
-    return approx;
+    for(int i = 1; i<n+1; i++){
+        x2k1 = a + (2*i-1)*h;
+        res += 4*funptr(x, x_strich, y_strich, x2k1);
+    }
+    res += funptr(x, x_strich, y_strich, a) + funptr(x, x_strich, y_strich, b);
+    res *= h/3;
+  }
+  return res;
 }
 
-// Approximation der Matrizen
-MatrixXd sort_mat(MatrixXd &M, int k) {
-    MatrixXd approx(k, k);
-    for (int i = 0; i < k; i++){
-        for (int j = 0; j < k; j++){
-            approx(i, j) = M(i, j);
-        }
-    }
-    return approx;
+double funk_z(double x, double x_strich, double y_strich, double z_strich){
+  return 1/sqrt((x-x_strich)*(x-x_strich) + y_strich*y_strich + z_strich*z_strich);
 }
 
-int main()
-{
-    cout << "Beginn des Programms!" << endl;
-    // Einlesen der Daten
-    MatrixXd M;
-    int k[3] = {10, 20, 50};
-    loadData(M, "Dateien/Bild", 512, 512);
-    cout << M.rows() << "x" << M.cols() << endl;
-    // SVD durchführen
-    BDCSVD<MatrixXd> svd(M, ComputeFullU|ComputeFullV);
-    VectorXd sing = svd.singularValues();
-    MatrixXd U = svd.matrixU();
-    MatrixXd V = svd.matrixV();
 
-    // Initialisieren der Variablen
-    VectorXd approx;
-    MatrixXd approxW, approxU, approxV, approxA;
-    ofstream file;
-    string filename;
+int main() {
+  cout << "Beginn des Programms!" << endl;
+  // Initialisieren der Größen
+  VectorXd n = VectorXd::LinSpaced(70, 11, 80);
+  VectorXd x = VectorXd::LinSpaced(70, -10, 10);
+  VectorXd y_strich = VectorXd::LinSpaced(70, -10, 10);
+  VectorXd x_strich = y_strich;
+  double res = 0;
+  double zwischen, N = 2.0;
 
-    // Durchführen für die verschiedenen k-Werte
-    for (int l=0; l<3; l++){
-      // Approximation der Singulärwerte und umschreiben in eine Diagonalmatrix
-      approx = sort_vec(sing, k[l]);
-      approxW = approx.asDiagonal();
-
-      // Approximation der U- und der V-Matrix
-      approxU = sort_mat(U, k[l]);
-      approxV = sort_mat(V, k[l]);
-
-      // Transformieren der Matrix
-      approxA = approxU*approxW*approxV.transpose();
-
-      // Auslesen in eine txt-Datei
-      filename = "build/bild_"+to_string(k[l])+".txt";
-      file.open(filename, ios::trunc);
-      //file << "# Array" << endl;
-      for (int i = 0; i < k[l]; i++){
-          file << i << ";";
-      }
-      file << endl;
-      for (int i=0; i < k[l]; i++){
-          for (int j = 0; j < k[l]; j++){
-              file << approxA(i, j) << "; ";
-          }
-          file << endl;
-      }
-      file.close();
-    }
-    cout << "Ende des Programms!" << endl;
+  res = simpson(funk_z, -x(0)/n(0), x(0)/n(0), N, x(0), x_strich(0), y_strich(0));
+  zwischen = res;
+  // Aufrufen der Funktion
+  for(int i = 0; i<70; i++){
     return 0;
+  }
+
+  cout << "Ende des Programms!" << endl;
+  return 0;
 }
