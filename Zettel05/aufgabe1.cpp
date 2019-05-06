@@ -49,17 +49,26 @@ double funk_z(double x, double x_strich, double y_strich, double z_strich){
 
 int main() {
   cout << "Beginn des Programms!" << endl;
-  // Aufgabenteil a)
+  // Aufgabenteil a) und b)
   // Initialisieren der Größen
   VectorXd n = VectorXd::LinSpaced(70, 11, 80);
+  VectorXd n_b = VectorXd::LinSpaced(11, 0, 10);
+
   VectorXd x = 0.1*n;
+  VectorXd x_b = 0.1*n_b;
   double a = 1.0;
 
-  // Erzeugen
-  VectorXd y_strich = VectorXd::LinSpaced(x.size(), -10, 10);
+  // Erzeugen des Gitters
+  VectorXd y_strich = VectorXd::LinSpaced(100, -10, 10);
   VectorXd x_strich = y_strich;
+
+  /* Problematisch, wenn das Gitter und y nahe 0 werden, dann wird durch
+  0 geteilt und das Integral divergiert */
+  VectorXd y_strich_b = VectorXd::LinSpaced(100, 0.1, 20);
+  VectorXd x_strich_b = y_strich_b;
+
   double res = 0;
-  VectorXd pot(x.size());
+  VectorXd pot(x.size()), pot_b(x_b.size());
   double N = 11.0;
 
   for(int i = 0; i<x.size(); i++){
@@ -70,6 +79,16 @@ int main() {
     res = 0;
   }
 
+  for(int i = 0; i<x_b.size(); i++){
+    for(int j=0; j<y_strich_b.size(); j++){
+      res += mittel3(funk_z, -a, a, N, x_strich_b(j), y_strich_b(j), x_b(i));
+    }
+    pot_b(i) = res;
+    res = 0;
+  }
+  cout << pot_b << endl;
+
+  // Speichern Aufgabenteil a)
   ofstream file;
   file.open("build/aufg_a.txt", ios::trunc);
   file << "# x pot(x)" << endl;
@@ -77,6 +96,16 @@ int main() {
   for(int i = 0; i<x.size(); i++){
     file << x(i) << ";";
     file << pot(i) << endl;
+  }
+  file.close();
+
+  // Speichern Aufgabenteil b)
+  file.open("build/aufg_b.txt", ios::trunc);
+  file << "# x pot(x)" << endl;
+  file << "x;pot" << endl;
+  for(int i = 0; i<x_b.size(); i++){
+    file << x_b(i) << ";";
+    file << pot_b(i) << endl;
   }
   file.close();
 
