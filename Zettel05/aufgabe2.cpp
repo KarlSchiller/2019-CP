@@ -30,7 +30,8 @@ int flip_bits(int zahl, int l)
  * Dabei werden die ersten @m Stellen der Binärzahldarstellung des Index
  * invertiert und wieder in eine integer Zahl umgewandelt
  */
-void umnummerierung(VectorXcd &input, VectorXcd &output, int m){
+void umnummerierung(VectorXcd &input, VectorXcd &output, int m)
+{
   double dim = pow(2, m);
   for(int i=0; i<dim; i++){
     output(i) = input(flip_bits(i, m));
@@ -41,7 +42,8 @@ void umnummerierung(VectorXcd &input, VectorXcd &output, int m){
 /* diskrete Fouriertransformation als nicht-speicheroptimierter Algorithmus aus der
  * Vorlesung mit 2^m Diskretisierungspunkten.
  */
-VectorXcd discrete_fft(double m, VectorXcd &f){
+VectorXcd discrete_fft(double m, VectorXcd &f)
+{
   double N = pow(2, m);
   const dcomp compz (0., 1.);  // complexe Zahl i
   VectorXcd start = VectorXcd::Zero(N);
@@ -79,12 +81,13 @@ VectorXcd discrete_fft(double m, VectorXcd &f){
 /* Verschiebung der Elemente des Ergebnisvektors von discrete_fft,
  * um diese in eine geordnete Reihenfolge zu bringen
  */
-void sortiere(VectorXcd &input, VectorXcd &output, int N)
+void sortiere(VectorXcd &input, int N)
 {
+  VectorXcd temp = input;
   for (int i=0; i<N/2; i++)
   {
-    output(2*i) = input(i);  // gerade k
-    output(2*i+1) = input(i+N/2);  // ungerade k
+    input(2*i) = temp(i);  // gerade k
+    input(2*i+1) = temp(i+N/2);  // ungerade k
   }
 }
 
@@ -92,15 +95,26 @@ void sortiere(VectorXcd &input, VectorXcd &output, int N)
 /* Fast Fourier Transformation
  * INPUT:     m       Legt Anzahl Diskretisierungpunkte N=2^m fest
  *            f       Funktionswerte, Dimension N=2^m
- *            TODO: Wertebereich mit übergeben
+ *            lower   untere Intervallgrenze
+ *            upper   obere Intervallgrenze
  * OUTPUT:    F       Fouriertransformierte
  */
-VectorXcd fft(double m, VectorXcd &f){
+VectorXcd fft(double lower, double upper, double m, VectorXcd &f)
+{
   // VectorXcd F = discrete_fft(m, f);
   int N = pow(2,m);
+  double dx = (upper-lower)/N;
+  double L = upper-lower;
+  const dcomp i (0., 1.);
   VectorXcd F = VectorXcd::Zero(N);
-  sortiere(f, F, N);
-  // TODO: Daten mit Phasenfaktor multiplizieren
+  F = discrete_fft(m, f);
+
+  // Sortiere Ergebnisvektor
+  sortiere(F, N);
+  // Multipliziere Daten mit Phasenfaktor
+  for (int j=0; j<N; j++){
+    F(j) = dx/(2*M_PI) * exp(-2*M_PI*i*lower*static_cast<double>(j)/L) * F(j);
+  }
 
   return F;
 }
@@ -130,7 +144,8 @@ int main()
   // TODO: Herausfinden, warum fft komisches Ergebnis hat...
 
   cout << "\tTeil b)" << endl;
-  VectorXcd Fvoll = fft(m, f);
+  VectorXcd Fvoll = fft(-10, 10, m, f);
+  cout << Fvoll << endl << endl;
 
 
       // // Auslesen in eine txt-Datei
