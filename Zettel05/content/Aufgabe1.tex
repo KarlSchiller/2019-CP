@@ -1,28 +1,51 @@
 \section*{Aufgabe 1}
-% Das Bild wurde mit der vor-implementierten Methode eingelesen und es wurde
-% eine SVD durchgeführt. Anschließend wurde eine Rang-$k$-Approximation durchgeführt.
-% Die so entstandene Matrix wurde in einer txt-Datei gespeichert und mit einem
-% \textsc{python}-Skript als Heatmap geplottet und in Abbildung \ref{fig:1}
-% dargestellt.
-% \begin{figure}
-  % \centering
-  % \begin{subfigure}{0.49\textwidth}
-    % \includegraphics[width=\textwidth]{build/10.pdf}
-    % \caption{$k = 10$}
-    % \label{sub:10}
-  % \end{subfigure}
-  % \begin{subfigure}{0.49\textwidth}
-    % \includegraphics[width=\textwidth]{build/20.pdf}
-    % \caption{$k = 20$}
-    % \label{sub:20}
-  % \end{subfigure}
-  % \\
-  % \centering
-  % \begin{subfigure}{0.49\textwidth}
-    % \includegraphics[width=\textwidth]{build/50.pdf}
-    % \caption{$k = 50$}
-    % \label{sub:50}
-  % \end{subfigure}
-  % \caption{Heatmaps der Rang-$k$-Approximationen.}
-  % \label{fig:1}
-% \end{figure}
+\subsection*{Aufgabenteil a) + b)}
+Um das zu berechnende Integral einheitenlos zu machen, werden folgende Transformationen
+eingeführt
+\begin{align*}
+  x^+ &\mapsto \frac{x}{a} \\
+  \Phi^{'} &\mapsto \Phi  \frac{4\, \pi \, \epsilon_0}{\rho_0 \, a^2} \, .
+\end{align*}
+Dann wurde die dreidimensionale Integration implementiert. In Abbildung \ref{subfig:a}
+ist der Plot für das elektrostatische Potential außerhalb des Würfels zu sehen.
+In Abbildung \ref{subfig:b} ist das Potential innerhalb des Würfels abgebildet.
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{build/aufg_a.pdf}
+    \caption{Plot zum Aufgabenteil a).}
+    \label{subfig:a}
+  \end{subfigure}
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{build/aufg_b.pdf}
+    \caption{Plot zum Aufgabenteil b).}
+    \label{subfig:b}
+  \end{subfigure}
+  \caption{Plots für die erste Ladungsverteilung innerhalb und außerhalb
+  des Würfels.}
+  \label{fig:1}
+\end{figure}
+
+\subsection*{Aufgabenteil c)}
+In den Abbildungen \ref{subfig:c_1} und \ref{subfig:c_2} sind die Plots zu
+Aufgabenteil c) zu sehen.
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{build/aufg_c_1.pdf}
+    \caption{Plot zum Aufgabenteil c) außerhalb des Würfels.}
+    \label{subfig:c_1}
+  \end{subfigure}
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{build/aufg_c_2.pdf}
+    \caption{Plot zum Aufgabenteil c) innerhalb des Würfels.}
+    \label{subfig:c_2}
+  \end{subfigure}
+  \caption{Plots für die zweite Ladungsverteilung innerhalb und außerhalb
+  des Würfels.}
+  \label{fig:2}
+\end{figure}
