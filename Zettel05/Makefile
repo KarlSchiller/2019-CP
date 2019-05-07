@@ -22,16 +22,16 @@ FORCE: build/aufg_a.pdf \
 build/aufg_a.pdf: build/aufg_a.txt | build
 	python aufgabe1-plot.py
 
-build/aufg_b.pdf: build/aufg_a.txt | build
+build/aufg_b.pdf: build/aufg_b.txt | build
 	python aufgabe1-plot.py
 
-build/aufg_c_1.pdf: build/aufg_a.txt | build
+build/aufg_c_1.pdf: build/aufg_c_1.txt | build
 	python aufgabe1-plot.py
 
-build/aufg_c_2.pdf: build/aufg_a.txt | build
+build/aufg_c_2.pdf: build/aufg_c_2.txt | build
 	python aufgabe1-plot.py
 
-build/aufg_a.txt: build/aufg1 | build
+build/aufg_a.txt build/aufg_c_1.txt build/aufg_b.txt build/aufg_c_2.txt: build/aufg1 | build
 	build/aufg1
 
 build/aufg1: aufgabe1.cpp | build
