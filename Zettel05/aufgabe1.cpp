@@ -7,6 +7,8 @@ using namespace std;
 using namespace Eigen;
 
 // Mittelpunktsregel
+/* Hier wird auf einem Gitter aus y' und z' Werten die x' Integration
+ausgeführt. */
 double mittel(double (*funptr)(double, double, double, double), double a, double b, double N,
 double x_strich, double y_strich, double x){
   double h = (b-a)/N;
@@ -31,6 +33,7 @@ double x_strich, double y_strich, double x){
 }
 
 // Mittelpunktsregel Nummer 3
+/* Dreimal Mittelpunktsregel, da dreidimesional integriert wird. */
 double mittel3(double (*funptr)(double, double, double, double), double a, double b, double N,
 double x_strich, double y_strich, double x){
   double h = (b-a)/N;
@@ -42,11 +45,12 @@ double x_strich, double y_strich, double x){
   return res;
 }
 
+// Integrand für Aufgabenteile a) und b)
 double funk_z(double x, double x_strich, double y_strich, double z_strich){
   return 1/sqrt((x-x_strich)*(x-x_strich) + y_strich*y_strich + z_strich*z_strich);
 }
 
-// Im Zähler x_strich oder x?
+// Integrand für Aufgabenteil c)
 double funk_c(double x, double x_strich, double y_strich, double z_strich){
   return x_strich/sqrt((x-x_strich)*(x-x_strich) + y_strich*y_strich + z_strich*z_strich);
 }
@@ -54,11 +58,12 @@ double funk_c(double x, double x_strich, double y_strich, double z_strich){
 
 int main() {
   cout << "Beginn des Programms!" << endl;
-  // Aufgabenteil a) und b)
   // Initialisieren der Größen
+  // Erzeugen von n
   VectorXd n = VectorXd::LinSpaced(70, 11, 80);
   VectorXd n_b = VectorXd::LinSpaced(11, 0, 10);
 
+  // Erzeugen von x für Aufgabenteil a und b
   VectorXd x = 0.1*n;
   VectorXd x_b = 0.1*n_b;
   double a = 1.0;
@@ -74,10 +79,15 @@ int main() {
   VectorXd y_strich_b = VectorXd::LinSpaced(100, -20, 20);
   VectorXd x_strich_b = y_strich_b;
 
+  // Restlichen Größen, wie zum Beispiel das Potential werden initialisiert
   double res = 0, res2=0;
   VectorXd pot(x.size()), pot_b(x_b.size()), pot_c_1(x.size()), pot_c_2(x_b.size());
   double N = 11.0;
 
+  /* Für alle x-Werte wird jeder Wert des Gitters durchlaufen und eine Integration
+  durchgeführt. Sowohl für die Funktion aus den Aufgabenteilen a) und b) als auch
+  für die Funktion aus Aufgabenteil c). Danach wird der Wert in einem Vektor
+  gespeichert. */
   for(int i = 0; i<x.size(); i++){
     for(int j=0; j<y_strich.size(); j++){
       res += mittel3(funk_z, -a, a, N, x_strich(j), y_strich(j), x(i));
@@ -89,6 +99,7 @@ int main() {
     res2 = 0;
   }
 
+  /* Hier passiert das ganze für innerhalb des Würfels. */
   for(int i = 0; i<x_b.size(); i++){
     for(int j=0; j<y_strich_b.size(); j++){
       res += mittel3(funk_z, -a, a, N, x_strich_b(j), y_strich_b(j), x_b(i));

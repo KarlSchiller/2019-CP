@@ -1,14 +1,23 @@
 \section*{Aufgabe 1}
 \subsection*{Aufgabenteil a) + b)}
+Für die folgenden Berechnungen wurde $a$ auf 1 gesetzt.
 Um das zu berechnende Integral einheitenlos zu machen, werden folgende Transformationen
 eingeführt
 \begin{align*}
   x^+ &\mapsto \frac{x}{a} \\
   \Phi^{'} &\mapsto \Phi  \frac{4\, \pi \, \epsilon_0}{\rho_0 \, a^2} \, .
 \end{align*}
-Dann wurde die dreidimensionale Integration implementiert. In Abbildung \ref{subfig:a}
-ist der Plot für das elektrostatische Potential außerhalb des Würfels zu sehen.
-In Abbildung \ref{subfig:b} ist das Potential innerhalb des Würfels abgebildet.
+
+Dann wurde die dreidimensionale Integration implementiert. In Abbildung
+\ref{subfig:a} ist der Plot für das elektrostatische Potential außerhalb des
+Würfels zu sehen. In Abbildung \ref{subfig:b} ist das Potential innerhalb des
+Würfels abgebildet. In Aufgabenteil b) könnte das Problem auftreten, dass der
+Nenner sehr klein wird, da $x$ am sogar 0 wird. Das kann verhindert werden,
+indem das Gitter angepasst wird, sodass eventuelle kleine Werte im Gitter nicht
+mit kleinen Werten in $x$ zusammenfallen. Der Verlauf der Daten in Abbildung
+\ref{subfig:a} passt gut zum angenommenen Verlauf $\frac{1}{x}$, allerdings
+nicht so gut wie in Aufgabenteil c).
+
 \begin{figure}
   \centering
   \begin{subfigure}{0.49\textwidth}
@@ -29,8 +38,12 @@ In Abbildung \ref{subfig:b} ist das Potential innerhalb des Würfels abgebildet.
 \end{figure}
 
 \subsection*{Aufgabenteil c)}
+Mit den Transformationen aus Aufgabenteil a) kann auch hier das Integral einheitenlos
+gemacht werden, da $x$ und $a$ die gleiche Einheit haben und sich ansonsten nichts
+verändert hat.
 In den Abbildungen \ref{subfig:c_1} und \ref{subfig:c_2} sind die Plots zu
-Aufgabenteil c) zu sehen.
+Aufgabenteil c) zu sehen. Wie zu sehen ist, passt der Verlauf außerhalb des Würfels
+sehr gut zum angenommenen Verlauf der Funktion $\frac{1}{x}$.
 \begin{figure}
   \centering
   \begin{subfigure}{0.49\textwidth}
