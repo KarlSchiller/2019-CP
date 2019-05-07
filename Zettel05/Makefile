@@ -31,6 +31,9 @@ build/aufg_c_1.pdf: build/aufg_a.txt | build
 build/aufg_c_2.pdf: build/aufg_a.txt | build
 	python aufgabe1-plot.py
 
+build/aufg_a.txt: build/aufg1 | build
+	build/aufg1
+
 build/aufg1: aufgabe1.cpp | build
 	g++ aufgabe1.cpp -pedantic -o build/aufg1
 
