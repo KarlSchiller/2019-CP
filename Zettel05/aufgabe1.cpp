@@ -12,7 +12,7 @@ double x_strich, double y_strich, double x){
   double h = (b-a)/N;
   double res=0;
   for(int i = 1; i<N+1; i++){
-    res = res + funptr(x, x_strich, y_strich, a-h/2+i*h);
+    res = res + funptr(x, a-h/2+i*h, y_strich, x_strich);
   }
   res *= h;
   return res;
