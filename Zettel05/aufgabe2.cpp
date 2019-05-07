@@ -1,5 +1,5 @@
 #include <iostream>
-// #include <fstream>
+#include <fstream>
 #include <Eigen/Dense>
 #include <math.h>  // sqrt, round
 // #include <tuple>
@@ -120,6 +120,30 @@ VectorXcd fft(double lower, double upper, double m, VectorXcd &f)
 }
 
 
+void test(double lower, double upper, double m, VectorXcd &F)
+{
+  // VectorXcd F = discrete_fft(m, f);
+  int N = pow(2,m);
+  double dx = (upper-lower)/N;
+  double L = upper-lower;
+  const dcomp i (0., 1.);
+
+  // Sortiere Ergebnisvektor
+  sortiere(F, N);
+  // Multipliziere Daten mit Phasenfaktor
+  for (int j=0; j<N; j++){
+    F(j) = dx/(2*M_PI) * exp(-2*M_PI*i*lower*static_cast<double>(j)/L) * F(j);
+  }
+}
+
+
+// Exponentielle Funktion zum Test von Teil b)
+template<typename T>
+T exp_fkt(T x)
+{
+  return exp(-0.5*x*x);
+}
+
 int main()
 {
   cout << "Aufgabe 2: FFT" << endl;
@@ -139,19 +163,35 @@ int main()
   cout << F << endl << endl;
 
   cout << "\tFFT" << endl;
-  VectorXcd Ftest = discrete_fft(m, f);
-  cout << Ftest << endl << endl;
+  VectorXcd Fdiscrete = discrete_fft(m, f);
+  cout << Fdiscrete << endl << endl;
   // TODO: Herausfinden, warum fft komisches Ergebnis hat...
 
   cout << "\tTeil b)" << endl;
   VectorXcd Fvoll = fft(-10, 10, m, f);
   cout << Fvoll << endl << endl;
 
+  int mtest = 7;
+  double Ntest = pow(2, 7);
+  VectorXd ktest = VectorXd::LinSpaced(Ntest, -10, 10);
+  VectorXd ftest = ktest.unaryExpr(ptr_fun(exp_fkt<double>));
+  VectorXcd Ftest = VectorXcd::Zero(Ntest);
+  for(double j=0; j<Ntest; j++){
+    for (double l=0; l<Ntest; l++){
+      Ftest(j) += exp(2*M_PI*i*l*j/Ntest)*ftest(l);
+    }
+  }
+  test(-10, 10, m, Ftest);
+  // Auslesen in eine txt-Datei
+  string filename = "build/test.txt";
+  ofstream file;
+  file.open(filename, ios::trunc);
+  file << "k;real;imag" << endl;
+  for(int i=0; i<Ntest; i++) {
+    file << ktest(i) << ";" << Ftest(i).real() << ";" << Ftest(i).imag() << endl;
+  }
+  file.close();
 
-      // // Auslesen in eine txt-Datei
-      // filename = "build/bild_"+to_string(k[l])+".txt";
-      // file.open(filename, ios::trunc);
-      // //file << "# Array" << endl;
-      // file.close();
+
   return 0;
 }
