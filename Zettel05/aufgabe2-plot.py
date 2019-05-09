@@ -23,7 +23,7 @@ def plot_fourier():
     # plotte das Eigenwertspektrum
     df = pd.read_csv('build/test.txt', decimal='.', delimiter=';')
 
-    plt.plot(df.k, df.real, 'kx')
+    plt.plot(df.x, df.real, 'kx')
     plt.savefig('build/test.pdf', bbox_inches='tight')
     plt.clf()
     #  indices = [i for i in range(360)]

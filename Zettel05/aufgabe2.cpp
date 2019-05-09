@@ -120,23 +120,6 @@ VectorXcd fft(double lower, double upper, double m, VectorXcd &f)
 }
 
 
-void test(double lower, double upper, double m, VectorXcd &F)
-{
-  // VectorXcd F = discrete_fft(m, f);
-  int N = pow(2,m);
-  double dx = (upper-lower)/N;
-  double L = upper-lower;
-  const dcomp i (0., 1.);
-
-  // Sortiere Ergebnisvektor
-  sortiere(F, N);
-  // Multipliziere Daten mit Phasenfaktor
-  for (int j=0; j<N; j++){
-    F(j) = dx/(2*M_PI) * exp(-2*M_PI*i*lower*static_cast<double>(j)/L) * F(j);
-  }
-}
-
-
 // Exponentielle Funktion zum Test von Teil b)
 template<typename T>
 T exp_fkt(T x)
@@ -171,24 +154,18 @@ int main()
   VectorXcd Fvoll = fft(-10, 10, m, f);
   cout << Fvoll << endl << endl;
 
-  int mtest = 7;
+  double mtest = 7;
   double Ntest = pow(2, 7);
-  VectorXd ktest = VectorXd::LinSpaced(Ntest, -10, 10);
-  VectorXd ftest = ktest.unaryExpr(ptr_fun(exp_fkt<double>));
-  VectorXcd Ftest = VectorXcd::Zero(Ntest);
-  for(double j=0; j<Ntest; j++){
-    for (double l=0; l<Ntest; l++){
-      Ftest(j) += exp(2*M_PI*i*l*j/Ntest)*ftest(l);
-    }
-  }
-  test(-10, 10, m, Ftest);
+  VectorXd xtest = VectorXd::LinSpaced(Ntest, -10, 10);
+  VectorXcd ftest = xtest.unaryExpr(ptr_fun(exp_fkt<double>));
+  VectorXcd Ftest = fft(-10, 10, mtest, ftest);
   // Auslesen in eine txt-Datei
   string filename = "build/test.txt";
   ofstream file;
   file.open(filename, ios::trunc);
-  file << "k;real;imag" << endl;
+  file << "x;real;imag" << endl;
   for(int i=0; i<Ntest; i++) {
-    file << ktest(i) << ";" << Ftest(i).real() << ";" << Ftest(i).imag() << endl;
+    file << xtest(i) << ";" << Ftest(i).real() << ";" << Ftest(i).imag() << endl;
   }
   file.close();
 

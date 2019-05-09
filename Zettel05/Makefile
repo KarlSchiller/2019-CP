@@ -17,7 +17,8 @@ light: dokument.tex
 FORCE: build/aufg_a.pdf \
 	build/aufg_b.pdf \
 	build/aufg_c_1.pdf \
-	build/aufg_c_2.pdf
+	build/aufg_c_2.pdf \
+	build/test.pdf
 
 build/aufg_a.pdf: build/aufg_a.txt | build
 	python aufgabe1-plot.py
@@ -44,6 +45,12 @@ build/aufg2: aufgabe2.cpp | build
 	g++ aufgabe2.cpp -pedantic -o build/aufg2
 
 aufg2: build/aufg2 | build
+	build/aufg2
+
+build/test.pdf: build/test.txt aufgabe2-plot.py | build
+	python aufgabe2-plot.py
+
+build/test.txt: build/aufg2 | build
 	build/aufg2
 
 build:
