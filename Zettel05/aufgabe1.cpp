@@ -74,7 +74,7 @@ int main() {
 
   /* Problematisch, wenn das Gitter und y nahe 0 werden, dann wird durch
   0 geteilt und das Integral divergiert.
-  Noch zu klären: Ist massiv von der Wahl des Gitters abhängig
+  Ist von der Wahl des Gitters abhängig
   Macht einene Unterschied, was ich als Gitter wähle */
   VectorXd y_strich_b = VectorXd::LinSpaced(100, -20, 20);
   VectorXd x_strich_b = y_strich_b;
