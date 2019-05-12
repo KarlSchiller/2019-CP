@@ -1,5 +1,5 @@
 #include <iostream>
-// #include <fstream>
+#include <fstream>
 #include <Eigen/Dense>
 // #include <math.h>  // sqrt()
 
@@ -53,12 +53,14 @@ double second(double (*funptr)(double), double x)
  *                funptr(middle) < funpter(upper)
  * @upper       upper boundary of interval
  * @tol         error tolerance
+ * @stream      output stream to print iteration steps
  */
 void bisection(double (*funptr)(double),
                  double &lower,
                  double &middle,
                  double &upper,
-                 double tol)
+                 double tol,
+                 ostream &stream)
 {
   double temp;
   int N = 0;
@@ -85,7 +87,8 @@ void bisection(double (*funptr)(double),
       }
     }
     N++;
-    cout << "\t" << N << ": " << lower << "  " << middle << "  " << upper << endl;
+    stream << N << ";" << lower << ";" << middle << ";" << upper << endl;
+    // cout << "\t" << N << ": " << lower << "  " << middle << "  " << upper << endl;
   }
 }
 
@@ -99,12 +102,13 @@ void bisection(double (*funptr)(double),
  * @funptr    pointer to function
  * @x         starting point
  */
-void newton(double (*funptr)(double), double &x)
+void newton(double (*funptr)(double), double &x, ostream &stream)
 {
   double old;
   int i = 0;
   do {
-    cout << "\t" << i << ": " << x << endl;
+    stream << i << ";" << x << endl;
+    // cout << "\t" << i << ": " << x << endl;
     old = x;
     x = old - first(funptr, old)/second(funptr, old);
     i++;
@@ -116,17 +120,23 @@ void newton(double (*funptr)(double), double &x)
 int main()
 {
   cout << "Aufgabe 1" << endl;
+  ofstream file;
 
   double accuracy = 1e-9;
   double a = -0.5;
   double b = -0.1;
   double c = 2;
-  bisection(quadr, a, b, c, accuracy);
-  cout << endl;
-  // TODO: print interation steps to file to compare with newton
+  file.open("build/aufg1-bisection.txt");
+  file << "i;lower;middle;upper" << endl;
+  file << "0;" << a << ";" << b << ";" << c << endl;
+  bisection(quadr, a, b, c, accuracy, file);
+  file.close();
+  // TODO: compare interation steps with newton
 
   double x = 400;
-  newton(quadr, x);
+  file.open("build/aufg1-newton.txt");
+  file << "i;x" << endl;
+  newton(quadr, x, file);
+  file.close();
   return 0;
-  // TODO: print interation steps to file
 }
