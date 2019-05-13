@@ -14,12 +14,19 @@ light: dokument.tex
 	-output-directory=build \
 	dokument.tex
 
-FORCE:
+FORCE: build/aufg1-newton.pdf \
+	build/aufg1-bisection.pdf
 
 build/aufg1: aufgabe1.cpp | build
 	g++ aufgabe1.cpp -pedantic -o build/aufg1
 
 aufg1: build/aufg1 | build
+	build/aufg1
+
+build/aufg1-newton.pdf build/aufg1-bisection.pdf: aufgabe1-plot.py build/aufg1-newton.txt build/aufg1-bisection.txt | build
+	python aufgabe1-plot.py
+
+build/aufg1-newton.txt build/aufg1-bisection.txt: build/aufg1 | build
 	build/aufg1
 
 build/aufg2: aufgabe2.cpp | build

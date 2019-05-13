@@ -102,17 +102,24 @@ void bisection(double (*funptr)(double),
  * @funptr    pointer to function
  * @x         starting point
  */
-void newton(double (*funptr)(double), double &x, ostream &stream)
+void newton(double (*funptr)(double), double &x, double tol, ostream &stream)
 {
   double old;
-  int i = 0;
+  int i = 1;
   do {
-    stream << i << ";" << x << endl;
-    // cout << "\t" << i << ": " << x << endl;
     old = x;
     x = old - first(funptr, old)/second(funptr, old);
+    // cout << "\t" << i << ": " << x << endl;
+    stream << i << ";" << x << ";" << first(funptr, x) << endl;
     i++;
-  } while (funptr(x) < funptr(old));
+
+    // stop iteration when there is no convergence
+    if(first(funptr, old) <= first(funptr, x))
+    {
+      cout << "WARNING: No convergence to defined error tolerance" << endl;
+      break;
+    }
+  } while (first(funptr, x) > tol);
   // TODO: Use bisection to find better point and start again
 }
 
@@ -131,12 +138,12 @@ int main()
   file << "0;" << a << ";" << b << ";" << c << endl;
   bisection(quadr, a, b, c, accuracy, file);
   file.close();
-  // TODO: compare interation steps with newton
 
   double x = 400;
   file.open("build/aufg1-newton.txt");
-  file << "i;x" << endl;
-  newton(quadr, x, file);
+  file << "i;x;deriv" << endl;
+  file << "0;" << x << ";" << first(quadr, x) << endl;
+  newton(quadr, x, accuracy, file);
   file.close();
   return 0;
 }
