@@ -1,28 +1,34 @@
 \section*{Aufgabe 1}
-Das Bild wurde mit der vor-implementierten Methode eingelesen und es wurde
-eine SVD durchgeführt. Anschließend wurde eine Rang-$k$-Approximation durchgeführt.
-Die so entstandene Matrix wurde in einer txt-Datei gespeichert und mit einem
-\textsc{python}-Skript als Heatmap geplottet und in Abbildung \ref{fig:1}
-dargestellt.
+Das Intervallhalbierungs-/Bisektionsverfahren und das Newtonverfahren werden
+mit der Funktion
+\begin{equation*}
+  f\!\left(x\right) = x^2 - 2
+\end{equation*}
+und einer Genauigkeit von $\varepsilon = 10^9$ getestet.
+
+Das Intervallhalbierungsverfahren mit den Startpunkten
+\begin{align*}
+  a &= \num{-0.5} \\
+  b &= \num{-0.1} \\
+  c &= \num{2} \\
+\end{align*}
+ergibt den in Abbildung \ref{fig:A1-Bisektionsverfahren} dargestellten Verlauf.
+In jedem Schritt wird das Intervall halbiert, was sich in dem linearem Verlauf
+der Intervalllänge wiederspiegelt.
 \begin{figure}
   \centering
-  \begin{subfigure}{0.49\textwidth}
-    \includegraphics[width=\textwidth]{build/10.pdf}
-    \caption{$k = 10$}
-    \label{sub:10}
-  \end{subfigure}
-  \begin{subfigure}{0.49\textwidth}
-    \includegraphics[width=\textwidth]{build/20.pdf}
-    \caption{$k = 20$}
-    \label{sub:20}
-  \end{subfigure}
-  \\
+  \includegraphics[width=.8\textwidth]{build/aufg1-bisection.pdf}
+  \caption{Bisektionsverfahren.}
+  \label{fig:A1-Bisektionsverfahren}
+\end{figure}
+Das in Abbildung \ref{fig:A1-Newtonverfahren} dargestellte Newtonverfahren approximiert
+die Funktion durch eine quadratische Funktion,
+sodass die hier verwendete Funktion sehr schnell minimiert wird.
+Aufgrund der Ungenauigkeit bei der Bestimmung der ersten und vor allem zweiten
+Ableitung konvergiert das Verfahren nicht bis zur angegebenen Genauigkeitsgrenze.
+\begin{figure}
   \centering
-  \begin{subfigure}{0.49\textwidth}
-    \includegraphics[width=\textwidth]{build/50.pdf}
-    \caption{$k = 50$}
-    \label{sub:50}
-  \end{subfigure}
-  \caption{Heatmaps der Rang-$k$-Approximationen.}
-  \label{fig:1}
+  \includegraphics[width=.8\textwidth]{build/aufg1-newton.pdf}
+  \caption{Newtonverfahren.}
+  \label{fig:A1-Newtonverfahren}
 \end{figure}

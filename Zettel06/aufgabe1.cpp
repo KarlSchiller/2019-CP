@@ -88,12 +88,11 @@ void bisection(double (*funptr)(double),
     }
     N++;
     stream << N << ";" << lower << ";" << middle << ";" << upper << endl;
-    // cout << "\t" << N << ": " << lower << "  " << middle << "  " << upper << endl;
   }
 }
 
 
-// TODO: bisection with golden ratio
+// TODO: bisection with golden ratio?
 // double gr = 0.5*(3-sqrt(5));
 // just for fun...
 
@@ -109,7 +108,6 @@ void newton(double (*funptr)(double), double &x, double tol, ostream &stream)
   do {
     old = x;
     x = old - first(funptr, old)/second(funptr, old);
-    // cout << "\t" << i << ": " << x << endl;
     stream << i << ";" << x << ";" << first(funptr, x) << endl;
     i++;
 
@@ -120,7 +118,7 @@ void newton(double (*funptr)(double), double &x, double tol, ostream &stream)
       break;
     }
   } while (first(funptr, x) > tol);
-  // TODO: Use bisection to find better point and start again
+  // TODO: Use bisection to find better point and start again?
 }
 
 
