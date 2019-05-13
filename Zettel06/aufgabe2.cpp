@@ -8,98 +8,50 @@
 using namespace std;
 using namespace Eigen;
 
-
-// Maximales Nebendiagonalelement finden
-tuple<int, int, double> finde_neben(MatrixXd &M){
-    // Dimension herausfinden
-    int N = M.cols();
-    int zeile, spalte;
-    double max = 0;
-    for(int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-            if (i != j){
-                if(abs(M(i, j)) > max){
-                    max = abs(M(i, j));
-                    zeile = i;
-                    spalte = j;
-                }
-            }
-        }
-    }
-    return make_tuple(zeile, spalte, max);
-}
-// Aufruf der Methode mit:
-// tie(zeile_max, spalte_max, max) = finde_neben(A);
-
-// Approximation der Singulärwerte
-VectorXd sort_vec(VectorXd &vector, int k){
-    VectorXd approx(k);
-        for (int i = 0; i < k; i++){
-            approx(i) = vector(i);
-        }
-    return approx;
+// Rosenbrock-Funktion
+double rosen(double x1, double x2){
+  return (1-x1)*(1-x1) + 100*(x2-x1*x1)*(x2-x1*x1);
 }
 
-// Approximation der Matrizen
-MatrixXd sort_mat(MatrixXd &M, int k) {
-    MatrixXd approx(k, k);
-    for (int i = 0; i < k; i++){
-        for (int j = 0; j < k; j++){
-            approx(i, j) = M(i, j);
-        }
-    }
-    return approx;
+/* Computes the first derivative of @f at @x, k ist nur zur Festlegung,
+welche Variable grade abgeleitet wird*/
+double first(double (*funptr)(double, double), double x1, double x2, int k)
+{
+  double eps = 1e-8;
+  double h;
+  if ((abs(x1) < eps) || (abs(x2) < eps))  // x near zero
+  {
+    h = sqrt(eps);
+  } else if (k == 0){
+    h = sqrt(eps)*x1;
+  }
+  else {
+    h = sqrt(eps)*x2;
+  }
+  // Für beide Variablen auswerten
+  if (k == 0){
+    return 0.5*(funptr(x1+h, x2)-funptr(x1-h, x2))/h;
+  }
+  else{
+    return 0.5*(funptr(x1, x2+h)-funptr(x1, x2-h))/h;
+  }
+}
+
+VectorXd steepest(double (*funptr)(double, double), VectorXd x0){
+  // Gradienten bestimmen
+  VectorXd g(x0.size());
+  VectorXd x_i = x0;
+  g(0) = first(funptr, x_i(0), x_i(1), 0);
+  g(1) = first(funptr, x_i(0), x_i(1), 1);
+  return g;
 }
 
 int main()
 {
     cout << "Beginn des Programms!" << endl;
-    // Einlesen der Daten
-    MatrixXd M;
-    int k[3] = {10, 20, 50};
-    // loadData(M, "Dateien/Bild", 512, 512);
-    cout << M.rows() << "x" << M.cols() << endl;
-    // SVD durchführen
-    BDCSVD<MatrixXd> svd(M, ComputeFullU|ComputeFullV);
-    VectorXd sing = svd.singularValues();
-    MatrixXd U = svd.matrixU();
-    MatrixXd V = svd.matrixV();
-
-    // Initialisieren der Variablen
-    VectorXd approx;
-    MatrixXd approxW, approxU, approxV, approxA;
-    ofstream file;
-    string filename;
-
-    // Durchführen für die verschiedenen k-Werte
-    for (int l=0; l<3; l++){
-      // Approximation der Singulärwerte und umschreiben in eine Diagonalmatrix
-      approx = sort_vec(sing, k[l]);
-      approxW = approx.asDiagonal();
-
-      // Approximation der U- und der V-Matrix
-      approxU = sort_mat(U, k[l]);
-      approxV = sort_mat(V, k[l]);
-
-      // Transformieren der Matrix
-      approxA = approxU*approxW*approxV.transpose();
-
-      // Auslesen in eine txt-Datei
-      filename = "build/bild_"+to_string(k[l])+".txt";
-      file.open(filename, ios::trunc);
-      //file << "# Array" << endl;
-      for (int i = 0; i < k[l]; i++){
-          file << i << ";";
-      }
-      file << endl;
-      for (int i=0; i < k[l]; i++){
-          for (int j = 0; j < k[l]; j++){
-              file << approxA(i, j) << "; ";
-          }
-          file << endl;
-      }
-      file.close();
-    }
+    VectorXd x0(2);
+    x0 << -1, -1;
+    cout << steepest(rosen, x0) << endl;
     cout << "Ende des Programms!" << endl;
     return 0;
 }
