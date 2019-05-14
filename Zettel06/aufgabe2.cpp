@@ -137,16 +137,16 @@ VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stre
   p = g_0;
   do{
   upper = 50, lower=-50, middle = 0;
-  if(minimize(upper, x_i(0), x_i(1), p(0), p(1), rosen) < minimize(middle, x_i(0), x_i(1), p(0), p(1), rosen))
+  if(minimize(upper, x_i(0), x_i(1), p(0), p(1), funptr) < minimize(middle, x_i(0), x_i(1), p(0), p(1), funptr))
   {
-    cout << "ACHTUNG: upper " << setprecision(10) << minimize(upper, x_i(0), x_i(1), p(0), p(1), rosen) << " < middle " << minimize(middle, x_i(0), x_i(1), p(0), p(1), rosen) << endl;
+    cout << "ACHTUNG: upper " << setprecision(10) << minimize(upper, x_i(0), x_i(1), p(0), p(1), funptr) << " < middle " << minimize(middle, x_i(0), x_i(1), p(0), p(1), funptr) << endl;
   }
-  if(minimize(lower, x_i(0), x_i(1), p(0), p(1), rosen) < minimize(middle, x_i(0), x_i(1), p(0), p(1), rosen))
+  if(minimize(lower, x_i(0), x_i(1), p(0), p(1), funptr) < minimize(middle, x_i(0), x_i(1), p(0), p(1), funptr))
   {
     cout << "ACHTUNG: lower < middle" << endl;
   }
   // Minimierung eindimensional bezgl. lambda
-  bisection(minimize, x_i(0), x_i(1), p(0), p(1), rosen, lower, middle, upper, 1e-8);
+  bisection(minimize, x_i(0), x_i(1), p(0), p(1), funptr, lower, middle, upper, 1e-8);
 
   // lambda gewählt als Mitte zwischen upper und lower
   lam = (upper-lower)/2;
@@ -168,8 +168,9 @@ VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stre
   // Update auf neue Richtung p
   p = g_i + m*p;
   i++;
-  }while(g_i.norm() > 1.63); // bei 1.63 beginnts wieder zu steigen
-  cout << i << endl;
+  //cout << g_i.norm() <<  endl;
+}while(g_i.norm() > 0.04); // bei 1.63 beginnts wieder zu steigen
+  //cout << i << endl;
   return x_i;
 }
 
@@ -189,6 +190,30 @@ int main()
     file << "# x1 g(x1) x2 g(x2)" << endl;
     file << "x1;g1;x2;g2" << endl;
     cout << conjugate(rosen, x0, file) << endl;
+    file.close();
+
+    // Aufgabenteil b)
+    VectorXd x1(2), x2(2), x3(2);
+    x1 << 1.5, 2.3;
+    x2 << -1.7, -1.9;
+    x3 << 0.5, 0.6;
+
+    file.open("build/b1.txt", ios::trunc);
+    file << "# x1 g(x1) x2 g(x2)" << endl;
+    file << "x1;g1;x2;g2" << endl;
+    cout << conjugate(funk_b, x1, file) << endl;
+    file.close();
+
+    file.open("build/b2.txt", ios::trunc);
+    file << "# x1 g(x1) x2 g(x2)" << endl;
+    file << "x1;g1;x2;g2" << endl;
+    cout << conjugate(funk_b, x2, file) << endl;
+    file.close();
+
+    file.open("build/b3.txt", ios::trunc);
+    file << "# x1 g(x1) x2 g(x2)" << endl;
+    file << "x1;g1;x2;g2" << endl;
+    cout << conjugate(funk_b, x3, file) << endl;
     file.close();
     cout << "Ende des Programms!" << endl;
     return 0;

@@ -8,26 +8,63 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 plt.rc('axes.formatter', use_locale=True)
 
-df_conjugate = pd.read_csv('build/conjugate.txt', skiprows=1, decimal='.',
-                           delimiter=';')
 
-plt.plot(df_conjugate.x1, df_conjugate.x2, 'r.', markersize=1,
-         label="Schritte")
-plt.legend(loc='best')
-plt.xlabel(r"$x_1$")
-plt.ylabel(r"$x_2$")
-plt.savefig("build/conjugate.pdf")
-plt.clf()
+def plot_conjugate():
 
-df_gradient = pd.read_csv('build/gradient.txt', skiprows=1, decimal='.',
-                          delimiter=';')
+    df_conjugate = pd.read_csv('build/conjugate.txt', skiprows=1, decimal='.',
+                               delimiter=';')
 
-plt.plot(df_gradient.x1, df_gradient.x2, 'r.', markersize=1,
-         label="Schritte")
-plt.legend(loc='best')
-plt.xlabel(r"$x_1$")
-plt.ylabel(r"$x_2$")
-plt.savefig("build/gradient.pdf")
+    plt.plot(df_conjugate.x1, df_conjugate.x2, 'r.', markersize=1,
+             label="Schritte")
+    plt.legend(loc='best')
+    plt.xlabel(r"$x_1$")
+    plt.ylabel(r"$x_2$")
+    plt.savefig("build/conjugate.pdf")
+    plt.clf()
+
+
+def plot_gradient():
+    df_gradient = pd.read_csv('build/gradient.txt', skiprows=1, decimal='.',
+                              delimiter=';')
+
+    plt.plot(df_gradient.x1, df_gradient.x2, 'r.', markersize=1,
+             label="Schritte")
+    plt.legend(loc='best')
+    plt.xlabel(r"$x_1$")
+    plt.ylabel(r"$x_2$")
+    plt.savefig("build/gradient.pdf")
+
+
+def plot_b1():
+    df_gradient = pd.read_csv('build/b1.txt', skiprows=1, decimal='.',
+                              delimiter=';')
+
+    plt.plot(df_gradient.x1, df_gradient.x2, 'r.', markersize=1,
+             label="Schritte")
+    plt.plot(1.5, 2.3, 'bx', label="Startpunkt", markersize=10)
+    plt.legend(loc='best')
+    plt.xlabel(r"$x_1$")
+    plt.ylabel(r"$x_2$")
+    plt.savefig("build/b1.pdf")
+
+
+def plot_b2():
+    df_gradient = pd.read_csv('build/b2.txt', skiprows=1, decimal='.',
+                              delimiter=';')
+
+    plt.plot(df_gradient.x1, df_gradient.x2, 'r.', markersize=1,
+             label="Schritte")
+    plt.plot(-1.7, -1.9, 'bx', label="Startpunkt", markersize=10)
+    plt.legend(loc='best')
+    plt.xlabel(r"$x_1$")
+    plt.ylabel(r"$x_2$")
+    plt.savefig("build/b2.pdf")
+
+
+plot_conjugate()
+plot_gradient()
+plot_b1()
+plot_b2()
 # def f(x1, x2):
 #     return (1-x1**2) + 100*(x2-x1**2)**2
 #
