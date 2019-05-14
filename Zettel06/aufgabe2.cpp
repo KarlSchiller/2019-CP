@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <math.h>  // sqrt()
 #include <tuple>
+#include <iomanip>
 
 using namespace std;
 using namespace Eigen;
@@ -13,6 +14,10 @@ double rosen(double x1, double x2){
   return (1-x1)*(1-x1) + 100*(x2-x1*x1)*(x2-x1*x1);
 }
 
+// Funktion aus der b)
+double funk_b(double x1, double x2){
+  return 1/(1+exp(-10*(x1*x2 -3)*(x1*x2 -3))/(x1*x1 + x2*x2));
+}
 // Eindimensionale, zu minimierende Funktion
 double minimize(double lam, double x1, double x2, double g1, double g2,
                 double (*funptr)(double, double))
@@ -84,8 +89,12 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
   // Gradienten bestimmen
   VectorXd g(x0.size());
   VectorXd x_i = x0;
-  double upper = 100, lower=-100, middle = 0, lam;
+  double upper = 50, lower=-50, middle = 10, lam;
   //do{
+  for(int i = 0; i<11123; i++){
+    upper = 50, lower=-50, middle = 0;
+    //cout << "iteration: " << i << endl;
+    //cout << "upper: " << upper << "lower: " << lower << endl;
     g(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
     g(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
 
@@ -96,41 +105,73 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
 
     if(minimize(upper, x_i(0), x_i(1), g(0), g(1), rosen) < minimize(middle, x_i(0), x_i(1), g(0), g(1), rosen))
     {
-      cout << "ACHTUNG: upper" << minimize(upper, x_i(0), x_i(1), g(0), g(1), rosen) << " < middle" << middle << endl;
+      cout << "ACHTUNG: upper " << setprecision(10) << minimize(upper, x_i(0), x_i(1), g(0), g(1), rosen) << " < middle " << minimize(middle, x_i(0), x_i(1), g(0), g(1), rosen) << endl;
     }
     if(minimize(lower, x_i(0), x_i(1), g(0), g(1), rosen) < minimize(middle, x_i(0), x_i(1), g(0), g(1), rosen))
     {
       cout << "ACHTUNG: lower < middle" << endl;
     }
 
-    bisection(minimize, x_i(0), x_i(1), g(0), g(1), rosen, lower, middle, upper, 1e-10);
-    //cout << upper << " " << lower << endl;
+    bisection(minimize, x_i(0), x_i(1), g(0), g(1), rosen, lower, middle, upper, 1e-8);
     lam = (upper-lower)/2;
-    cout << "Minimale Schrittweite: " << lam << endl;
+    //cout << "Minimale Schrittweite einfach: " << lam << endl;
     x_i = x_i + lam * g;
-  //}while(g.norm() >= 1);
-  return g;
+    cout << g.norm() << endl;
+  //}while(g.norm() >= 1.63);
+  }
+  return x_i;
 }
 
-// VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stream){
-//   // Start
-//   // Gradienten bestimmen
-//   VectorXd g_0(x0.size()), g_i(x0.size());
-//   VectorXd x_i = x0;
-//
-//   g_0(0) = first(funptr, x0(0), x0(1), 0)*(-1);
-//   g_0(1) = first(funptr, x0(0), x0(1), 1)*(-1);
-//
-//   VectorXd p = g_0;
-//   // Hier kommt die eindimensionale Minimierung hin
-//   /* l_min = minimierung, aber mit p
-//   x_i = x_i + l_min*p
-//   g_i(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
-//   g_i(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
-//   double m = (g_i.dot(g_i))/(g_0.dot(g_0));
-//   p = g + m*p
-//     */
-// }
+VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stream){
+  // Start
+  // Gradienten bestimmen und Variablen initialisieren
+  VectorXd g_0(x0.size()), g_i(x0.size());
+  VectorXd x_i = x0, p;
+  double upper = 100, lower=-100, middle = 0, lam, m;
+  int i = 0;
+
+  // Bestimmung des ersten Gradienten
+  g_0(0) = first(funptr, x0(0), x0(1), 0)*(-1);
+  g_0(1) = first(funptr, x0(0), x0(1), 1)*(-1);
+
+  p = g_0;
+  do{
+  upper = 50, lower=-50, middle = 0;
+  if(minimize(upper, x_i(0), x_i(1), p(0), p(1), rosen) < minimize(middle, x_i(0), x_i(1), p(0), p(1), rosen))
+  {
+    cout << "ACHTUNG: upper " << setprecision(10) << minimize(upper, x_i(0), x_i(1), p(0), p(1), rosen) << " < middle " << minimize(middle, x_i(0), x_i(1), p(0), p(1), rosen) << endl;
+  }
+  if(minimize(lower, x_i(0), x_i(1), p(0), p(1), rosen) < minimize(middle, x_i(0), x_i(1), p(0), p(1), rosen))
+  {
+    cout << "ACHTUNG: lower < middle" << endl;
+  }
+  // Minimierung eindimensional bezgl. lambda
+  bisection(minimize, x_i(0), x_i(1), p(0), p(1), rosen, lower, middle, upper, 1e-8);
+
+  // lambda gewählt als Mitte zwischen upper und lower
+  lam = (upper-lower)/2;
+  //cout << "minimale Schrittweite konjugiert: " << lam << endl;
+
+  // Update auf nächstes x
+  x_i = x_i + lam*p;
+  stream << x_i(0) << ";" << g_i(0) << ";" << x_i(1) << ";" << g_i(1);
+
+  stream << endl;
+
+  //cout << x_i << endl;
+  g_i(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
+  g_i(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
+  //cout << "g_0: " << g_0 << endl;
+
+  m = (g_i.dot(g_i))/(g_0.dot(g_0));
+  g_0 = g_i;
+  // Update auf neue Richtung p
+  p = g_i + m*p;
+  i++;
+  }while(g_i.norm() > 1.63); // bei 1.63 beginnts wieder zu steigen
+  cout << i << endl;
+  return x_i;
+}
 
 int main()
 {
@@ -140,8 +181,14 @@ int main()
     ofstream file;
     file.open("build/gradient.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
-    file << "x1; g1; x2; g2" << endl;
+    file << "x1;g1;x2;g2" << endl;
     cout << steepest(rosen, x0, file) << endl;
+    file.close();
+
+    file.open("build/conjugate.txt", ios::trunc);
+    file << "# x1 g(x1) x2 g(x2)" << endl;
+    file << "x1;g1;x2;g2" << endl;
+    cout << conjugate(rosen, x0, file) << endl;
     file.close();
     cout << "Ende des Programms!" << endl;
     return 0;
