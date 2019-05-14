@@ -33,6 +33,7 @@ def plot_gradient():
     plt.xlabel(r"$x_1$")
     plt.ylabel(r"$x_2$")
     plt.savefig("build/gradient.pdf")
+    plt.clf()
 
 
 def plot_b1():
@@ -46,6 +47,7 @@ def plot_b1():
     plt.xlabel(r"$x_1$")
     plt.ylabel(r"$x_2$")
     plt.savefig("build/b1.pdf")
+    plt.clf()
 
 
 def plot_b2():
@@ -59,6 +61,7 @@ def plot_b2():
     plt.xlabel(r"$x_1$")
     plt.ylabel(r"$x_2$")
     plt.savefig("build/b2.pdf")
+    plt.clf()
 
 
 plot_conjugate()
