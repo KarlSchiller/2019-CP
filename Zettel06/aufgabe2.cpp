@@ -84,7 +84,7 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
   // Gradienten bestimmen
   VectorXd g(x0.size());
   VectorXd x_i = x0;
-  double upper = 100, lower=0, middle = -3, lam;
+  double upper = 100, lower=-100, middle = 0, lam;
   //do{
     g(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
     g(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
@@ -93,6 +93,16 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
     stream << x_i(0) << ";" << g(0) << ";" << x_i(1) << ";" << g(1);
 
     stream << endl;
+
+    if(minimize(upper, x_i(0), x_i(1), g(0), g(1), rosen) < minimize(middle, x_i(0), x_i(1), g(0), g(1), rosen))
+    {
+      cout << "ACHTUNG: upper" << minimize(upper, x_i(0), x_i(1), g(0), g(1), rosen) << " < middle" << middle << endl;
+    }
+    if(minimize(lower, x_i(0), x_i(1), g(0), g(1), rosen) < minimize(middle, x_i(0), x_i(1), g(0), g(1), rosen))
+    {
+      cout << "ACHTUNG: lower < middle" << endl;
+    }
+
     bisection(minimize, x_i(0), x_i(1), g(0), g(1), rosen, lower, middle, upper, 1e-10);
     //cout << upper << " " << lower << endl;
     lam = (upper-lower)/2;
