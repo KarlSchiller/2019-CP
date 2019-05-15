@@ -116,7 +116,7 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
     lam = (upper-lower)/2;
     //cout << "Minimale Schrittweite einfach: " << lam << endl;
     x_i = x_i + lam * g;
-    cout << g.norm() << endl;
+    //cout << g.norm() << endl;
   //}while(g.norm() >= 1.63);
   }
   return x_i;
@@ -183,13 +183,15 @@ int main()
     file.open("build/gradient.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
     file << "x1;g1;x2;g2" << endl;
-    cout << steepest(rosen, x0, file) << endl;
+    cout << "Steepest: " << steepest(rosen, x0, file) << endl;
+    cout << endl;
     file.close();
 
     file.open("build/conjugate.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
     file << "x1;g1;x2;g2" << endl;
-    cout << conjugate(rosen, x0, file) << endl;
+    cout << "Konjugiert: " << conjugate(rosen, x0, file) << endl;
+    cout << endl;
     file.close();
 
     // Aufgabenteil b)
@@ -201,19 +203,22 @@ int main()
     file.open("build/b1.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
     file << "x1;g1;x2;g2" << endl;
-    cout << conjugate(funk_b, x1, file) << endl;
+    cout << "Erster Startwert: " << conjugate(funk_b, x1, file) << endl;
+    cout << endl;
     file.close();
 
     file.open("build/b2.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
     file << "x1;g1;x2;g2" << endl;
-    cout << conjugate(funk_b, x2, file) << endl;
+    cout << "Zweiter Startwert: " << conjugate(funk_b, x2, file) << endl;
+    cout << endl;
     file.close();
 
     file.open("build/b3.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
     file << "x1;g1;x2;g2" << endl;
-    cout << conjugate(funk_b, x3, file) << endl;
+    cout << "Dritter Startwert: " << conjugate(funk_b, x3, file) << endl;
+    cout << endl;
     file.close();
     cout << "Ende des Programms!" << endl;
     return 0;
