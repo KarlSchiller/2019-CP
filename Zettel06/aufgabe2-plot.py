@@ -1,4 +1,4 @@
-# import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 # from mpl_toolkits . mplot3d import Axes3D
 import pandas as pd
@@ -40,14 +40,24 @@ def plot_b1():
     df_gradient = pd.read_csv('build/b1.txt', skiprows=1, decimal='.',
                               delimiter=';')
 
-    plt.plot(df_gradient.x1, df_gradient.x2, 'r.', markersize=1,
+    fig = plt.figure()
+    x1 = df_gradient.iloc[0::5, 0]
+    y1 = df_gradient.iloc[0::5, 2]
+    X, Y = np.meshgrid(x1, y1)
+    werte = f(X, Y)
+    plt.contour(X, Y, werte, cmap="winter")
+    plt.colorbar()
+    # ax.clabel(test, inline=1, fontsize=10)
+    plt.plot(x1, y1, 'r.', markersize=1,
              label="Schritte")
     plt.plot(1.5, 2.3, 'bx', label="Startpunkt", markersize=10)
     plt.legend(loc='best')
     plt.xlabel(r"$x_1$")
     plt.ylabel(r"$x_2$")
-    plt.savefig("build/b1.pdf")
-    plt.clf()
+    plt.xlim(1.35, 1.51)
+    plt.ylim(2.2, 2.302)
+    fig.savefig("build/b1.pdf")
+    fig.clf()
 
 
 def plot_b2():
@@ -64,10 +74,16 @@ def plot_b2():
     plt.clf()
 
 
-plot_conjugate()
-plot_gradient()
+def f(x1, x2):
+    return 1/(1+np.exp(-10*(x1*x2-3)**2)/(x1**2 + x2**2))
+
+
+# plot_conjugate()
+# plot_gradient()
 plot_b1()
-plot_b2()
+# plot_b2()
+
+
 # def f(x1, x2):
 #     return (1-x1**2) + 100*(x2-x1**2)**2
 #
