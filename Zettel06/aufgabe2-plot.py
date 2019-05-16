@@ -64,6 +64,7 @@ def plot_gradient(x):
     plt.ylabel(r"$\epsilon_k$")
     plt.legend(loc='best')
     plt.savefig('build/e_gradient.png')
+    plt.clf()
 
 
 def plot_b1(x):
@@ -123,22 +124,3 @@ def rosen(x1, x2):
 plot_gradient(10)
 plot_b1(100)
 plot_b2(500)
-# print(rosen(0.991117, 0.982278))
-# print(rosen(1.00234, 0.133408))
-
-
-#
-#
-# x1 = np.linspace(0, 2)
-# x2 = np.linspace(0, 2)
-# X1, X2 = np.meshgrid(x1, x2)
-# werte = f(X1, X2)
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
-# ax.scatter(
-#     X1, X2, werte,
-#     lw=0,
-#     s=5,
-# )
-# plt.savefig('build/test.pdf')
