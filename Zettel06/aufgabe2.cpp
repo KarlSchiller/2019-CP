@@ -29,17 +29,17 @@ double minimize(double lam, double x1, double x2, double g1, double g2,
 welche Variable grade abgeleitet wird*/
 double first(double (*funptr)(double, double), double x1, double x2, int k)
 {
-  double eps = 1e-8;
-  double h;
-  if ((abs(x1) < eps) || (abs(x2) < eps))  // x near zero
-  {
-    h = sqrt(eps);
-  } else if (k == 0){
-    h = sqrt(eps)*x1;
-  }
-  else {
-    h = sqrt(eps)*x2;
-  }
+  // double eps = 1e-8;
+  double h = 1e-2;
+  // if ((abs(x1) < eps) || (abs(x2) < eps))  // x near zero
+  // {
+  //   h = sqrt(eps);
+  // } else if (k == 0){
+  //   h = sqrt(eps)*x1;
+  // }
+  // else {
+  //   h = sqrt(eps)*x2;
+  // }
   // Für beide Variablen auswerten
   if (k == 0){
     return 0.5*(funptr(x1+h, x2)-funptr(x1-h, x2))/h;
@@ -52,14 +52,14 @@ double first(double (*funptr)(double, double), double x1, double x2, int k)
 double first2(double (*funptr)(double, double, double, double, double, double (*funptr)(double, double)),
               double x, double x1, double x2, double g1, double g2, double (*funptr1)(double, double))
 {
-  double eps = 1e-8;
-  double h;
-  if (abs(x) < eps)  // x near zero
-  {
-    h = sqrt(eps);
-  } else {
-    h = sqrt(eps)*x;
-  }
+  // double eps = 1e-8;
+  double h=1e-2;
+  // if (abs(x) < eps)  // x near zero
+  // {
+  //   h = sqrt(eps);
+  // } else {
+  //   h = sqrt(eps)*x;
+  // }
   return 0.5*(funptr(x+h, x1, x2, g1, g2, funptr1)-funptr(x+h, x1, x2, g1, g2, funptr1))/h;
 }
 
@@ -67,14 +67,14 @@ double first2(double (*funptr)(double, double, double, double, double, double (*
 double second(double (*funptr)(double, double, double, double, double, double (*funptr)(double, double)),
               double x, double x1, double x2, double g1, double g2, double (*funptr1)(double, double))
 {
-  double eps = pow(10, -8);
-  double h;
-  if (abs(x) < eps)  // x near zero
-  {
-    h = sqrt(eps);
-  } else {
-    h = sqrt(eps)*x;
-  }
+  // double eps = pow(10, -8);
+  double h=1e-2;
+  // if (abs(x) < eps)  // x near zero
+  // {
+  //   h = sqrt(eps);
+  // } else {
+  //   h = sqrt(eps)*x;
+  // }
   return (funptr(x+h, x1, x2, g1, g2, funptr1)-2*funptr(x+h, x1, x2, g1, g2, funptr1)+funptr(x+h, x1, x2, g1, g2, funptr1))/(h*h);
 }
 
@@ -82,12 +82,15 @@ void newton(double (*funptr)(double, double, double, double, double, double (*fu
                  double x, double x1, double x2, double g1, double g2,
                  double (*funptr1)(double, double), double tol)
 {
-  double old;
+  cout << "Start Newton" << endl;
+  double old = x+2*tol;
   int i = 1;
-  do {
+  //do {
+  while(abs(x-old) > tol) {
     old = x;
     x = old - first2(funptr, old, x1, x2, g1, g2, funptr1)/second(funptr, old, x1, x2, g1, g2, funptr1);
     i++;
+    cout << x << endl;
 
     // stop iteration when there is no convergence
     if(first2(funptr, old, x1, x2, g1, g2, funptr1) <= first2(funptr, old, x1, x2, g1, g2, funptr1))
@@ -95,7 +98,8 @@ void newton(double (*funptr)(double, double, double, double, double, double (*fu
       cout << "WARNING: No convergence to defined error tolerance" << endl;
       break;
     }
-  } while (first2(funptr, old, x1, x2, g1, g2, funptr1) > tol);
+  }
+  // } while (first2(funptr, old, x1, x2, g1, g2, funptr1) > tol);
   // TODO: Use bisection to find better point and start again?
 }
 
@@ -169,7 +173,7 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
 
     bisection(minimize, x_i(0), x_i(1), g(0), g(1), rosen, lower, middle, upper, 1e-6);
     lam = (upper-lower)/2;
-    // lam = 100;
+    // lam = 0;
     // newton(minimize, lam, x_i(0), x_i(1), g(0), g(1), rosen, 1e-6);
     //cout << "Minimale Schrittweite einfach: " << lam << endl;
     x_i = x_i + lam * g;

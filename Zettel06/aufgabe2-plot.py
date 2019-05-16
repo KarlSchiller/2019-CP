@@ -63,7 +63,7 @@ def plot_gradient(x):
     plt.xlabel(r"Iterationen $k$")
     plt.ylabel(r"$\epsilon_k$")
     plt.legend(loc='best')
-    plt.savefig('build/e_gradient.pdf')
+    plt.savefig('build/e_gradient.png')
 
 
 def plot_b1(x):
