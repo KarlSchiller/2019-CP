@@ -185,12 +185,12 @@ int main()
     VectorXd x0(2);
     x0 << -1, -1;
     ofstream file;
-    // file.open("build/gradient.txt", ios::trunc);
-    // file << "# x1 g(x1) x2 g(x2)" << endl;
-    // file << "x1;g1;x2;g2" << endl;
-    // cout << "Steepest: " << steepest(rosen, x0, file) << endl;
-    // cout << endl;
-    // file.close();
+    file.open("build/gradient.txt", ios::trunc);
+    file << "# x1 g(x1) x2 g(x2)" << endl;
+    file << "x1;g1;x2;g2" << endl;
+    cout << "Steepest: " << steepest(rosen, x0, file) << endl;
+    cout << endl;
+    file.close();
 
     file.open("build/conjugate.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
