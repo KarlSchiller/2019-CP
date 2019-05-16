@@ -100,7 +100,7 @@ void bisection(double (*funptr)(double),
  */
 void newton(double (*funptr)(double), double &x, double tol, ostream &stream)
 {
-  double old;
+  double old = x+2*tol;
   int i = 1;
   // do {
   while(abs(x-old) > tol) {
@@ -111,7 +111,7 @@ void newton(double (*funptr)(double), double &x, double tol, ostream &stream)
     if(first(funptr, old) <= first(funptr, x) && i != 1)
     // if(funptr(old) <= funptr(x))
     {
-      cout << "\tStop Newton after " << i << " steps" << endl;
+      cout << "\tStop Newton after " << i-1 << " steps" << endl;
       break;
     }
 
