@@ -1,4 +1,80 @@
 \section*{Aufgabe 2}
+\subsection*{Aufgabenteil a)}
+Das Gradienten- und das Konjugierte-Gradienten-Verfahren wurden implementiert.
+Dabei wurde zur Bestimmung der optimalen Schrittweite das
+Intervallhalbierungsverfahren, welches auch in der ersten Aufgabe implementiert
+werden musste, verwendet. Die implementierten Funktionen wurden sodann an der
+Rosenbrock-Funktion getestet. Der Contour-Plot der
+Konjugierten-Gradienten-Methode befindet sich in Abbildung \ref{fig:1}. Dabei
+entspricht die Colorbar den Funktionswerten an den jeweiligen Stellen. Dabei
+musste die do-while-Schleifen angepasst werden, da ansonsten die neuen Schritte
+gegen $\infty$ divergieren und damit kein Ergebnis erzielt werden kann. Wenn die
+Bedingung in der do-while-Schleife \textsc{$((x_i.norm() < 1) || (i<12000))$}
+gewählt wird, dann ergibt sich für
+\begin{equation*}
+  \vec{x}_{\symup{min}} = \begin{pmatrix}
+    1.00234 \\
+    0.133408
+\end{pmatrix} \ \text{mit} \ f(\vec{x}_{\symup{min}}) = 75.90775847319088 \, .
+\end{equation*}
+Dies ist offensichtlich kein Minimum, leider ist uns der Fehler nicht bewusst,
+der zum divergieren der Schritte führt. Der Contour-Plot wurde auch auf diese
+Weise erstellt.
+
+\begin{figure}
+  \centering
+  \includegraphics{build/conjugate.pdf}
+  \caption{Contour-Plot des Konjugierten-Gradienten-Verfahrens, getestet an der
+  Rosenbrock-Funktion.}
+  \label{fig:1}
+\end{figure}
+
+ Die Konvergenz beim Gradienten-Verfahren ist wie erwartet sehr langsam, aus
+diesem Grund wurde die Genauigkeit des Intervallhalbierungsverfahren auf
+\num{e-6} statt wie bei der CG-Methode auf \num{e-8} gesetzt, um die Konvergenz
+zu beschleunigen. Der Contour-Plot befindet sich in Abbildung
+\ref{fig:gradient}. Da die Konvergenz sehr langsam ist, wurde nur jeder
+\mbox{1000. Schritt} abgespeichert und nur jeder zehnte geplottet, da ansonsten
+Speicherprobleme aufgetreten sind, wenn \textsc{np.meshgrid} aufgerufen wurde.
+Dabei wurde als Abbruchkriterium $|\vec{g}_i| < 0.008$ gewählt, bei dem
+CG-Verfahren ist es $|\vec{g}_{i+1}| \leq 0.009$. Dann konvergiert das
+Gradienten-Verfahren gegen
+\begin{equation*}
+  \vec{x}_{\symup{min}} = \begin{pmatrix}
+    0.991117 \\
+    0.982278
+\end{pmatrix} \ \text{mit} \ f(\vec{x}_{\symup{min}}) = 0.017687214165675095 \, .
+\end{equation*}
+
+\begin{figure}
+  \centering
+  \includegraphics{build/gradient.pdf}
+  \caption{Contour-Plot des Gradienten-Verfahrens, getestet an der
+  Rosenbrock-Funktion.}
+  \label{fig:gradient}
+\end{figure}
+
+\subsection*{Aufgabenteil b)}
+In diesem Aufgabenteil wurde mithilfe des CG-Verfahrens das Minimum der beschrieben Funktion
+gesucht. Dabei fällt auf, dass das Verfahren nicht für den dritten Startwert funktioniert,
+da die Einträge des ersten Gradientenvektors sich im Bereich von \num{e-29} bewegen,
+also sehr klein und für den Rechner 0 sind. Damit kann dieses Verfahren für diesen
+Startwert nicht angewendet werden. Für den ersten Startwert ergibt sich
+\begin{equation*}
+  \vec{x}_{\symup{min}} = \begin{pmatrix}
+    1.68002 \\
+    1.77503
+\end{pmatrix} \ \text{mit} \ f(\vec{x}_{\symup{min}}) = 0.8569875533935767
+\end{equation*}
+und für den zweiten Startwert
+\begin{equation*}
+  \vec{x}_{\symup{min}} = \begin{pmatrix}
+    -1.67661 \\
+    -1.78004
+\end{pmatrix} \ \text{mit} \ f(\vec{x}_{\symup{min}}) = 0.8570217685427779 \, .
+\end{equation*}
+Damit sind zwei Minima gefunden worden, möglicherweise existieren noch mehr.
+
 \begin{figure}
   \centering
   \begin{subfigure}{0.49\textwidth}
@@ -11,8 +87,8 @@
     \centering
     \includegraphics[width=\textwidth]{build/b2.pdf}
     \caption{Zweiter Startwert.}
-    \label{sub:1}
+    \label{sub:2}
   \end{subfigure}
   \caption{Contourplots.}
-  \label{fig:1}
+  \label{fig:2}
 \end{figure}

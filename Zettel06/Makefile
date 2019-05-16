@@ -39,16 +39,7 @@ build/aufg2: aufgabe2.cpp | build
 aufg2: build/aufg2 | build
 	build/aufg2
 
-build/gradient.pdf: build/gradient.txt | build
-	python aufgabe2-plot.py
-
-build/conjugate.pdf: build/conjugate.txt | build
-	python aufgabe2-plot.py
-
-build/b1.pdf: build/b1.txt | build
-	python aufgabe2-plot.py
-
-build/b2.pdf: build/b2.txt | build
+build/gradient.pdf build/conjugate.pdf build/b1.pdf build/b2.pdf: build/gradient.txt build/conjugate.txt build/b1.txt build/b2.txt | build
 	python aufgabe2-plot.py
 
 build/gradient.txt build/conjugate.txt build/b1.txt build/b2.txt: build/aufg2 | build

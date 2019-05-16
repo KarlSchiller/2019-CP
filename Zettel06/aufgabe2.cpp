@@ -90,18 +90,20 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
   VectorXd g(x0.size());
   VectorXd x_i = x0;
   double upper = 50, lower=-50, middle = 10, lam;
-  //do{
-  for(int i = 0; i<11123; i++){
+  int i = 0;
+  do{
+  //for(int i = 0; i<11123; i++){
     upper = 50, lower=-50, middle = 0;
     //cout << "iteration: " << i << endl;
     //cout << "upper: " << upper << "lower: " << lower << endl;
     g(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
     g(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
 
+    if(i%1000 == 0){
+      stream << x_i(0) << ";" << g(0) << ";" << x_i(1) << ";" << g(1);
 
-    stream << x_i(0) << ";" << g(0) << ";" << x_i(1) << ";" << g(1);
-
-    stream << endl;
+      stream << endl;
+    }
 
     if(minimize(upper, x_i(0), x_i(1), g(0), g(1), rosen) < minimize(middle, x_i(0), x_i(1), g(0), g(1), rosen))
     {
@@ -112,13 +114,14 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
       cout << "ACHTUNG: lower < middle" << endl;
     }
 
-    bisection(minimize, x_i(0), x_i(1), g(0), g(1), rosen, lower, middle, upper, 1e-8);
+    bisection(minimize, x_i(0), x_i(1), g(0), g(1), rosen, lower, middle, upper, 1e-6);
     lam = (upper-lower)/2;
     //cout << "Minimale Schrittweite einfach: " << lam << endl;
     x_i = x_i + lam * g;
     //cout << g.norm() << endl;
-  //}while(g.norm() >= 1.63);
-  }
+    i++;
+  }while(g.norm() >= 0.008);
+  //}
   return x_i;
 }
 
@@ -127,7 +130,7 @@ VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stre
   // Gradienten bestimmen und Variablen initialisieren
   VectorXd g_0(x0.size()), g_i(x0.size());
   VectorXd x_i = x0, p;
-  double upper = 100, lower=-100, middle = 0, lam, m;
+  double upper, lower, middle, lam, m;
   int i = 0;
 
   // Bestimmung des ersten Gradienten
@@ -153,15 +156,17 @@ VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stre
   //cout << "minimale Schrittweite konjugiert: " << lam << endl;
 
   // Update auf nächstes x
+  // cout << p.norm() << endl;
   x_i = x_i + lam*p;
-  stream << x_i(0) << ";" << g_i(0) << ";" << x_i(1) << ";" << g_i(1);
+  //cout << x_i.norm() << endl;
+  /* Bei der Rosenbrock-Funktion haut mit die Schrittweite ab auf einmal */
 
+  // In txt Datei schreiben
+  stream << x_i(0) << ";" << g_i(0) << ";" << x_i(1) << ";" << g_i(1);
   stream << endl;
 
-  //cout << x_i << endl;
   g_i(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
   g_i(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
-  //cout << "g_0: " << g_0 << endl;
 
   m = (g_i.dot(g_i))/(g_0.dot(g_0));
   g_0 = g_i;
@@ -169,8 +174,8 @@ VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stre
   p = g_i + m*p;
   i++;
   //cout << g_i.norm() <<  endl;
-}while(g_i.norm() > 0.04); // bei 1.63 beginnts wieder zu steigen
-  //cout << i << endl;
+}while(g_i.norm() > 0.009); // (x_i.norm() < 1) || (i<12000)
+  cout << "Durchläufe: " << i << endl;
   return x_i;
 }
 
@@ -180,12 +185,12 @@ int main()
     VectorXd x0(2);
     x0 << -1, -1;
     ofstream file;
-    file.open("build/gradient.txt", ios::trunc);
-    file << "# x1 g(x1) x2 g(x2)" << endl;
-    file << "x1;g1;x2;g2" << endl;
-    cout << "Steepest: " << steepest(rosen, x0, file) << endl;
-    cout << endl;
-    file.close();
+    // file.open("build/gradient.txt", ios::trunc);
+    // file << "# x1 g(x1) x2 g(x2)" << endl;
+    // file << "x1;g1;x2;g2" << endl;
+    // cout << "Steepest: " << steepest(rosen, x0, file) << endl;
+    // cout << endl;
+    // file.close();
 
     file.open("build/conjugate.txt", ios::trunc);
     file << "# x1 g(x1) x2 g(x2)" << endl;
