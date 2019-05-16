@@ -23,13 +23,13 @@ Weise erstellt.
 
 \begin{figure}
   \centering
-  \includegraphics{build/conjugate.pdf}
+  \includegraphics[scale=0.7]{build/conjugate.pdf}
   \caption{Contour-Plot des Konjugierten-Gradienten-Verfahrens, getestet an der
   Rosenbrock-Funktion.}
   \label{fig:1}
 \end{figure}
 
- Die Konvergenz beim Gradienten-Verfahren ist wie erwartet sehr langsam, aus
+Die Konvergenz beim Gradienten-Verfahren ist wie erwartet sehr langsam, aus
 diesem Grund wurde die Genauigkeit des Intervallhalbierungsverfahren auf
 \num{e-6} statt wie bei der CG-Methode auf \num{e-8} gesetzt, um die Konvergenz
 zu beschleunigen. Der Contour-Plot befindet sich in Abbildung
@@ -48,11 +48,30 @@ Gradienten-Verfahren gegen
 
 \begin{figure}
   \centering
-  \includegraphics{build/gradient.pdf}
+  \includegraphics[scale=0.7]{build/gradient.pdf}
   \caption{Contour-Plot des Gradienten-Verfahrens, getestet an der
   Rosenbrock-Funktion.}
   \label{fig:gradient}
 \end{figure}
+
+Außerdem wurden die Fehler $\epsilon_k$ gegen die Iterationen geplottet und sind
+in Abbildungen \ref{fig:e_gradient} und \ref{fig:e_conjugate} dargestellt.
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.5]{build/e_gradient.pdf}
+  \caption{$\epsilon_k$ der Gradienten-Methode gegen die Iteration geplottet.}
+  \label{fig:e_gradient}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.5]{build/e_conjugate.pdf}
+  \caption{$\epsilon_k$ der CG-Methode gegen die Iteration geplottet.}
+  \label{fig:e_conjugate}
+\end{figure}
+Dabei ist zu sehen, dass die Gradienten-Methode sehr schnell abfällt, dann aber
+lange braucht um tatsächlich zu konvergieren. Die CG-Methode fällt nicht so
+steil ab, und wird dann eine Weile fast konstant, bis sie nochmal steil abfällt.
 
 \subsection*{Aufgabenteil b)}
 In diesem Aufgabenteil wurde mithilfe des CG-Verfahrens das Minimum der beschrieben Funktion

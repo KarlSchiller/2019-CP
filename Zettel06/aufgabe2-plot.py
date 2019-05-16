@@ -30,6 +30,13 @@ def plot_conjugate(x):
     plt.savefig("build/conjugate.pdf")
     plt.clf()
 
+    x = np.linspace(0, df.shape[0]-1, df.shape[0])
+    plt.plot(x, df.ek, 'r.', label=r"$\epsilon_k$")
+    plt.xlabel(r"Iterationen $k$")
+    plt.ylabel(r"$\epsilon_k$")
+    plt.legend(loc='best')
+    plt.savefig('build/e_conjugate.pdf')
+
 
 def plot_gradient(x):
     df = pd.read_csv('build/gradient.txt', skiprows=1, decimal='.',
@@ -50,6 +57,13 @@ def plot_gradient(x):
     plt.ylim(-1.02, 1.02)
     plt.savefig("build/gradient.pdf")
     plt.clf()
+
+    x = np.linspace(0, df.shape[0]-1, df.shape[0])
+    plt.plot(x, df.ek, 'r.', label=r"$\epsilon_k$")
+    plt.xlabel(r"Iterationen $k$")
+    plt.ylabel(r"$\epsilon_k$")
+    plt.legend(loc='best')
+    plt.savefig('build/e_gradient.pdf')
 
 
 def plot_b1(x):
@@ -109,8 +123,8 @@ def rosen(x1, x2):
 plot_gradient(10)
 plot_b1(100)
 plot_b2(500)
-print(rosen(0.991117, 0.982278))
-print(rosen(1.00234, 0.133408))
+# print(rosen(0.991117, 0.982278))
+# print(rosen(1.00234, 0.133408))
 
 
 #

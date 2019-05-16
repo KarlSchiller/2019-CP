@@ -49,6 +49,56 @@ double first(double (*funptr)(double, double), double x1, double x2, int k)
   }
 }
 
+double first2(double (*funptr)(double, double, double, double, double, double (*funptr)(double, double)),
+              double x, double x1, double x2, double g1, double g2, double (*funptr1)(double, double))
+{
+  double eps = 1e-8;
+  double h;
+  if (abs(x) < eps)  // x near zero
+  {
+    h = sqrt(eps);
+  } else {
+    h = sqrt(eps)*x;
+  }
+  return 0.5*(funptr(x+h, x1, x2, g1, g2, funptr1)-funptr(x+h, x1, x2, g1, g2, funptr1))/h;
+}
+
+// Computes the second derivative of @f at @x
+double second(double (*funptr)(double, double, double, double, double, double (*funptr)(double, double)),
+              double x, double x1, double x2, double g1, double g2, double (*funptr1)(double, double))
+{
+  double eps = pow(10, -8);
+  double h;
+  if (abs(x) < eps)  // x near zero
+  {
+    h = sqrt(eps);
+  } else {
+    h = sqrt(eps)*x;
+  }
+  return (funptr(x+h, x1, x2, g1, g2, funptr1)-2*funptr(x+h, x1, x2, g1, g2, funptr1)+funptr(x+h, x1, x2, g1, g2, funptr1))/(h*h);
+}
+
+void newton(double (*funptr)(double, double, double, double, double, double (*funptr)(double, double)),
+                 double x, double x1, double x2, double g1, double g2,
+                 double (*funptr1)(double, double), double tol)
+{
+  double old;
+  int i = 1;
+  do {
+    old = x;
+    x = old - first2(funptr, old, x1, x2, g1, g2, funptr1)/second(funptr, old, x1, x2, g1, g2, funptr1);
+    i++;
+
+    // stop iteration when there is no convergence
+    if(first2(funptr, old, x1, x2, g1, g2, funptr1) <= first2(funptr, old, x1, x2, g1, g2, funptr1))
+    {
+      cout << "WARNING: No convergence to defined error tolerance" << endl;
+      break;
+    }
+  } while (first2(funptr, old, x1, x2, g1, g2, funptr1) > tol);
+  // TODO: Use bisection to find better point and start again?
+}
+
 // Intervalhalbierungsverfahren zur eindimensionalen Minimierung
 void bisection(double (*funptr)(double, double, double, double, double, double (*funptr)(double, double)),
                  double x1, double x2, double g1, double g2, double (*funptr1)(double, double),
@@ -88,8 +138,9 @@ void bisection(double (*funptr)(double, double, double, double, double, double (
 VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &stream){
   // Gradienten bestimmen
   VectorXd g(x0.size());
-  VectorXd x_i = x0;
-  double upper = 50, lower=-50, middle = 10, lam;
+  VectorXd x_i = x0, temp, right(2);
+  right << 1, 1;
+  double upper = 50, lower=-50, middle = 10, lam, epsilon;
   int i = 0;
   do{
   //for(int i = 0; i<11123; i++){
@@ -98,9 +149,11 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
     //cout << "upper: " << upper << "lower: " << lower << endl;
     g(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
     g(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
+    temp = x_i - right;
+    epsilon = temp.squaredNorm();
 
     if(i%1000 == 0){
-      stream << x_i(0) << ";" << g(0) << ";" << x_i(1) << ";" << g(1);
+      stream << x_i(0) << ";" << g(0) << ";" << x_i(1) << ";" << g(1) << ";" << epsilon;
 
       stream << endl;
     }
@@ -116,6 +169,8 @@ VectorXd steepest(double (*funptr)(double, double), VectorXd x0, ofstream &strea
 
     bisection(minimize, x_i(0), x_i(1), g(0), g(1), rosen, lower, middle, upper, 1e-6);
     lam = (upper-lower)/2;
+    // lam = 100;
+    // newton(minimize, lam, x_i(0), x_i(1), g(0), g(1), rosen, 1e-6);
     //cout << "Minimale Schrittweite einfach: " << lam << endl;
     x_i = x_i + lam * g;
     //cout << g.norm() << endl;
@@ -129,8 +184,9 @@ VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stre
   // Start
   // Gradienten bestimmen und Variablen initialisieren
   VectorXd g_0(x0.size()), g_i(x0.size());
-  VectorXd x_i = x0, p;
-  double upper, lower, middle, lam, m;
+  VectorXd x_i = x0, p, temp, right(2);
+  right << 1, 1;
+  double upper, lower, middle, lam, m, epsilon;
   int i = 0;
 
   // Bestimmung des ersten Gradienten
@@ -154,16 +210,17 @@ VectorXd conjugate(double (*funptr)(double, double), VectorXd x0, ofstream &stre
   // lambda gewählt als Mitte zwischen upper und lower
   lam = (upper-lower)/2;
   //cout << "minimale Schrittweite konjugiert: " << lam << endl;
+  // In txt Datei schreiben
+  temp = x_i - right;
+  epsilon = temp.squaredNorm();
+  stream << x_i(0) << ";" << g_i(0) << ";" << x_i(1) << ";" << g_i(1) << ";" << epsilon;
+  stream << endl;
 
   // Update auf nächstes x
   // cout << p.norm() << endl;
   x_i = x_i + lam*p;
   //cout << x_i.norm() << endl;
   /* Bei der Rosenbrock-Funktion haut mit die Schrittweite ab auf einmal */
-
-  // In txt Datei schreiben
-  stream << x_i(0) << ";" << g_i(0) << ";" << x_i(1) << ";" << g_i(1);
-  stream << endl;
 
   g_i(0) = first(funptr, x_i(0), x_i(1), 0)*(-1);
   g_i(1) = first(funptr, x_i(0), x_i(1), 1)*(-1);
@@ -186,15 +243,15 @@ int main()
     x0 << -1, -1;
     ofstream file;
     file.open("build/gradient.txt", ios::trunc);
-    file << "# x1 g(x1) x2 g(x2)" << endl;
-    file << "x1;g1;x2;g2" << endl;
+    file << "# x1 g(x1) x2 g(x2) e_k" << endl;
+    file << "x1;g1;x2;g2;ek" << endl;
     cout << "Steepest: " << steepest(rosen, x0, file) << endl;
     cout << endl;
     file.close();
 
     file.open("build/conjugate.txt", ios::trunc);
-    file << "# x1 g(x1) x2 g(x2)" << endl;
-    file << "x1;g1;x2;g2" << endl;
+    file << "# x1 g(x1) x2 g(x2) ek" << endl;
+    file << "x1;g1;x2;g2;ek" << endl;
     cout << "Konjugiert: " << conjugate(rosen, x0, file) << endl;
     cout << endl;
     file.close();
@@ -206,22 +263,22 @@ int main()
     x3 << 0.5, 0.6;
 
     file.open("build/b1.txt", ios::trunc);
-    file << "# x1 g(x1) x2 g(x2)" << endl;
-    file << "x1;g1;x2;g2" << endl;
+    file << "# x1 g(x1) x2 g(x2) ek" << endl;
+    file << "x1;g1;x2;g2;ek" << endl;
     cout << "Erster Startwert: " << conjugate(funk_b, x1, file) << endl;
     cout << endl;
     file.close();
 
     file.open("build/b2.txt", ios::trunc);
-    file << "# x1 g(x1) x2 g(x2)" << endl;
-    file << "x1;g1;x2;g2" << endl;
+    file << "# x1 g(x1) x2 g(x2) ek" << endl;
+    file << "x1;g1;x2;g2;ek" << endl;
     cout << "Zweiter Startwert: " << conjugate(funk_b, x2, file) << endl;
     cout << endl;
     file.close();
 
     file.open("build/b3.txt", ios::trunc);
-    file << "# x1 g(x1) x2 g(x2)" << endl;
-    file << "x1;g1;x2;g2" << endl;
+    file << "# x1 g(x1) x2 g(x2) ek" << endl;
+    file << "x1;g1;x2;g2;ek" << endl;
     cout << "Dritter Startwert: " << conjugate(funk_b, x3, file) << endl;
     cout << endl;
     file.close();
