@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>
+#include <iomanip>
 // #include <math.h>  // sqrt()
 
 using namespace std;
@@ -18,14 +19,14 @@ T quadr(T x)
 // Computes the first derivative of @f at @x
 double first(double (*funptr)(double), double x)
 {
-  double eps = 1e-8;
-  double h;
-  if (abs(x) < eps)  // x near zero
-  {
-    h = sqrt(eps);
-  } else {
-    h = sqrt(eps)*x;
-  }
+  // double eps = 1e-8;
+  double h = 1e-2;
+  // if (abs(x) < eps)  // x near zero
+  // {
+    // h = sqrt(eps);
+  // } else {
+    // h = sqrt(eps)*x;
+  // }
   return 0.5*(funptr(x+h)-funptr(x-h))/h;
 }
 
@@ -33,14 +34,14 @@ double first(double (*funptr)(double), double x)
 // Computes the second derivative of @f at @x
 double second(double (*funptr)(double), double x)
 {
-  double eps = pow(10, -8);
-  double h;
-  if (abs(x) < eps)  // x near zero
-  {
-    h = sqrt(eps);
-  } else {
-    h = sqrt(eps)*x;
-  }
+  // double eps = pow(10, -8);
+  double h = 1e-2;
+  // if (abs(x) < eps)  // x near zero
+  // {
+    // h = sqrt(eps);
+  // } else {
+    // h = sqrt(eps)*x;
+  // }
   return (funptr(x+h)-2*funptr(x)+funptr(x-h))/(h*h);
 }
 
@@ -87,14 +88,10 @@ void bisection(double (*funptr)(double),
       }
     }
     N++;
-    stream << N << ";" << lower << ";" << middle << ";" << upper << endl;
+    stream << setprecision(10) << N << ";" << lower << ";" << middle << ";" << upper << endl;
   }
+  cout << "\tStop Bisection after " << N << " steps" << endl;
 }
-
-
-// TODO: bisection with golden ratio?
-// double gr = 0.5*(3-sqrt(5));
-// just for fun...
 
 
 /* newton method to minimize function
@@ -105,20 +102,24 @@ void newton(double (*funptr)(double), double &x, double tol, ostream &stream)
 {
   double old;
   int i = 1;
-  do {
+  // do {
+  while(abs(x-old) > tol) {
     old = x;
     x = old - first(funptr, old)/second(funptr, old);
-    stream << i << ";" << x << ";" << first(funptr, x) << endl;
-    i++;
 
     // stop iteration when there is no convergence
-    if(first(funptr, old) <= first(funptr, x))
+    if(first(funptr, old) <= first(funptr, x) && i != 1)
+    // if(funptr(old) <= funptr(x))
     {
-      cout << "WARNING: No convergence to defined error tolerance" << endl;
+      cout << "\tStop Newton after " << i << " steps" << endl;
       break;
     }
-  } while (first(funptr, x) > tol);
-  // TODO: Use bisection to find better point and start again?
+
+    stream  << setprecision(10) << i << ";" << x << ";" << first(funptr, x) << endl;
+    i++;
+  // } while (first(funptr, x) > tol);
+  // } while (abs(x - old) > tol);
+  }
 }
 
 

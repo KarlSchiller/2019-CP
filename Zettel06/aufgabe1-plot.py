@@ -14,11 +14,11 @@ def plot_newton():
     df_newton = pd.read_csv('build/aufg1-newton.txt', decimal='.', delimiter=';')
 
     fig = plt.figure()
-    #  plt.bar(indices, df_eigen.evalues, color='k')
-    plt.plot(df_newton.i, df_newton.deriv, 'kx')
+    plt.plot(df_newton.i, df_newton.x, 'kx')
     plt.xlabel('Iteration')
     plt.ylabel(r"$f'\!\left(x\right)$")
     plt.yscale('log')
+    plt.ylim((1e-17, 1e4))
     fig.savefig('build/aufg1-newton.pdf', bbox_inches='tight')
     fig.clf()
 
