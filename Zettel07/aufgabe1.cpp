@@ -67,7 +67,7 @@ implementation of BFGS
 * fstream     file for iteration steps
 */
 VectorXd bfgs(double (*f)(VectorXd), VectorXd (*g)(VectorXd), VectorXd x_0,
-              MatrixXd c_0, double epsilon_f, double epsilon_g, int &iteration){
+              MatrixXd c_0, double epsilon_f, double epsilon_g, int iteration){
   /* Fahrplan:
   * p bestimmen
   * Liniensuchschritt durchlaufen
@@ -122,17 +122,35 @@ VectorXd bfgs(double (*f)(VectorXd), VectorXd (*g)(VectorXd), VectorXd x_0,
 int main() {
   cout << "Beginn des Programms!" << endl;
   // Initialisieren der Größen
-  VectorXd x_0(5), x_i(5);
-  MatrixXd c_0;
+  VectorXd x_0(5), x_i(5), temp;
+  MatrixXd c_0, H(5, 5);
   double epsilon_f = 1e-6, epsilon_g = 1e-6;
   int iteration = 0;
-
   x_0 << 0, 0, 0, 0, 0;
+
+  // Methode mit Einheitsmatrix
   c_0 = MatrixXd::Identity(5, 5);
   c_0 = f(x_0)*c_0;
+  cout << "\nEinheitsmatrix: " << endl;
   x_i = bfgs(f, gradient, x_0, c_0, epsilon_f, epsilon_g, iteration);
-  cout << f(x_0) << " " << f(x_i) << endl;
+  cout << "f(x_0): " << f(x_0) << " f(x_min): " << f(x_i) << endl;
 
-  cout << "Ende des Programms!" << endl;
+  // Methode mit exakter Hesse-Matrix
+  H << 2, -3, 0, 0, 0, -3, 6, 2, 0, 0, 0, 2, 4, -2, 0, 0, 0, -2, 4, 1, 0, 0, 0, 1, 2;
+  c_0 = H.inverse();
+
+  cout << "\nHesse-Matrix-Methode: " << endl;
+  x_i = bfgs(f, gradient, x_0, c_0, epsilon_f, epsilon_g, iteration);
+  cout << "f(x_0): " << f(x_0) << " f(x_min): " << f(x_i) << endl;
+
+  // Methode mit Diagonalmatrix
+  temp = c_0.diagonal();
+  c_0 = temp.asDiagonal();
+
+  cout << "\nDiagonalmatrix-Methode: " << endl;
+  x_i = bfgs(f, gradient, x_0, c_0, epsilon_f, epsilon_g, iteration);
+  cout << "f(x_0): " << f(x_0) << " f(x_min): " << f(x_i) << endl;
+
+  cout << "\nEnde des Programms!" << endl;
   return 0;
 }
