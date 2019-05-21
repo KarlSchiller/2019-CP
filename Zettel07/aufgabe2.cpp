@@ -160,7 +160,7 @@ int main() {
 
   // Teste Gradientenmethode
   // VectorXd x_test = VectorXd::Ones(2);
-  // cout << gradient_2d(testfunction, x_test, h) << endl;
+  // cout << "sollge 2 4 ergeben: " << gradient_2d(testfunction, x_test, h).transpose() << endl;
 
   // Initialisiere Polygonzug auf Quadrat
   MatrixXd r = initPoly(N, l);
