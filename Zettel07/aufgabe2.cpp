@@ -4,171 +4,183 @@
 #include <math.h>  // sqrt, round
 // #include <tuple>
 // #include <complex>
-#include <iomanip> // setprecision
+// #include <iomanip> // setprecision
 
 using namespace std;
 using namespace Eigen;
-typedef complex<double> dcomp;
 
 
-/* Invertiert die ersten @l Stellen von @zahl vor dem Komma in Binärdarstellung
- * und gibt diese als integer Zahl wieder zurück.
+/* Berechnet die eingeschlossene Fläche eines 2 dimensionalen Polygonzuges
+ * INPUT: Matrix r mit Dimension 2x(#Punkte)
+ * OUTPUT: Flächeninhalt der eingeschlossenen Fläche
  */
-int flip_bits(int zahl, int l)
+double flaechePolygonzug(Eigen::MatrixXd &r)
 {
-  string tmp = "";
-  // Lese Zahl bitweise in umgekehrter Reihenfolge aus
-  for (int i=0; i<l; i++){
-    tmp += to_string(((zahl >> i) & 1));
-  }
-  // Konvertiere in umgekehrter Reihenfolge zurueck in Integer
-  return stoi(tmp, nullptr, 2);
-}
-
-
-/* Nummeriert die Einträge von @input um und schreibt diese in @output.
- * Dabei werden die ersten @m Stellen der Binärzahldarstellung des Index
- * invertiert und wieder in eine integer Zahl umgewandelt
- */
-void umnummerierung(VectorXcd &input, VectorXcd &output, int m)
-{
-  double dim = pow(2, m);
-  for(int i=0; i<dim; i++){
-    output(i) = input(flip_bits(i, m));
-  }
-}
-
-
-/* diskrete Fouriertransformation als nicht-speicheroptimierter Algorithmus aus der
- * Vorlesung mit 2^m Diskretisierungspunkten.
- */
-VectorXcd discrete_fft(double m, VectorXcd &f)
-{
-  double N = pow(2, m);
-  const dcomp compz (0., 1.);  // complexe Zahl i
-  VectorXcd start = VectorXcd::Zero(N);
-  umnummerierung(f, start, m);
-
-  // Initialisierung
-  MatrixXcd neu = MatrixXcd::Zero(N,N);
-  MatrixXcd alt = MatrixXcd::Zero(N,N);
-  for (int i=0; i<N; i++) {
-    alt.col(i) = start;
-  }
-
-  // Iterative Berechnung
-  for(int k=1; k<=m; k++)
+  // Berechne Schwerpunkt
+  VectorXd r_com = r.rowwise().sum() / r.rows();
+  double A = 0;
+  // Addiere Flächeninhalte der Dreiecke (r_com, r_i, r_i+1) auf
+  for (int i=0; i<r.cols(); i++)
   {
-    for(int j=0; j<pow(2,k); j++)
+    if(i==r.cols()-1)  // r_0 und r_N sind miteinander verbunden
     {
-      for(int l=0; l<pow(2,m-k); l++)
-      {
-        // Einträge j<2^k
-        neu(j,l) = alt(j,2*l)+exp(2*M_PI*compz*static_cast<double>(j)/pow(2,k))*alt(j,2*l+1);
-
-        // Einträge j>=2^k
-        for(int i=1; i<pow(2,m-k); i++) {
-          neu(j+i*pow(2,k),l) = neu(j,l);
-        }
-      }
+      A += 0.5*((r(1,0)-r_com(1))*(r(0,i)-r_com(0))+(r_com(0)-r(0,0))*(r(1,i)-r_com(1)));
+    } else {
+      A += 0.5*((r(1,i+1)-r_com(1))*(r(0,i)-r_com(0))+(r_com(0)-r(0,i+1))*(r(1,i)-r_com(1)));
     }
-    alt = neu;
   }
-  return alt.col(0);
+  return A;
 }
 
 
-/* Verschiebung der Elemente des Ergebnisvektors von discrete_fft,
- * um diese in eine geordnete Reihenfolge zu bringen
+/* Initialisiere Polygonzug in 2 Dimensionen
+ * Dabei liegen @N Punkte gleichmäßig verteilt auf einem Quadrat der Kantenlänge @l,
+ * das im Urpsprung zentriert ist.
+ * INPUT    N   # Punkte
+ *          l   Seitenlänge des Quadrats
+ * OUTPUT   r   2xN Matrix mit den Punkten des Polygonzuges
  */
-void sortiere(VectorXcd &input, int N)
+Eigen::MatrixXd initPoly(int N, double l)
 {
-  VectorXcd temp = input;
-  for (int i=0; i<N/2; i++)
+  double bor = l/2;  // Grenze des Quadrats in x- und y
+  int pps = N/4;  // Punkte pro Seite
+  MatrixXd r = MatrixXd::Zero(2, N);
+
+  // Obere Seite des Quadrats
+  r.block(0,0,1,pps) = ArrayXd::LinSpaced(pps+1, bor, -bor).head(pps).transpose();
+  r.block(1,0,1,pps) = bor*ArrayXd::Ones(pps).transpose();
+  // Linke Seite des Quadrats
+  r.block(0,pps,1,pps) = -bor*ArrayXd::Ones(pps).transpose();
+  r.block(1,pps,1,pps) = ArrayXd::LinSpaced(pps+1, bor, -bor).head(pps).transpose();
+  // Untere Seite des Quadrats
+  r.block(0,2*pps,1,pps) = ArrayXd::LinSpaced(pps+1, -bor, bor).head(pps).transpose();
+  r.block(1,2*pps,1,pps) = -bor*ArrayXd::Ones(pps).transpose();
+  // Rechte Seite des Quadrats
+  r.block(0,3*pps,1,pps) = bor*ArrayXd::Ones(pps).transpose();
+  r.block(1,3*pps,1,pps) = ArrayXd::LinSpaced(pps+1, -bor, bor).head(pps).transpose();
+  return r;
+}
+
+
+/* Berechne 2 dimensionalen Gradienten von Funktion f am Ort x mit Schrittweite h
+ */
+Eigen::VectorXd gradient_2d(double (*f)(double, double), Eigen::VectorXd x, double h)
+{
+  VectorXd g = VectorXd::Zero(2);
+  g(0) = 0.5*(f(x(0)+h,x(1))-f(x(0)-h,x(1)))/h;
+  g(1) = 0.5*(f(x(0),x(1)+h)-f(x(0),x(1)-h))/h;
+  return g;
+}
+
+
+/* Optimaler Polygonzug mit vorgegebenem Flächeninhalt
+ * Augmented Lagrangian Method
+ */
+Eigen::VectorXd opti_poly(Eigen::MatrixXd r, function<double(VectorXd)> f) // TODO: Funktion schreiben
+{
+  double mu = 1;
+  double lam = 1;
+
+  return VectorXd::Ones(9);
+}
+
+
+/* Berechnet Energie des Polygonzuges
+ * INPUT:   r   Punkte des Polygonzuges, Dimension der Matrix 2x(#Punkte)
+ */
+double energie(Eigen::MatrixXd r)
+{
+  double en = 0;
+  for (int i=0; i<r.cols(); i++)
   {
-    input(2*i) = temp(i);  // gerade k
-    input(2*i+1) = temp(i+N/2);  // ungerade k
-  }
-}
-
-
-/* Fast Fourier Transformation
- * INPUT:     m       Legt Anzahl Diskretisierungpunkte N=2^m fest
- *            f       Funktionswerte, Dimension N=2^m
- *            lower   untere Intervallgrenze
- *            upper   obere Intervallgrenze
- * OUTPUT:    F       Fouriertransformierte
- */
-VectorXcd fft(double lower, double upper, double m, VectorXcd &f)
-{
-  // VectorXcd F = discrete_fft(m, f);
-  int N = pow(2,m);
-  double dx = (upper-lower)/N;
-  double L = upper-lower;
-  const dcomp i (0., 1.);
-  VectorXcd F = VectorXcd::Zero(N);
-  F = discrete_fft(m, f);
-
-  // Sortiere Ergebnisvektor
-  sortiere(F, N);
-  // Multipliziere Daten mit Phasenfaktor
-  for (int j=0; j<N; j++){
-    F(j) = dx/(2*M_PI) * exp(-2*M_PI*i*lower*static_cast<double>(j)/L) * F(j);
-  }
-
-  return F;
-}
-
-
-// Exponentielle Funktion zum Test von Teil b)
-template<typename T>
-T exp_fkt(T x)
-{
-  return exp(-0.5*x*x);
-}
-
-int main()
-{
-  cout << "Aufgabe 2: FFT" << endl;
-  cout << "\tTeil a)" << endl;
-
-  cout << "\tdirekte Auswertung" << endl;
-  double m = 3;
-  double N = pow(2, m);
-  const dcomp i (0., 1.);
-  VectorXcd f =  VectorXd::LinSpaced(N, 1, N).cwiseSqrt();
-  VectorXcd F = VectorXcd::Zero(N);
-  for(double j=0; j<N; j++){
-    for (double l=0; l<N; l++){
-      F(j) += exp(2*M_PI*i*l*j/N)*f(l);
+    if(i==r.cols()-1)  // letzter Punkt, mit erstem vernküpft
+    {
+      en += abs((r.col(0)-r.col(i)).sum());
+    } else {
+      en += abs((r.col(i+1)-r.col(i)).sum());
     }
   }
-  cout << F << endl << endl;
+  return en;
+}
 
-  cout << "\tFFT" << endl;
-  VectorXcd Fdiscrete = discrete_fft(m, f);
-  cout << Fdiscrete << endl << endl;
-  // TODO: Herausfinden, warum fft komisches Ergebnis hat...
 
-  cout << "\tTeil b)" << endl;
-  VectorXcd Fvoll = fft(-10, 10, m, f);
-  cout << Fvoll << endl << endl;
+/* Zu minimierende Funktion der Augmented Lagrangian Method
+ * INPUT:   r   Punkte des Polygonzuges, Dimension der Matrix 2x(#Punkte)
+ *          lam Parameter, siehe Skript
+ *          mu  Parameter, siehe Skript
+ *          A0  Optimaler Flächeninhalt des Polygonzuges
+ * OUTPUT:  Vektor mit Funktionswerten
+ */
+double func(Eigen::MatrixXd r, double lam, double A0, double mu)
+{
+  double A = flaechePolygonzug(r);
+  return energie(r) - lam*(A-A0) + 0.5*mu*(A-A0)*(A-A0);
+}
 
-  double mtest = 7;
-  double Ntest = pow(2, 7);
-  VectorXd xtest = VectorXd::LinSpaced(Ntest, -10, 10);
-  VectorXcd ftest = xtest.unaryExpr(ptr_fun(exp_fkt<double>));
-  VectorXcd Ftest = fft(-10, 10, mtest, ftest);
-  // Auslesen in eine txt-Datei
-  string filename = "build/test.txt";
-  ofstream file;
-  file.open(filename, ios::trunc);
-  file << "x;real;imag" << endl;
-  for(int i=0; i<Ntest; i++) {
-    file << xtest(i) << ";" << Ftest(i).real() << ";" << Ftest(i).imag() << endl;
+
+double testfunction(double x1, double x2)
+{
+  return x1*x1 + 2*x2*x2;
+}
+
+
+int main() {
+  cout << "Beginn Aufgabe 2!\n" << endl;
+
+  double h = 1e-6;  // Schrittweite des Gradienten
+  int N = 80;  // #Punkte
+  double l = 1.;  // Länge der Seiten des Quadrates
+  double A0 = M_PI;  // Idealer Flächeninhalt
+  ofstream stream;
+
+  // Testumgebung, ob Flächenberechnung klappt!
+  // Testobjekte: Matrix mit den einzelnen Ortsvektoren in 2D
+  // MatrixXd r_test = 0.5*MatrixXd::Ones(2, 5);
+  // r_test(0, 1) *= -1;
+  // r_test(0, 2) *= -1;
+  // r_test(1, 2) *= -1;
+  // r_test(1, 3) *= -1;
+  // r_test(0, 4) = 0.5;
+  // r_test(1, 4) = 0.25;
+  // cout << r_test << endl;
+  // double A_test = flaechePolygonzug(r_test);
+  // cout << "A sollte 1 ergeben: " << A_test << endl;
+
+  // Testumgebung, ob Energieberechnung klappt!
+  // MatrixXd r_test = 0.5*MatrixXd::Ones(2, 4);
+  // r_test(0, 1) *= -1;
+  // r_test(0, 2) *= -1;
+  // r_test(1, 2) *= -1;
+  // r_test(1, 3) *= -1;
+  // // r_test(0, 4) = 0.5;
+  // // r_test(1, 4) = 0.25;
+  // cout << r_test << endl;
+  // double E_test = energie(r_test);
+  // cout << "E sollte 4 ergeben: " << E_test << endl;
+
+  // Teste Gradientenmethode
+  // VectorXd x_test = VectorXd::Ones(2);
+  // cout << gradient_2d(testfunction, x_test, h) << endl;
+
+  // Initialisiere Polygonzug auf Quadrat
+  MatrixXd r = initPoly(N, l);
+  // cout << r << endl;
+  // cout << flaechePolygonzug(r) << endl;
+
+  // Speichere Startkonfiguration
+  stream.open("build/aufg2-l1-start.txt");
+  stream << "x y" << endl;
+  for(int i=0; i<r.cols(); i++)
+  {
+    for(int j=0; j<r.rows(); j++)
+    {
+      stream << r(j, i);
+      if(j != r.rows()-1){ stream << " "; }
+    }
+    stream << endl;
   }
-  file.close();
+  stream.close();
 
-
+  cout << "\nEnde Aufgabe 2!" << endl;
   return 0;
 }
