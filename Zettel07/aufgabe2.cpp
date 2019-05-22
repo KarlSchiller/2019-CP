@@ -9,6 +9,98 @@
 using namespace std;
 using namespace Eigen;
 
+// Von Aufgabe 1
+/*
+* f           zu minierende Funktion
+* x           aktueller Schritt
+* grad        Schrittrichtung
+* lambda      zu minimierender Parameter
+* epsilon_f   Minimierungstoleranz
+*/
+// TODO: umschreiben auf double func(Eigen::VectorXd r, double lam, double A0, double mu)
+void minimize(function<double(VectorXd)> f,VectorXd x, VectorXd grad, double &lambda, double epsilon_f){
+  //Minimiere mit Newtonverfahren
+  double lambda_prev, lambda_next,acc,h;
+  acc = epsilon_f;
+  h = 1e-4;
+  do {
+    double f_prime, f_2prime;
+    f_prime = (f(x + (lambda + h) * grad) - f(x + (lambda - h) * grad)) / (2 * h);
+    f_2prime = f(x + (lambda + h) * grad) - 2 * f(x + lambda * grad) + f(x + (lambda - h) * grad);
+    f_2prime = f_2prime / (h * h);
+    lambda_prev = lambda;
+    lambda_next = lambda - f_prime / f_2prime;
+    lambda = lambda_next;
+  } while(abs(f(x+lambda*grad) - f(x+lambda_prev*grad)) >= acc);
+}
+
+// Von Aufgabe 1 TODO: funktion und gradient anpassen
+        // func(r,lam,A0,mu),
+        // grad_alm(r,h,func,lam,A0,mu),
+
+/*
+implementation of BFGS
+* f           minimized function
+* g           gradient function
+* x_0         Starting point
+* c_0         Initial inverse Hesse-Matrix
+* epsilon_f   Tolerance for one-dimensional minimization
+* epsilon_g   Tolerance for gradientnorm
+*/
+VectorXd bfgs(double (*f)(VectorXd), VectorXd (*g)(VectorXd), VectorXd x_0,
+              MatrixXd c_0, double epsilon_f, double epsilon_g){
+  /* Fahrplan:
+  * p bestimmen
+  * Liniensuchschritt durchlaufen
+  * Updaten
+  */
+
+  VectorXd p, b, x_i, s_k, y_k, b_0;
+  double lam = 0, rho = 0;
+  int iteration = 0;
+  MatrixXd c(c_0.rows(), c_0.cols()), I;
+  I = MatrixXd::Identity(c_0.rows(), c_0.cols());
+
+  // Erstes b und p erzeugen
+  // Dabei ist p die Minimierungsrichtung
+
+  b_0 = g(x_0);
+  p = -c_0*b_0;
+
+  // Liniensuchschritt durchlaufen
+  //cout << "Bis zur Minimierung alles gut!" << endl;
+  minimize(f, x_0, p, lam, epsilon_f);
+  x_i = x_0 + lam*p;
+
+  // Neues b, und dann s_k und y_k
+  b = g(x_i);
+  s_k = x_i - x_0;
+  y_k = b - b_0;
+  c = c_0;
+  // Bestimmung von C_k+1
+  // in Schleife eingebettet
+  do{
+  rho = 1/y_k.dot(s_k);
+
+  c = (I-rho*s_k*y_k.transpose())*c*(I-rho*y_k*s_k.transpose()) + rho*s_k*s_k.transpose();
+
+  p = -c*b;
+  // Liniensuchschritt durchlaufen und dabei x_0 auf den alten wert setzen
+  x_0 = x_i;
+  minimize(f, x_i, p, lam, epsilon_f);
+  x_i = x_0 + lam*p;
+
+  // Bestimmung von s_k und y_k
+  s_k = x_i - x_0;
+  b_0 = b;
+  b = g(x_i);
+  y_k = b - b_0;
+  iteration++;
+  }while(b.norm() > epsilon_g);
+  cout << "Iterationen: " << iteration << endl;
+  return x_i;
+}
+
 
 /* Berechnet die eingeschlossene Fläche eines 2 dimensionalen Polygonzuges
  * INPUT: Vektor r mit Dimension 2x(#Punkte)
@@ -80,22 +172,57 @@ Eigen::VectorXd gradient_2d(double (*f)(double, double), Eigen::VectorXd x, doub
 }
 
 
+/* Gradient für die Augmentierte Lagrangemethode
+ */
+Eigen::VectorXd grad_alm(
+    VectorXd r,
+    double h,
+    function<double(VectorXd,double,double,double)> func,
+    double lam,
+    double A0,
+    double mu)
+{
+  VectorXd grad(r.size());
+  VectorXd x_plus, x_minus;
+
+  // Gradienten für jede Komponente berechnen
+  for (int i=0; i<r.size(); i++)
+  {
+    x_plus = r;
+    x_plus(i) += h;
+    x_minus = r;
+    x_minus(i) -= h;
+    grad(i) = 0.5*((func(x_plus,lam,A0,mu)-func(x_minus,lam,A0,mu))/h);
+  }
+  return grad;
+}
+
+
 /* Optimaler Polygonzug mit vorgegebenem Flächeninhalt
  * Augmented Lagrangian Method
  */
-Eigen::VectorXd opti_poly(Eigen::VectorXd r) // TODO: Funktion schreiben
+Eigen::VectorXd opti_poly(Eigen::VectorXd r, double h, double A0,
+    function<double(Eigen::VectorXd,double,double,double)> func)
 {
-  double mu = 1;
   double lam = 1;
-  double tol = 1e-6;
-  double A0 = M_PI;
+  double mu = 1;
+  VectorXd r_neu = r;
+  MatrixXd c_0 = MatrixXd::Identity(r.size(), r.size());
 
-  // while((flaechePolygonzug(r)-A0)/A0 >= tol)
-  // {
-    // // r = bfgs();
-    // lam = lam - mu*(flaechePolygonzug(r)-A0);
-    // mu *= 2;
-  // }
+  while((flaechePolygonzug(r)-A0)/A0 >= 1e-6)
+  {
+    r_neu = bfgs(
+        func(r,lam,A0,mu),
+        grad_alm(r,h,func,lam,A0,mu),
+        r,
+        c_0,
+        1e-6,
+        1e-6
+        );  // TODO: bfgs so umschreiben, dass es hier funktioniert
+    lam = lam - mu*(flaechePolygonzug(r)-A0);
+    mu *= 2;
+    r = r_neu;
+  }
   lam = lam - mu*(flaechePolygonzug(r)-A0);
 
   return VectorXd::Ones(9);
@@ -140,12 +267,6 @@ double func(Eigen::VectorXd r, double lam, double A0, double mu)
 }
 
 
-double testfunction(double x1, double x2)
-{
-  return x1*x1 + 2*x2*x2;
-}
-
-
 int main() {
   cout << "Beginn Aufgabe 2!\n" << endl;
 
@@ -180,10 +301,6 @@ int main() {
   // cout << r_test << endl;
   // double E_test = energie(r_test);
   // cout << "E sollte 4 ergeben: " << E_test << endl;
-
-  // Teste Gradientenmethode
-  // VectorXd x_test = VectorXd::Ones(2);
-  // cout << "sollge 2 4 ergeben: " << gradient_2d(testfunction, x_test, h).transpose() << endl;
 
   // Initialisiere Polygonzug auf Quadrat
   MatrixXd r = initPoly(N, l);
