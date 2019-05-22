@@ -11,11 +11,15 @@ using namespace Eigen;
 
 
 /* Berechnet die eingeschlossene Fläche eines 2 dimensionalen Polygonzuges
- * INPUT: Matrix r mit Dimension 2x(#Punkte)
+ * INPUT: Vektor r mit Dimension 2x(#Punkte)
  * OUTPUT: Flächeninhalt der eingeschlossenen Fläche
  */
-double flaechePolygonzug(Eigen::MatrixXd &r)
+double flaechePolygonzug(Eigen::VectorXd orte)
 {
+  // Resizen, weil die Funktion für eine 2x(#Punkte)-Matrix konzipiert ist
+  MatrixXd r = orte;
+  r.resize(2, orte.size()/2);
+
   // Berechne Schwerpunkt
   VectorXd r_com = r.rowwise().sum() / r.rows();
   double A = 0;
@@ -38,9 +42,9 @@ double flaechePolygonzug(Eigen::MatrixXd &r)
  * das im Urpsprung zentriert ist.
  * INPUT    N   # Punkte
  *          l   Seitenlänge des Quadrats
- * OUTPUT   r   2xN Matrix mit den Punkten des Polygonzuges
+ * OUTPUT   r   2*N Vektor mit den Punkten des Polygonzuges
  */
-Eigen::MatrixXd initPoly(int N, double l)
+Eigen::VectorXd initPoly(int N, double l)
 {
   double bor = l/2;  // Grenze des Quadrats in x- und y
   int pps = N/4;  // Punkte pro Seite
@@ -58,6 +62,9 @@ Eigen::MatrixXd initPoly(int N, double l)
   // Rechte Seite des Quadrats
   r.block(0,3*pps,1,pps) = bor*ArrayXd::Ones(pps).transpose();
   r.block(1,3*pps,1,pps) = ArrayXd::LinSpaced(pps+1, -bor, bor).head(pps).transpose();
+
+  // Resizen der Matrix in einen Vektor
+  r.resize(r.rows()*r.cols(), 1);
   return r;
 }
 
@@ -76,20 +83,35 @@ Eigen::VectorXd gradient_2d(double (*f)(double, double), Eigen::VectorXd x, doub
 /* Optimaler Polygonzug mit vorgegebenem Flächeninhalt
  * Augmented Lagrangian Method
  */
-Eigen::VectorXd opti_poly(Eigen::MatrixXd r, function<double(VectorXd)> f) // TODO: Funktion schreiben
+Eigen::VectorXd opti_poly(Eigen::VectorXd r) // TODO: Funktion schreiben
 {
   double mu = 1;
   double lam = 1;
+  double tol = 1e-6;
+  double A0 = M_PI;
+
+  // while((flaechePolygonzug(r)-A0)/A0 >= tol)
+  // {
+    // // r = bfgs();
+    // lam = lam - mu*(flaechePolygonzug(r)-A0);
+    // mu *= 2;
+  // }
+  lam = lam - mu*(flaechePolygonzug(r)-A0);
 
   return VectorXd::Ones(9);
 }
 
 
 /* Berechnet Energie des Polygonzuges
- * INPUT:   r   Punkte des Polygonzuges, Dimension der Matrix 2x(#Punkte)
+ * INPUT:   r   Punkte des Polygonzuges, Dimension des Vektors 2x(#Punkte)
  */
-double energie(Eigen::MatrixXd r)
+double energie(Eigen::VectorXd orte)
 {
+  // Resizen, weil die Funktion für eine 2x(#Punkte)-Matrix konzipiert ist
+  MatrixXd r = orte;
+  r.resize(2, r.size()/2);
+  cout << r << endl;
+
   double en = 0;
   for (int i=0; i<r.cols(); i++)
   {
@@ -105,13 +127,13 @@ double energie(Eigen::MatrixXd r)
 
 
 /* Zu minimierende Funktion der Augmented Lagrangian Method
- * INPUT:   r   Punkte des Polygonzuges, Dimension der Matrix 2x(#Punkte)
+ * INPUT:   r   Punkte des Polygonzuges, Dimension des Vektors 2x(#Punkte)
  *          lam Parameter, siehe Skript
  *          mu  Parameter, siehe Skript
  *          A0  Optimaler Flächeninhalt des Polygonzuges
  * OUTPUT:  Vektor mit Funktionswerten
  */
-double func(Eigen::MatrixXd r, double lam, double A0, double mu)
+double func(Eigen::VectorXd r, double lam, double A0, double mu)
 {
   double A = flaechePolygonzug(r);
   return energie(r) - lam*(A-A0) + 0.5*mu*(A-A0)*(A-A0);
@@ -142,7 +164,7 @@ int main() {
   // r_test(1, 3) *= -1;
   // r_test(0, 4) = 0.5;
   // r_test(1, 4) = 0.25;
-  // cout << r_test << endl;
+  // r_test.resize(r_test.rows()*r_test.cols(), 1);
   // double A_test = flaechePolygonzug(r_test);
   // cout << "A sollte 1 ergeben: " << A_test << endl;
 
@@ -154,6 +176,7 @@ int main() {
   // r_test(1, 3) *= -1;
   // // r_test(0, 4) = 0.5;
   // // r_test(1, 4) = 0.25;
+  // r_test.resize(r_test.rows()*r_test.cols(), 1);
   // cout << r_test << endl;
   // double E_test = energie(r_test);
   // cout << "E sollte 4 ergeben: " << E_test << endl;
