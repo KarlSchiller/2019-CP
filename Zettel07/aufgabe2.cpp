@@ -18,20 +18,22 @@ using namespace Eigen;
 * epsilon_f   Minimierungstoleranz
 */
 // TODO: umschreiben auf double func(Eigen::VectorXd r, double lam, double A0, double mu)
-void minimize(function<double(VectorXd)> f,VectorXd x, VectorXd grad, double &lambda, double epsilon_f){
+void minimize(function<double(VectorXd, double, double, double)> f,
+VectorXd x, VectorXd grad, double &lambda, double epsilon_f,
+double lam, double A0, double mu){
   //Minimiere mit Newtonverfahren
   double lambda_prev, lambda_next,acc,h;
   acc = epsilon_f;
   h = 1e-4;
   do {
     double f_prime, f_2prime;
-    f_prime = (f(x + (lambda + h) * grad) - f(x + (lambda - h) * grad)) / (2 * h);
-    f_2prime = f(x + (lambda + h) * grad) - 2 * f(x + lambda * grad) + f(x + (lambda - h) * grad);
+    f_prime = (f(x + (lambda + h) * grad, lam, A0, mu) - f(x + (lambda - h) * grad, lam, A0, mu)) / (2 * h);
+    f_2prime = f(x + (lambda + h) * grad, lam, A0, mu) - 2 * f(x + lambda * grad, lam, A0, mu) + f(x + (lambda - h) * grad, lam, A0, mu);
     f_2prime = f_2prime / (h * h);
     lambda_prev = lambda;
     lambda_next = lambda - f_prime / f_2prime;
     lambda = lambda_next;
-  } while(abs(f(x+lambda*grad) - f(x+lambda_prev*grad)) >= acc);
+  } while(abs(f(x+lambda*grad, lam, A0, mu) - f(x+lambda_prev*grad, lam, A0, mu)) >= acc);
 }
 
 // Von Aufgabe 1 TODO: funktion und gradient anpassen
@@ -47,8 +49,12 @@ implementation of BFGS
 * epsilon_f   Tolerance for one-dimensional minimization
 * epsilon_g   Tolerance for gradientnorm
 */
-VectorXd bfgs(double (*f)(VectorXd), VectorXd (*g)(VectorXd), VectorXd x_0,
-              MatrixXd c_0, double epsilon_f, double epsilon_g){
+VectorXd bfgs(function<double(VectorXd, double, double, double)> f,
+              function<VectorXd(VectorXd, double, function<double(VectorXd, double, double, double)> f1,
+              double, double, double)> g,
+              VectorXd x_0,
+              MatrixXd c_0, double epsilon_f, double epsilon_g,
+            double lam_func, double A0, double mu, double h){
   /* Fahrplan:
   * p bestimmen
   * Liniensuchschritt durchlaufen
@@ -64,16 +70,16 @@ VectorXd bfgs(double (*f)(VectorXd), VectorXd (*g)(VectorXd), VectorXd x_0,
   // Erstes b und p erzeugen
   // Dabei ist p die Minimierungsrichtung
 
-  b_0 = g(x_0);
+  b_0 = g(x_0, h, f, lam_func, A0, mu);
   p = -c_0*b_0;
 
   // Liniensuchschritt durchlaufen
   //cout << "Bis zur Minimierung alles gut!" << endl;
-  minimize(f, x_0, p, lam, epsilon_f);
+  minimize(f, x_0, p, lam, epsilon_f, lam_func, A0, mu);
   x_i = x_0 + lam*p;
 
   // Neues b, und dann s_k und y_k
-  b = g(x_i);
+  b = g(x_i, h, f, lam_func, A0, mu);
   s_k = x_i - x_0;
   y_k = b - b_0;
   c = c_0;
@@ -87,13 +93,13 @@ VectorXd bfgs(double (*f)(VectorXd), VectorXd (*g)(VectorXd), VectorXd x_0,
   p = -c*b;
   // Liniensuchschritt durchlaufen und dabei x_0 auf den alten wert setzen
   x_0 = x_i;
-  minimize(f, x_i, p, lam, epsilon_f);
+  minimize(f, x_i, p, lam, epsilon_f, lam_func, A0, mu);
   x_i = x_0 + lam*p;
 
   // Bestimmung von s_k und y_k
   s_k = x_i - x_0;
   b_0 = b;
-  b = g(x_i);
+  b = g(x_i, h, f, lam_func, A0, mu);
   y_k = b - b_0;
   iteration++;
   }while(b.norm() > epsilon_g);
@@ -212,12 +218,13 @@ Eigen::VectorXd opti_poly(Eigen::VectorXd r, double h, double A0,
   while((flaechePolygonzug(r)-A0)/A0 >= 1e-6)
   {
     r_neu = bfgs(
-        func(r,lam,A0,mu),
-        grad_alm(r,h,func,lam,A0,mu),
+        func,
+        grad_alm,
         r,
         c_0,
         1e-6,
-        1e-6
+        1e-6,
+        lam, A0, mu, h
         );  // TODO: bfgs so umschreiben, dass es hier funktioniert
     lam = lam - mu*(flaechePolygonzug(r)-A0);
     mu *= 2;
