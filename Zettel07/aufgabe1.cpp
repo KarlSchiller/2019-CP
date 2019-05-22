@@ -64,7 +64,6 @@ implementation of BFGS
 * c_0         Initial inverse Hesse-Matrix
 * epsilon_f   Tolerance for one-dimensional minimization
 * epsilon_g   Tolerance for gradientnorm
-* fstream     file for iteration steps
 */
 VectorXd bfgs(double (*f)(VectorXd), VectorXd (*g)(VectorXd), VectorXd x_0,
               MatrixXd c_0, double epsilon_f, double epsilon_g){
