@@ -33,7 +33,7 @@ double lam, double A0, double mu){
     lambda_prev = lambda;
     lambda_next = lambda - f_prime / f_2prime;
     lambda = lambda_next;
-    cout << abs(f(x+lambda*grad, lam, A0, mu) - f(x+lambda_prev*grad, lam, A0, mu)) << endl;
+    //cout << abs(f(x+lambda*grad, lam, A0, mu) - f(x+lambda_prev*grad, lam, A0, mu)) << endl;
   } while(abs(f(x+lambda*grad, lam, A0, mu) - f(x+lambda_prev*grad, lam, A0, mu)) >= acc);
 }
 
@@ -103,7 +103,7 @@ VectorXd bfgs(function<double(VectorXd, double, double, double)> f,
   b = g(x_i, h, f, lam_func, A0, mu);
   y_k = b - b_0;
   iteration++;
-  cout << b.norm() << endl;
+  //cout << b.norm() << endl;
   }while(b.norm() > epsilon_g);
   //cout << "Iterationen: " << iteration << endl;
   return x_i;
@@ -217,7 +217,8 @@ Eigen::VectorXd opti_poly(Eigen::VectorXd r, double h, double A0,
   VectorXd r_neu = r;
   MatrixXd c_0 = MatrixXd::Identity(r.size(), r.size());
   cout << "Vor-Schleife" << endl;
-  while((flaechePolygonzug(r)-A0)/A0 >= 1e-6)
+  cout << (flaechePolygonzug(r)-A0)/A0 << endl;
+  while(abs((flaechePolygonzug(r)-A0))/A0 >= 1e-6)
   {
     cout << "Durchlauf" << endl;
     r_neu = bfgs(
@@ -314,9 +315,11 @@ int main() {
 
   // Initialisiere Polygonzug auf Quadrat
   MatrixXd r = initPoly(N, l);
+
   VectorXd test = opti_poly(r, h, A0, func);
   //cout << test << endl;
-  //cout << flaechePolygonzug(r) << endl;
+  cout << flaechePolygonzug(test) << endl;
+  r.resize(2, r.size()/2);
 
   // Speichere Startkonfiguration
   stream.open("build/aufg2-l1-start.txt");
