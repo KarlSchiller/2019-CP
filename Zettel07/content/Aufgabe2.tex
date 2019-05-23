@@ -1,18 +1,37 @@
 \section*{Aufgabe 2}
 
 \subsection*{a)}
-Als Lösung bei $N$ Punkten wird ein $N$-Eck erwartet, dessen Seitenlänge alle gleich sind,
-also
+Als Lösung bei $N$ Punkten wird ein $N$-Eck erwartet, dessen Seitenlänge alle
+gleich sind, also
 \begin{equation*}
   \vec{d}_\text{i} = \vec{d} \quad \forall i=\left\{1, ..., N\right\}
 \end{equation*}
 gilt (z.B. ein Quadrat für $N = 4$).
 Bei $N \rightarrow \infty$ ergibt sich als optimaler Polygonzug ein Kreis.
-In Abbildung \ref{fig:1} ist ein Plot der Startkonfiguration zu sehen.
+\subsection*{b)}
+
+In Abbildung \ref{fig:1} ist ein Plot der Startkonfiguration zu sehen. Es wurde
+versucht, die Augmented-Langrangian-Method mit dem BFGS Algorithmus zu
+programmieren. Leider oszilliert dabei die Abbruchbedingung der
+do-while-Schleife der minimize-Funktion, die im Zuge von BFGS aufgerufen wird,
+sodass eine Endlosschleife entsteht. Aus diesem Grund wurde der Aufruf der
+$\textsc{opti\_poly}$-Methode auskommentiert, da ansonsten das Programm nicht
+durchläuft. Falls es durchlaufen würde, sollte der Flächeninhalt $\pi$ betragen.
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.7]{build/aufg2-l1-start.pdf}
-  \caption{Plot für die Startkonfiguration.}
+  \caption{Plot für die Startkonfiguration mit $l = 1$.}
   \label{fig:1}
+\end{figure}
+
+\subsection*{c)}
+Für Aufgabenteil c) wurde der Plot mit der Startkonfiguration erstellt. Er ist
+in Abbildung \ref{fig:2} zu sehen.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2-l2-start.pdf}
+  \caption{Plot für die Startkonfiguration mit $l = 2$.}
+  \label{fig:2}
 \end{figure}

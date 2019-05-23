@@ -21,3 +21,4 @@ def plot_poly(fname):
 
 
 plot_poly('build/aufg2-l1-start.txt')
+plot_poly('build/aufg2-l2-start.txt')

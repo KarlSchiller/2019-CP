@@ -17,7 +17,6 @@ using namespace Eigen;
 * lambda      zu minimierender Parameter
 * epsilon_f   Minimierungstoleranz
 */
-// TODO: umschreiben auf double func(Eigen::VectorXd r, double lam, double A0, double mu)
 void minimize(function<double(VectorXd, double, double, double)> f,
 VectorXd x, VectorXd grad, double &lambda, double epsilon_f,
 double lam, double A0, double mu){
@@ -33,13 +32,8 @@ double lam, double A0, double mu){
     lambda_prev = lambda;
     lambda_next = lambda - f_prime / f_2prime;
     lambda = lambda_next;
-    //cout << abs(f(x+lambda*grad, lam, A0, mu) - f(x+lambda_prev*grad, lam, A0, mu)) << endl;
   } while(abs(f(x+lambda*grad, lam, A0, mu) - f(x+lambda_prev*grad, lam, A0, mu)) >= acc);
 }
-
-// Von Aufgabe 1 TODO: funktion und gradient anpassen
-        // func(r,lam,A0,mu),
-        // grad_alm(r,h,func,lam,A0,mu),
 
 /*
 implementation of BFGS
@@ -75,7 +69,6 @@ VectorXd bfgs(function<double(VectorXd, double, double, double)> f,
   p = -c_0*b_0;
 
   // Liniensuchschritt durchlaufen
-  cout << "Bis zur Minimierung alles gut!" << endl;
   minimize(f, x_0, p, lam, epsilon_f, lam_func, A0, mu);
   x_i = x_0 + lam*p;
 
@@ -103,7 +96,7 @@ VectorXd bfgs(function<double(VectorXd, double, double, double)> f,
   b = g(x_i, h, f, lam_func, A0, mu);
   y_k = b - b_0;
   iteration++;
-  //cout << b.norm() << endl;
+
   }while(b.norm() > epsilon_g);
   //cout << "Iterationen: " << iteration << endl;
   return x_i;
@@ -216,11 +209,8 @@ Eigen::VectorXd opti_poly(Eigen::VectorXd r, double h, double A0,
   double mu = 1;
   VectorXd r_neu = r;
   MatrixXd c_0 = MatrixXd::Identity(r.size(), r.size());
-  cout << "Vor-Schleife" << endl;
-  cout << (flaechePolygonzug(r)-A0)/A0 << endl;
   while(abs((flaechePolygonzug(r)-A0))/A0 >= 1e-6)
   {
-    cout << "Durchlauf" << endl;
     r_neu = bfgs(
         func,
         grad_alm,
@@ -229,7 +219,7 @@ Eigen::VectorXd opti_poly(Eigen::VectorXd r, double h, double A0,
         1e-6,
         1e-6,
         lam, A0, mu, h
-        );  // TODO: bfgs so umschreiben, dass es hier funktioniert
+      );
     lam = lam - mu*(flaechePolygonzug(r)-A0);
     mu *= 2;
     r = r_neu;
@@ -248,7 +238,6 @@ double energie(Eigen::VectorXd orte)
   // Resizen, weil die Funktion für eine 2x(#Punkte)-Matrix konzipiert ist
   MatrixXd r = orte;
   r.resize(2, r.size()/2);
-  //cout << r << endl;
 
   double en = 0;
   for (int i=0; i<r.cols(); i++)
@@ -316,13 +305,30 @@ int main() {
   // Initialisiere Polygonzug auf Quadrat
   MatrixXd r = initPoly(N, l);
 
-  VectorXd test = opti_poly(r, h, A0, func);
+  //VectorXd test = opti_poly(r, h, A0, func);
   //cout << test << endl;
-  cout << flaechePolygonzug(test) << endl;
+  //cout << flaechePolygonzug(test) << endl;
   r.resize(2, r.size()/2);
 
   // Speichere Startkonfiguration
   stream.open("build/aufg2-l1-start.txt");
+  stream << "x y" << endl;
+  for(int i=0; i<r.cols(); i++)
+  {
+    for(int j=0; j<r.rows(); j++)
+    {
+      stream << r(j, i);
+      if(j != r.rows()-1){ stream << " "; }
+    }
+    stream << endl;
+  }
+  stream.close();
+
+  // Startkonfiguration für l=2
+  r = initPoly(N, 2);
+  r.resize(2, r.size()/2);
+
+  stream.open("build/aufg2-l2-start.txt");
   stream << "x y" << endl;
   for(int i=0; i<r.cols(); i++)
   {
