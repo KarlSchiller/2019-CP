@@ -53,7 +53,7 @@ void runge_kutta(VectorXd (*f)(VectorXd, double), double T, int N, double m, Vec
     file << tn(i) << " ";
   }
   file << endl;
-  cout << tn.size() << endl;
+
   // Initialisieren des y-Vektors
   for (int i = 0; i < 2*d; i++){
     if(i < d){
@@ -76,6 +76,13 @@ void runge_kutta(VectorXd (*f)(VectorXd, double), double T, int N, double m, Vec
     ergebnis.col(i) = y;
   }
 
+  VectorXd temp;
+  temp = r-y.segment(0,d);
+  //cout << "Auslenkung: " << temp.norm() << endl;
+  if(temp.norm() < 1e-5){
+    cout << "Auslenkung kleiner bei h = " << h << endl;
+  }
+
   // Schreiben der Ergebnisse in ein File
   for(int i = 0; i<ergebnis.rows()/2; i++){
     for(int j = 0; j<ergebnis.cols(); j++){
@@ -88,19 +95,31 @@ int main() {
   cout << "Beginn des Programms!\n" << endl;
   // Initialisierung der benötigten Größen
   double T = 20.0;
-  int N = 100;
+  int N = 300;
   double m = 2.0;
   unsigned int d = 3;
   VectorXd r(d), v(d);
-  MatrixXd ergebnis(2*d, N+1);
   ofstream file;
-  // Anfangswerte
-  r << 1, 0, 3;
-  v << 0, 1, 0;
-  
-  file.open("build/ergebnis.txt", ios::trunc);
+  // Aufgabenteil a) mit v = 0
+  r << 1, 2, 3;
+  v << 0, 0, 0;
+
+  file.open("build/a_harm.txt", ios::trunc);
   runge_kutta(funktion, T, N, m, r, v, file);
   file.close();
+
+  // Aufgabenteil a) mit r und v senkrecht
+  r << 1, 0, 3;
+  v << 0, 1, 0;
+
+  file.open("build/a_unharm.txt", ios::trunc);
+  runge_kutta(funktion, T, N, m, r, v, file);
+  file.close();
+
+  // Aufgabenteil b)
+  T = 1e-6;
+  N = 10;
+  runge_kutta(funktion, T, N, m, r, v, file);
 
   cout << "\nEnde des Programms!" << endl;
   return 0;
