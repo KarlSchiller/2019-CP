@@ -9,7 +9,7 @@ using namespace Eigen;
 
 
 // // Funktion des harmonischen Oszillators
-double feld(double r, double m){
+VectorXd feld(VectorXd r, double m){
   return -m*r;
 }
 
@@ -18,26 +18,23 @@ double pot(VectorXd r, double m){
   return 0.5*m*r.dot(r);
 }
 
-VectorXd funktion(VectorXd y, double m){
+/* Hilfsfunktion für runge_kutta
+ * Berechnet aus dem Vektor y den Vektor y':
+ * Schreibe die letzten d Einträge von y in die ersten d Einträge von y'
+ * und die ersten d Einträge von y in die letzten d Einträge von y'
+ */
+VectorXd next_step(VectorXd y, double m){
   unsigned int d = y.size()/2;
   VectorXd temp(2*d);
 
-  /* Schreibe die letzten d Einträge von y in die ersten d Einträge von y'
-  und die ersten d Einträge von y in die letzten d Einträge von y'*/
-  for(int i = 0; i<2*d; i++){
-    if (i < d){
-      temp(i) = y(i+d);
-    }
-    else{
-      temp(i) = 1/m*feld(y(i-d), m);
-    }
-  }
+  temp.segment(0,d) = y.segment(d,d);
+  temp.segment(d,d) = 1/m*feld(y.segment(0,d),m);
   return temp;
 }
 /*
 Funktion zur Implementierung von Runge Kutta
 * f         auszuwertende Funktion
-* T         t Element [0, T]
+* T         obere Grenze des Zeitintervalls
 * h         Schrittweite
 * m         Masse
 * r         Anfangswert für r
@@ -52,6 +49,7 @@ VectorXd r, VectorXd v, ofstream &file, VectorXd &energie){
   unsigned int d = r.size();
   VectorXd tn(N+1), k1, k2, k3, k4, y(2*d), y_next(2*d);
   MatrixXd ergebnis(2*d, N+1);
+
   // Die Startwerte in die Matrix schreiben
   ergebnis.col(0).segment(0,d) = r;
   ergebnis.col(0).segment(d,d) = v;
@@ -64,15 +62,12 @@ VectorXd r, VectorXd v, ofstream &file, VectorXd &energie){
   file << endl;
 
   // Initialisieren des y-Vektors
-  for (int i = 0; i < 2*d; i++){
-    if(i < d){
-      y(i) = r(i);
-    }
-    else{
-      y(i) = v(i-d);
-    }
-  }
+  y.segment(0,d) = r;
+  y.segment(d,d) = v;
+
+  // Berechnung der Energie aus kinetischer und potentieller Energie
   energie(0) = 0.5*m*v.dot(v) + pot(r, m);
+
   // Implementierung des Runge-Kutta-Verfahrens
   // Schritt 0 ist schon gemacht
   for (int i = 1; i < N+1; i++){
@@ -87,9 +82,9 @@ VectorXd r, VectorXd v, ofstream &file, VectorXd &energie){
     energie(i) = 0.5*m*y.segment(d,d).dot(y.segment(d,d)) + pot(y.segment(0,d), m);
   }
 
+  // Bestimmung der angegebenen Toleranzgrenze
   VectorXd temp;
   temp = r-y.segment(0,d);
-  //cout << "Auslenkung: " << temp.norm() << endl;
   if(temp.norm() < 1e-5){
     cout << "Auslenkung kleiner bei h = " << h << endl;
   }
@@ -116,22 +111,22 @@ int main() {
   v << 0, 0, 0;
 
   file.open("build/a_harm.txt", ios::trunc);
-  runge_kutta(funktion, T, N, m, r, v, file, energie);
+  runge_kutta(next_step, T, N, m, r, v, file, energie);
   file.close();
-  cout << setprecision(13) << energie << endl;
+  //cout << setprecision(13) << energie << endl;
 
   // Aufgabenteil a) mit r und v senkrecht
   r << 1, 0, 3;
   v << 0, 1, 0;
 
   file.open("build/a_unharm.txt", ios::trunc);
-  runge_kutta(funktion, T, N, m, r, v, file, energie);
+  runge_kutta(next_step, T, N, m, r, v, file, energie);
   file.close();
 
   // Aufgabenteil b)
   T = 1e-6;
   N = 10;
-  runge_kutta(funktion, T, N, m, r, v, file, energie);
+  runge_kutta(next_step, T, N, m, r, v, file, energie);
 
   cout << "\nEnde des Programms!" << endl;
   return 0;
