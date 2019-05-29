@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <Eigen/Dense>
 #include <math.h>  // sqrt()
 
@@ -117,6 +118,7 @@ int main() {
   file.open("build/a_harm.txt", ios::trunc);
   runge_kutta(funktion, T, N, m, r, v, file, energie);
   file.close();
+  cout << setprecision(13) << energie << endl;
 
   // Aufgabenteil a) mit r und v senkrecht
   r << 1, 0, 3;
