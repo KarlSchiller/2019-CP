@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>
-#include <math.h>  // sqrt, round
+// #include <math.h>  // sqrt, round
 // #include <tuple>
 // #include <complex>
 // #include <iomanip> // setprecision
@@ -11,7 +11,7 @@ using namespace Eigen;
 
 
 // Kraftfeld des Problems
-double feld(double r, double m){
+VectorXd feld(VectorXd r, double m){
   return -m*r;
 }
 
@@ -23,22 +23,17 @@ double pot(VectorXd r, double m){
 
 
 /* Hilfsfunktion für runge_kutta
- * Berechnet aus dem Vektor y den Vektor y'
+ * Berechnet aus dem Vektor y den Vektor y':
+ * Schreibe die letzten d Einträge von y in die ersten d Einträge von y'
+ * und die ersten d Einträge von y in die letzten d Einträge von y'
  */
 VectorXd next_step(VectorXd y, double m){
   unsigned int d = y.size()/2;
   VectorXd temp(2*d);
 
-  /* Schreibe die letzten d Einträge von y in die ersten d Einträge von y'
-  und die ersten d Einträge von y in die letzten d Einträge von y'*/
-  for(int i = 0; i<2*d; i++){
-    if (i < d){
-      temp(i) = y(i+d);
-    }
-    else{
-      temp(i) = 1/m*feld(y(i-d), m);
-    }
-  }
+  temp.segment(0,d) = y.segment(d,d);
+  temp.segment(d,d) = 1/m*feld(y.segment(0,d),m);
+
   return temp;
 }
 
@@ -46,43 +41,42 @@ VectorXd next_step(VectorXd y, double m){
 // Aus Aufgabe 1 kopiert
 /*
 Funktion zur Implementierung von Runge Kutta
-* f         auszuwertende Funktion
-* T         t Element [0, T]
+* T         Obere Grenze des Zeitintervalls
 * h         Schrittweite
-* m         Masse
-* r         Anfangswert für r
-* v         Anfangswert für v
+* m         Masse des Oszillators
+* r0        Anfangswert für r
+* v0        Anfangswert für v
 * file      File, in das geschrieben wird
 * energie   Gesamtenergie des Oszillators
 */
-void runge_kutta(double T, int N, double m,
-VectorXd r, VectorXd v, ofstream &file, VectorXd &energie){
-  //int N = T/h;
+void runge_kutta(
+        double T,
+        int N,
+        double m,
+        VectorXd r0,
+        VectorXd v0,
+        ofstream &file,
+        VectorXd &energie
+        )
+{
   double h = T/N;
-  unsigned int d = r.size();
+  unsigned int d = r0.size();
   VectorXd tn(N+1), k1, k2, k3, k4, y(2*d), y_next(2*d);
   MatrixXd ergebnis(2*d, N+1);
   // Die Startwerte in die Matrix schreiben
-  ergebnis.col(0).segment(0,d) = r;
-  ergebnis.col(0).segment(d,d) = v;
-
-  // Erstellen der Zeiten tn und schreiben in ein file
-  for (int i = 0; i<=N; i++){
-    tn(i) = i*h;
-    file << tn(i) << " ";
-  }
-  file << endl;
+  ergebnis.col(0).segment(0,d) = r0;
+  ergebnis.col(0).segment(d,d) = v0;
 
   // Initialisieren des y-Vektors
   for (int i = 0; i < 2*d; i++){
     if(i < d){
-      y(i) = r(i);
+      y(i) = r0(i);
     }
     else{
-      y(i) = v(i-d);
+      y(i) = v0(i-d);
     }
   }
-  energie(0) = 0.5*m*v.dot(v) + pot(r, m);
+  energie(0) = 0.5*m*v0.dot(v0) + pot(r0, m);
   // Implementierung des Runge-Kutta-Verfahrens
   // Schritt 0 ist schon gemacht
   for (int i = 1; i < N+1; i++){
@@ -96,15 +90,16 @@ VectorXd r, VectorXd v, ofstream &file, VectorXd &energie){
     // Gesamtenergie berechnen
     energie(i) = 0.5*m*y.segment(d,d).dot(y.segment(d,d)) + pot(y.segment(0,d), m);
   }
+  // cout << "Energie" << endl << energie << endl;
 
-  VectorXd temp;
-  temp = r-y.segment(0,d);
-  //cout << "Auslenkung: " << temp.norm() << endl;
-  if(temp.norm() < 1e-5){
-    cout << "Auslenkung kleiner bei h = " << h << endl;
+  // Speichern der Zeiten
+  for (int i = 0; i<=N; i++){
+    tn(i) = i*h;
+    file << tn(i) << " ";
   }
+  file << endl;
 
-  // Schreiben der Ergebnisse in ein File
+  // Speichern der Ergebnisse
   for(int i = 0; i<ergebnis.rows()/2; i++){
     for(int j = 0; j<ergebnis.cols(); j++){
       file << ergebnis(i, j) << " ";
@@ -118,19 +113,11 @@ int main() {
 
   // Initialisierung der benötigten Größen
   double T = 20.0;      // obere Grenze des Zeitintervalls
-  int N = 300;          // Anzahl Schritte
+  int N = 20;          // Anzahl Schritte
   double m = 2.0;       // Masse
   unsigned int d = 3;   // Dimension
   VectorXd r(d), v(d), energie(N+1);
   ofstream file;
-  // Aufgabenteil a) mit v = 0
-  r << 1, 2, 3;
-  v << 0, 0, 0;
-
-  file.open("build/aufg2_a_harm.txt", ios::trunc);
-  runge_kutta(T, N, m, r, v, file, energie);
-  file.close();
-
   // Aufgabenteil a) mit r und v senkrecht
   r << 1, 0, 3;
   v << 0, 1, 0;
@@ -138,11 +125,6 @@ int main() {
   file.open("build/aufg2_a_unharm.txt", ios::trunc);
   runge_kutta(T, N, m, r, v, file, energie);
   file.close();
-
-  // Aufgabenteil b)
-  T = 1e-6;
-  N = 10;
-  runge_kutta(T, N, m, r, v, file, energie);
 
   cout << "\nEnde Aufgabe 2!" << endl;
   return 0;
