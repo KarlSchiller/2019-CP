@@ -15,7 +15,8 @@ light: dokument.tex
 	dokument.tex
 
 FORCE: build/a_harm.pdf \
-	build/a_unharm.pdf
+	build/a_unharm.pdf \
+	build/aufg2_a_ellipse.jpg
 
 build/aufg1: aufgabe1.cpp | build
 	g++ aufgabe1.cpp -pedantic -o build/aufg1
@@ -34,6 +35,12 @@ build/a_harm.pdf build/a_unharm.pdf: aufgabe1-plot.py build/a_harm.txt build/a_u
 
 build/a_harm.txt build/a_unharm.txt: build/aufg1 | build
 	build/aufg1
+
+build/aufg2_a_ellipse.txt: build/aufg2 | build
+	build/aufg2
+
+build/aufg2_a_ellipse.jpg: build/aufg2_a_ellipse.txt aufgabe2-plot.py | build
+	python aufgabe2-plot.py
 
 build:
 	mkdir -p build/

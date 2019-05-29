@@ -19,9 +19,8 @@ def plot_traje(fname, winkel):
     p = ax.scatter3D(Y[1, :], Y[2, :], Y[3, :], c=Y[0, :], cmap='viridis')
     cbar = fig.colorbar(p)
     cbar.set_label(r'Zeitschritte $t_n$', rotation=270, labelpad=10)
-    fig.savefig(fname.split('.')[0]+'.pdf', bbox_inches='tight')
+    fig.savefig(fname.split('.')[0]+'.jpg', dpi=600, bbox_inches='tight')
     fig.clf()
 
 
-plot_traje('build/aufg2_a_harm.txt', 70)
-plot_traje('build/aufg2_a_unharm.txt', 20)
+plot_traje('build/aufg2_a_ellipse.txt', 20)
