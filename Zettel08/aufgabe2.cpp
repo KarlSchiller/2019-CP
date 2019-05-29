@@ -10,14 +10,14 @@ using namespace std;
 using namespace Eigen;
 
 
-// Kraftfeld des Problems
-VectorXd feld(VectorXd r, double m){
+// Kraftfeld des Problems TODO: Anpassen Keppler
+VectorXd feld(VectorXd r, double m, double G){
   return -m*r;
 }
 
 
 // Potential des Problems zur Energieüberprüfung
-double pot(VectorXd r, double m){
+double pot(VectorXd r, double m, double G){
   return 0.5*m*r.dot(r);
 }
 
@@ -27,12 +27,12 @@ double pot(VectorXd r, double m){
  * Schreibe die letzten d Einträge von y in die ersten d Einträge von y'
  * und die ersten d Einträge von y in die letzten d Einträge von y'
  */
-VectorXd next_step(VectorXd y, double m){
+VectorXd next_step(VectorXd y, double m, double G){
   unsigned int d = y.size()/2;
   VectorXd temp(2*d);
 
   temp.segment(0,d) = y.segment(d,d);
-  temp.segment(d,d) = 1/m*feld(y.segment(0,d),m);
+  temp.segment(d,d) = 1/m*feld(y.segment(0,d),m,G);
 
   return temp;
 }
@@ -43,7 +43,8 @@ VectorXd next_step(VectorXd y, double m){
 Funktion zur Implementierung von Runge Kutta
 * T         Obere Grenze des Zeitintervalls
 * h         Schrittweite
-* m         Masse des Oszillators
+* m         Masse des Planeten
+* G         Gravitationskonstante
 * r0        Anfangswert für r
 * v0        Anfangswert für v
 * file      File, in das geschrieben wird
@@ -53,6 +54,7 @@ void runge_kutta(
         double T,
         int N,
         double m,
+        double G,
         VectorXd r0,
         VectorXd v0,
         ofstream &file,
@@ -76,19 +78,19 @@ void runge_kutta(
       y(i) = v0(i-d);
     }
   }
-  energie(0) = 0.5*m*v0.dot(v0) + pot(r0, m);
+  energie(0) = 0.5*m*v0.dot(v0) + pot(r0, m, G);
   // Implementierung des Runge-Kutta-Verfahrens
   // Schritt 0 ist schon gemacht
   for (int i = 1; i < N+1; i++){
-    k1 = h*next_step(y, m);
-    k2 = h*next_step(y+0.5*k1, m);
-    k3 = h*next_step(y+0.5*k2, m);
-    k4 = h*next_step(y+k3, m);
+    k1 = h*next_step(y, m, G);
+    k2 = h*next_step(y+0.5*k1, m, G);
+    k3 = h*next_step(y+0.5*k2, m, G);
+    k4 = h*next_step(y+k3, m, G);
     y_next = y + 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4);
     y = y_next;
     ergebnis.col(i) = y;
     // Gesamtenergie berechnen
-    energie(i) = 0.5*m*y.segment(d,d).dot(y.segment(d,d)) + pot(y.segment(0,d), m);
+    energie(i) = 0.5*m*y.segment(d,d).dot(y.segment(d,d)) + pot(y.segment(0,d), m, G);
   }
   // cout << "Energie" << endl << energie << endl;
 
@@ -113,17 +115,19 @@ int main() {
 
   // Initialisierung der benötigten Größen
   double T = 20.0;      // obere Grenze des Zeitintervalls
-  int N = 20;          // Anzahl Schritte
+  int N = 300;          // Anzahl Schritte
   double m = 2.0;       // Masse
+  double G = 1;         // Gravitationskonstante
   unsigned int d = 3;   // Dimension
   VectorXd r(d), v(d), energie(N+1);
   ofstream file;
+
   // Aufgabenteil a) mit r und v senkrecht
-  r << 1, 0, 3;
-  v << 0, 1, 0;
+  r << 1, 0, 0;
+  v << 0, 1, 1;
 
   file.open("build/aufg2_a_unharm.txt", ios::trunc);
-  runge_kutta(T, N, m, r, v, file, energie);
+  runge_kutta(T, N, m, G, r, v, file, energie);
   file.close();
 
   cout << "\nEnde Aufgabe 2!" << endl;
