@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as np
 from mpl_toolkits import mplot3d
 
@@ -21,5 +22,20 @@ def plot_traje(fname, winkel):
     fig.clf()
 
 
+def plot_energie(fname):
+    print("Plot "+fname)
+    df = pd.read_csv(fname, decimal='.',
+                     delimiter=' ')
+    df.energie = df.energie - df.energie[0]
+    fig = plt.figure()
+    plt.plot(df.zeit, -df.energie, 'k-')
+    plt.xlabel('Zeit')
+    plt.ylabel('Energieabweichung')
+    plt.yscale('log')
+    fig.savefig(fname.split('.')[0]+'.jpg', dpi=600, bbox_inches='tight')
+    fig.clf()
+
+
 plot_traje('build/a_harm.txt', 70)
 plot_traje('build/a_unharm.txt', 70)
+plot_energie('build/aufg1_c_energie.txt')

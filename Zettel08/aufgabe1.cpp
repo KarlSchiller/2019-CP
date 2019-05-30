@@ -114,6 +114,14 @@ int main() {
   runge_kutta(next_step, T, N, m, r, v, file, energie);
   file.close();
   //cout << setprecision(13) << energie << endl;
+  // Aufgabenteil b): Prüfe Energieerhaltung
+  file.open("build/aufg1_c_energie.txt", ios::trunc);
+  file << "zeit energie" << endl;
+  for(int i=0; i<=N; i++)
+  {
+      file << setprecision(10) << i*T/N << " " << energie(i) << endl;
+  }
+  file.close();
 
   // Aufgabenteil a) mit r und v senkrecht
   r << 1, 0, 3;

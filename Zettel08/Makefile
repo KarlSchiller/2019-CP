@@ -16,6 +16,7 @@ light: dokument.tex
 
 FORCE: build/a_harm.pdf \
 	build/a_unharm.pdf \
+	build/aufg1_c_energie.jpg \
 	build/aufg2_a_ellipse.jpg \
 	build/aufg2_a_schmetterling.jpg \
 	build/aufg2_b_energie.jpg \
@@ -40,6 +41,12 @@ build/a_harm.pdf build/a_unharm.pdf: aufgabe1-plot.py build/a_harm.txt build/a_u
 
 build/a_harm.txt build/a_unharm.txt: build/aufg1 | build
 	build/aufg1
+
+build/aufg1_c_energie.txt: build/aufg1 | build
+	build/aufg1
+
+build/aufg1_c_energie.jpg: build/aufg1_c_energie.txt aufgabe1-plot.py
+	python aufgabe1-plot.py
 
 build/aufg2_a_ellipse.txt build/aufg2_a_schmetterling.txt: build/aufg2 | build
 	build/aufg2
