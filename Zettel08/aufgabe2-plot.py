@@ -24,6 +24,22 @@ def plot_traje(fname, winkel):
     fig.clf()
 
 
+def plot_planet_mond(fname, winkel):
+    """Plotte die Datei, die in fname gegeben ist in einer 3D-Darstellung mit
+    dem Azimuth(?)-Winkel winkel."""
+    print("Plot "+fname)
+    Y = np.genfromtxt(fname)
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.view_init(winkel, 30)
+    p = ax.scatter3D(Y[1, :], Y[2, :], Y[3, :], c=Y[0, :], cmap='viridis')
+    p = ax.scatter3D(Y[4, :], Y[5, :], Y[6, :], c=Y[0, :], cmap='viridis')
+    cbar = fig.colorbar(p)
+    cbar.set_label(r'Zeitschritte $t_n$', rotation=270, labelpad=10)
+    fig.savefig(fname.split('.')[0]+'.jpg', dpi=600, bbox_inches='tight')
+    fig.clf()
+
+
 def plot_energie(fname):
     print("Plot "+fname)
     df = pd.read_csv(fname, decimal='.',
@@ -63,3 +79,4 @@ plot_energie('build/aufg2_b_energie.txt')
 plot_drehimpuls('build/aufg2_b_drehimpuls.txt')
 plot_traje('build/aufg2_c_11.txt', 50)
 plot_traje('build/aufg2_c_09.txt', 50)
+plot_planet_mond('build/aufg2_d.txt', 50)

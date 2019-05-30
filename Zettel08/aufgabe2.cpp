@@ -180,10 +180,7 @@ void planet_und_mond(
         VectorXd v0,
         VectorXd r1,
         VectorXd v1,
-        ofstream &file,
-        VectorXd &energie,
-        MatrixXd &drehimpuls,
-        double alpha
+        ofstream &file
         )
 {
     double h = T/N;
@@ -204,23 +201,13 @@ void planet_und_mond(
     // Implementierung des Runge-Kutta-Verfahrens
     // Schritt 0 ist schon gemacht
     for (int i = 1; i < N+1; i++){
-        k1 = h*next_step_2(y, m0, m1, G, alpha);
-        k2 = h*next_step_2(y+0.5*k1, m0, m1, G, alpha);
-        k3 = h*next_step_2(y+0.5*k2, m0, m1, G, alpha);
-        k4 = h*next_step_2(y+k3, m0, m1, G, alpha);
-        y_next = y + 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4);
-        y = y_next;
+        k1 = h*next_step_2(y, m0, m1, G);
+        k2 = h*next_step_2(y+0.5*k1, m0, m1, G);
+        k3 = h*next_step_2(y+0.5*k2, m0, m1, G);
+        k4 = h*next_step_2(y+k3, m0, m1, G);
+        y = y + 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4);
         ergebnis.col(i) = y;
-
-        // Gesamtenergie berechnen
-        energie(i) = 0.5*m*y.segment(d,d).squaredNorm() + pot(y.segment(0,d), m, G, alpha);
-
-        // Drehimpuls berechnen
-        r_l = y.segment(0,d);
-        v_l = y.segment(d,d);
-        drehimpuls.col(i) = m*r_l.cross(v_l);
     }
-    // cout << "Energie" << endl << energie << endl;
 
     // Speichern der Zeiten
     for (int i = 0; i<=N; i++){
@@ -300,6 +287,22 @@ int main() {
     alpha = 0.9;
     file.open("build/aufg2_c_09.txt", ios::trunc);
     runge_kutta(T, N, m, G, r, v, file, energie, drehimpuls, alpha);
+    file.close();
+
+    // Aufgabenteil d) und e) Planet mit Mond
+    N = 5000;
+    T = 24;
+    d = 3;                      // Dimension
+    double mp = 2;              // Masse des Planeten
+    double mm = 0.01*mp;        // Masse des Mondes
+    G = 1;                      // Gravitationskonstante
+    VectorXd rp(d), rm(d), vp(d), vm(d);
+    rp << 1, 0, 0;
+    rm << 1.1, 0, 0;
+    vp << 0, sqrt(3/2), 0;
+    vm << 0, 4.7, 0;
+    file.open("build/aufg2_d.txt", ios::trunc);
+    planet_und_mond(T, N, mp, mm, G, rp, vp, rm, vm, file);
     file.close();
 
     cout << "\nEnde Aufgabe 2!" << endl;
