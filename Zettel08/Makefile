@@ -18,6 +18,8 @@ FORCE: build/a_harm.pdf \
 	build/a_unharm.pdf \
 	build/aufg2_a_ellipse.jpg \
 	build/aufg2_a_schmetterling.jpg \
+	build/aufg2_b_energie.jpg \
+	build/aufg2_b_drehimpuls.jpg \
 	build/aufg2_c_09.jpg \
 	build/aufg2_c_11.jpg
 
@@ -39,10 +41,22 @@ build/a_harm.pdf build/a_unharm.pdf: aufgabe1-plot.py build/a_harm.txt build/a_u
 build/a_harm.txt build/a_unharm.txt: build/aufg1 | build
 	build/aufg1
 
-build/aufg2_a_ellipse.txt build/aufg2_a_schmetterling.txt build/aufg2_c_11.txt buil/aufg2_c_09.txt: build/aufg2 | build
+build/aufg2_a_ellipse.txt build/aufg2_a_schmetterling.txt: build/aufg2 | build
 	build/aufg2
 
-build/aufg2_a_ellipse.jpg build/aufg2_a_schmetterling.jpg build/aufg2_c_11.jpg build/aufg2_c_09.jpg: build/aufg2_a_ellipse.txt build/aufg2_a_schmetterling.txt build/aufg2_c_11.txt buil/aufg2_c_09.txt aufgabe2-plot.py | build
+build/aufg2_b_energie.txt build/aufg2_b_drehimpuls.txt: build/aufg2 | build
+	build/aufg2
+
+build/aufg2_c_11.txt build/aufg2_c_09.txt: build/aufg2 | build
+	build/aufg2
+
+build/aufg2_a_ellipse.jpg build/aufg2_a_schmetterling.jpg :build/aufg2_a_ellipse.txt build/aufg2_a_schmetterling.txt aufgabe2-plot.py | build
+	python aufgabe2-plot.py
+
+build/aufg2_b_energie.jpg build/aufg2_b_drehimpuls.jpg: build/aufg2_b_energie.txt build/aufg2_b_drehimpuls.txt aufgabe2-plot.py | build
+	python aufgabe2-plot.py
+
+build/aufg2_c_11.jpg build/aufg2_c_09.jpg: build/aufg2_c_11.txt build/aufg2_c_09.txt aufgabe2-plot.py | build
 	python aufgabe2-plot.py
 
 build:
