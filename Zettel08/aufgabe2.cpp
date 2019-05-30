@@ -48,7 +48,7 @@ Funktion zur Implementierung von Runge Kutta
 * file        File, in das geschrieben wird
 * energie     Gesamtenergie des Oszillators
 * drehimpuls  Matrix mit den Drehimpulsvektoren
-* Fall        1: alpha = 1, 2: alpha = 1.1, 3: alpha = 0.9
+* alpha       Anpassung des Potentials
 */
 void runge_kutta(
         double T,
@@ -86,6 +86,128 @@ void runge_kutta(
         k2 = h*next_step(y+0.5*k1, m, G, alpha);
         k3 = h*next_step(y+0.5*k2, m, G, alpha);
         k4 = h*next_step(y+k3, m, G, alpha);
+        y_next = y + 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4);
+        y = y_next;
+        ergebnis.col(i) = y;
+
+        // Gesamtenergie berechnen
+        energie(i) = 0.5*m*y.segment(d,d).squaredNorm() + pot(y.segment(0,d), m, G, alpha);
+
+        // Drehimpuls berechnen
+        r_l = y.segment(0,d);
+        v_l = y.segment(d,d);
+        drehimpuls.col(i) = m*r_l.cross(v_l);
+    }
+    // cout << "Energie" << endl << energie << endl;
+
+    // Speichern der Zeiten
+    for (int i = 0; i<=N; i++){
+        tn(i) = i*h;
+        file << tn(i) << " ";
+    }
+    file << endl;
+
+    // Speichern der Ergebnisse
+    for(int i = 0; i<ergebnis.rows()/2; i++){
+        for(int j = 0; j<ergebnis.cols(); j++){
+            file << ergebnis(i, j) << " ";
+        }
+        file << endl;
+    }
+}
+
+
+/* Kraftfeld Keppler Planet und Mond
+ * r0       Vektor des betrachteten Körpers
+ * r1       Vektor des anderen Körpers
+ * m0       Masse des betrachteten Körpers
+ * m1       Masse des anderen Körpers
+ * G        Gravitationskonstante
+ */
+VectorXd feld_2(VectorXd r0, VectorXd r1, double m0, double m1, double G){
+    unsigned int d = r0.size();
+    VectorXd feld;
+    feld = -m0*G*r0/pow(r0.norm(),3);
+    feld = feld -m0*m1*G*(r1-r0)/pow(r1.norm()-r0.norm(),3);
+    return feld;
+}
+
+
+/* Hilfsfunktion für runge_kuttta Planet und Mond
+ * Berechnet aus dem Vektor y den Vektor y':
+ * Schreibe die letzten d Einträge von y in die ersten d Einträge von y'
+ * und die ersten d Einträge von y in die letzten d Einträge von y'
+ * mp       Masse Planet
+ * mm       Masse Mond
+ * G        Gravitationskonstante
+ */
+VectorXd next_step_2(VectorXd y, double mp, double mm, double G){
+    unsigned int d = y.size()/4;
+    VectorXd temp(4*d);
+
+    // Ortsvektoren
+    temp.segment(0,d) = y.segment(2*d,d);
+    temp.segment(d,d) = y.segment(3*d,d);
+    // Geschwindigkeitsvektoren
+    temp.segment(2*d,d) = 1/mp*feld_2(y.segment(0,d),y.segment(d,d),mp,mm,G);
+    temp.segment(3*d,d) = 1/mm*feld_2(y.segment(d,d),y.segment(0,d),mm,mp,G);
+
+    return temp;
+}
+
+
+/*
+Runge Kutte für das Keppler-Problem mit Planet und Mond
+* T           Obere Grenze des Zeitintervalls
+* h           Schrittweite
+* m0          Masse des Planeten
+* m1          Masse des Mondes
+* G           Gravitationskonstante
+* r0          Anfangswert für r des Planeten
+* v0          Anfangswert für v des Planeten
+* r1          Anfangswert für r des Mondes
+* v1          Anfangswert für v des Mondes
+* file        File, in das geschrieben wird
+* alpha       Anpassung des Potentials
+*/
+void planet_und_mond(
+        double T,
+        int N,
+        double m0,
+        double m1,
+        double G,
+        VectorXd r0,
+        VectorXd v0,
+        VectorXd r1,
+        VectorXd v1,
+        ofstream &file,
+        VectorXd &energie,
+        MatrixXd &drehimpuls,
+        double alpha
+        )
+{
+    double h = T/N;
+    unsigned int d = r0.size();
+    VectorXd tn(N+1), k1, k2, k3, k4, y(4*d), y_next(4*d);
+    MatrixXd ergebnis(4*d, N+1);
+
+    // Startwerte
+    ergebnis.col(0).segment(0,d) = r0;
+    ergebnis.col(0).segment(d,d) = r1;
+    ergebnis.col(0).segment(2*d,d) = v0;
+    ergebnis.col(0).segment(3*d,d) = v1;
+    y.segment(0,d) = r0;
+    y.segment(d,d) = r1;
+    y.segment(2*d,d) = v0;
+    y.segment(3*d,d) = v1;
+
+    // Implementierung des Runge-Kutta-Verfahrens
+    // Schritt 0 ist schon gemacht
+    for (int i = 1; i < N+1; i++){
+        k1 = h*next_step_2(y, m0, m1, G, alpha);
+        k2 = h*next_step_2(y+0.5*k1, m0, m1, G, alpha);
+        k3 = h*next_step_2(y+0.5*k2, m0, m1, G, alpha);
+        k4 = h*next_step_2(y+k3, m0, m1, G, alpha);
         y_next = y + 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4);
         y = y_next;
         ergebnis.col(i) = y;
