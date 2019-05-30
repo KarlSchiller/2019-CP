@@ -93,20 +93,18 @@ void runge_kutta(
     unsigned int d = r0.size();
     VectorXd tn(N+1), k1, k2, k3, k4, y(2*d), y_next(2*d);
     MatrixXd ergebnis(2*d, N+1);
-    // Die Startwerte in die Matrix schreiben
+    Vector3d r_l, v_l;  // Hilfsgrößen zur Berechnung des Drehimpulses
+
+    // Startwerte
     ergebnis.col(0).segment(0,d) = r0;
     ergebnis.col(0).segment(d,d) = v0;
-
-    // Initialisieren des y-Vektors
-    for (int i = 0; i < 2*d; i++){
-        if(i < d){
-            y(i) = r0(i);
-        }
-        else{
-            y(i) = v0(i-d);
-        }
-    }
+    y.segment(0,d) = r0;
+    y.segment(d,d) = v0;
     energie(0) = 0.5*m*v0.dot(v0) + pot(r0, m, G, Fall);
+    r_l = y.segment(0,d);
+    v_l = y.segment(d,d);
+    drehimpuls.col(0) = m*r_l.cross(v_l);
+
     // Implementierung des Runge-Kutta-Verfahrens
     // Schritt 0 ist schon gemacht
     for (int i = 1; i < N+1; i++){
@@ -117,13 +115,13 @@ void runge_kutta(
         y_next = y + 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4);
         y = y_next;
         ergebnis.col(i) = y;
+
         // Gesamtenergie berechnen
-        energie(i) = 0.5*m*y.segment(d,d).dot(y.segment(d,d)) + pot(y.segment(0,d), m, G, Fall);
-        // Drehimpulserhaltung
-        Vector3d r_l, v_l;
+        energie(i) = 0.5*m*y.segment(d,d).squaredNorm() + pot(y.segment(0,d), m, G, Fall);
+
+        // Drehimpuls berechnen
         r_l = y.segment(0,d);
         v_l = y.segment(d,d);
-        //cout << setprecision(13) << "Drehimpuls: \n" << m*r_l.cross(v_l) << endl;
         drehimpuls.col(i) = m*r_l.cross(v_l);
     }
     // cout << "Energie" << endl << energie << endl;
@@ -167,7 +165,30 @@ int main() {
     file.close();
     //cout << energie << endl;
 
-    // kleine Anfangsgeschwindigkeiten
+    // Aufgabenteil b): Prüfe Energieerhaltung
+    file.open("build/aufg2_b_energie.txt", ios::trunc);
+    file << "zeit energie" << endl;
+    for(int i=0; i<=N; i++)
+    {
+        file << setprecision(10) << i*T/N << " " << energie(i) << endl;
+    }
+    file.close();
+
+    // Aufgabenteil b): Prüfe Drehimpulserhaltung
+    file.open("build/aufg2_b_drehimpuls.txt", ios::trunc);
+    file << "zeit Lx Ly Lz" << endl;
+    for(int i=0; i<=N; i++)
+    {
+        file << setprecision(10) << i*T/N;
+        for(int dim=0; dim<d; dim++)
+        {
+            file << " " << drehimpuls(dim, i);
+        }
+        file << endl;
+    }
+    file.close();
+
+    // Problem bei kleinen Anfangsgeschwindigkeiten
     v << 0, 0.005, 0.008;
     file.open("build/aufg2_a_schmetterling.txt", ios::trunc);
     runge_kutta(T, N, m, G, r, v, file, energie, drehimpuls, Fall);
