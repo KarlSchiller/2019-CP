@@ -57,9 +57,9 @@ def plot_drehimpuls(fname):
     fig.clf()
 
 
-#  plot_traje('build/aufg2_a_ellipse.txt', 50)
-#  plot_traje('build/aufg2_a_schmetterling.txt', 50)
+plot_traje('build/aufg2_a_ellipse.txt', 50)
+plot_traje('build/aufg2_a_schmetterling.txt', 50)
 plot_energie('build/aufg2_b_energie.txt')
 plot_drehimpuls('build/aufg2_b_drehimpuls.txt')
-#  plot_traje('build/aufg2_c_11.txt', 50)
-#  plot_traje('build/aufg2_c_09.txt', 50)
+plot_traje('build/aufg2_c_11.txt', 50)
+plot_traje('build/aufg2_c_09.txt', 50)
