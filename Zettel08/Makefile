@@ -22,7 +22,8 @@ FORCE: build/a_harm.pdf \
 	build/aufg2_b_energie.jpg \
 	build/aufg2_b_drehimpuls.jpg \
 	build/aufg2_c_09.jpg \
-	build/aufg2_c_11.jpg
+	build/aufg2_c_11.jpg \
+	build/aufg2_d.jpg
 
 build/aufg1: aufgabe1.cpp | build
 	g++ aufgabe1.cpp -pedantic -o build/aufg1
@@ -57,6 +58,9 @@ build/aufg2_b_energie.txt build/aufg2_b_drehimpuls.txt: build/aufg2 | build
 build/aufg2_c_11.txt build/aufg2_c_09.txt: build/aufg2 | build
 	build/aufg2
 
+build/aufg2_d.txt: build/aufg2 | build
+	build/aufg2
+
 build/aufg2_a_ellipse.jpg build/aufg2_a_schmetterling.jpg :build/aufg2_a_ellipse.txt build/aufg2_a_schmetterling.txt aufgabe2-plot.py | build
 	python aufgabe2-plot.py
 
@@ -64,6 +68,9 @@ build/aufg2_b_energie.jpg build/aufg2_b_drehimpuls.jpg: build/aufg2_b_energie.tx
 	python aufgabe2-plot.py
 
 build/aufg2_c_11.jpg build/aufg2_c_09.jpg: build/aufg2_c_11.txt build/aufg2_c_09.txt aufgabe2-plot.py | build
+	python aufgabe2-plot.py
+
+build/aufg2_d.jpg: build/aufg2_d.txt aufgabe2-plot.py | build
 	python aufgabe2-plot.py
 
 build:
