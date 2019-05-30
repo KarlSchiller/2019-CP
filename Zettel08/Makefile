@@ -1,9 +1,9 @@
 all: build/dokument.pdf
 
 TeXOptions = -lualatex \
-				 -interaction=nonstopmode \
-				 -halt-on-error \
-				 -output-directory=build
+	 -interaction=nonstopmode \
+	 -halt-on-error \
+	 -output-directory=build
 
 build/dokument.pdf: FORCE | build
 	latexmk $(TexOptions) dokument.tex
@@ -16,7 +16,10 @@ light: dokument.tex
 
 FORCE: build/a_harm.pdf \
 	build/a_unharm.pdf \
-	build/aufg2_a_ellipse.jpg
+	build/aufg2_a_ellipse.jpg \
+	build/aufg2_a_schmetterling.jpg \
+	build/aufg2_c_09.jpg \
+	build/aufg2_c_11.jpg
 
 build/aufg1: aufgabe1.cpp | build
 	g++ aufgabe1.cpp -pedantic -o build/aufg1
