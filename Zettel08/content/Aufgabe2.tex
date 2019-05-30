@@ -1,1 +1,107 @@
 \section*{Aufgabe 2}
+
+\subsection*{2.a)}
+Das Runge-Kutta-Verfahren aus Aufgabe 1 wurde dazu verwendet, um das Keppler-Problem
+zu lösen.
+Für die Startwerte
+\begin{equation*}
+    \vec{r}\!\left(0\right) =
+    \begin{pmatrix}
+        1 \\
+        0 \\
+        0 \\
+    \end{pmatrix}
+    \quad
+    \vec{v}\!\left(0\right) =
+    \begin{pmatrix}
+        0 \\
+        0.5 \\
+        0.8 \\
+    \end{pmatrix}
+\end{equation*}
+ergibt sich die in Abbildung \ref{fig:2_ellipse} dargestellte Ellipse.
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2_a_ellipse.jpg}
+  \caption{Eine Keppler-Ellipse.}
+  \label{fig:2_ellipse}
+\end{figure}
+
+Bei kleinen Anfangsgeschwindigkeiten führt das Teilchen keine Ellipsenbahn mehr aus,
+sondern schwingt lediglich wie ein harmonischer Oszillator (vergleiche Aufgabe 1.a)
+wie in Abbildung \ref{fig:2_schmetterling} dargestellt.
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2_a_schmetterling.jpg}
+  \caption{Eine Keppler-Ellipse für sehr kleine Anfangsgeschwindigkeiten.}
+  \label{fig:2_schmetterling}
+\end{figure}
+
+\subsection*{2.b)}
+Für jeden Zeitschritt wurde die Energie und der Drehimpulsvektor berechnet.
+In den Abbildungen \ref{fig:2_energie} und \ref{fig:2_drehimpuls} sind die Abweichungen
+der beiden Größen von den Startwerden dargestellt.
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2_b_energie.jpg}
+  \caption{Die Abweichung der Energie vom Startwert.}
+  \label{fig:2_energie}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2_b_drehimpuls.jpg}
+  \caption{Die Abweichung des Drehimpulsvektors vom Startwert.}
+  \label{fig:2_drehimpuls}
+\end{figure}
+Es zeigt sich, dass Energieabweichung mit der Zeit zunimmt. Dies ist eine Motivation für
+andere, energieerhaltende Verfahren.
+Der Drehimpulsvektor weicht mit der Zeit in dem selben Maße ab, wie es auch die Energie
+tut. Lediglich für die Komponente, bei welcher der Drehimpuls Null beträgt, zeigen
+sich deutlich kleinere Abweichungen am numerischen Limit.
+
+\subsection*{2.c)}
+Nun wird das Potential zu
+\begin{equation*}
+    V\!\left(\vec{r}\right) =
+    - \frac{m G}{\left|\vec{r}\right|^\alpha}
+\end{equation*}
+verändert.
+Das Kraftfeld ist durch
+\begin{equation*}
+    \vec{F}\!\left(\vec{r}\right)
+    = - \vec{\nabla} V\!\left(\vec{r}\right)
+\end{equation*}
+gegeben. Damit ergibt sich beispielhaft für die $x$-Komponente
+\begin{align*}
+    F_\text{x}\!\left(\vec{r}\right)
+    &= -\frac{\partial}{\partial x}
+        \left[- \frac{m G}{\left(\sqrt{x^2 + y^2 + z^2}\right)^\alpha}\right] \\
+    &= m G \frac{\partial}{\partial x}
+        \left[\left(x^2 + y^2 + z^2\right)^{-\frac{\alpha}{2}}\right] \\
+    &= m G \left(-\frac{\alpha}{2}\right)
+        \left(x^2 + y^2 + z^2\right)^{-\frac{\alpha}{2}-\frac{2}{2}}
+        2 x \\
+    &= - m G \alpha
+        \frac{x}{\left(\sqrt{x^2 + y^2 + z^2}\right)^{\alpha+2}} \\
+\end{align*}
+und somit
+\begin{equation*}
+    \vec{F}\!\left(\vec{r}\right)
+    = -\alpha m G \frac{\vec{r}}{\left|\vec{r}\right|^{\alpha +2}}
+\end{equation*}
+
+In den Abbildungen \ref{fig:2_alpha11} und \ref{fig:2_alpha09} sind die sich ergebenden
+Trajektorien für $\alpha = \num{1.1}$ und \num{0.9} dargestellt.
+Eine Verformung der Ellipse bzw. keine geschlossene Bahn ist erkennbar.
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.7]{build/aufg2_c_11.jpg}
+    \caption{Trajektorie bei $\alpha = \num{1.1}$.}
+    \label{fig:2_alpha11}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.7]{build/aufg2_c_09.jpg}
+    \caption{Trajektorie bei $\alpha = \num{0.9}$.}
+    \label{fig:2_alpha09}
+\end{figure}
