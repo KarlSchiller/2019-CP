@@ -4,23 +4,45 @@
 // #include <math.h>  // sqrt, round
 // #include <tuple>
 // #include <complex>
-// #include <iomanip> // setprecision
+#include <iomanip> // setprecision
 
 using namespace std;
 using namespace Eigen;
 
 
 // Kraftfeld des Problems
-VectorXd feld(VectorXd r, double m, double G){
-    double r_norm = r.norm();
-    return -m*G*r/r_norm;
+VectorXd feld(VectorXd r, double m, double G, int Fall){
+  double r_norm = r.norm();
+  switch(Fall){
+    case 1: return -m*G*r/r_norm; break;
+    case 2: return -m*G*r*1.1/(pow(r.norm(), 3.1)); break;
+    case 3: return -m*G*r*0.9/(pow(r.norm(), 2.9)); break;
+    default: return -m*G*r/r_norm; // default mäßig den einfachen Fall zurück geben
+  }
+    //return -m*G*r/r_norm;
+
+    // Fall für alpha = 1.1
+    //return -m*G*r*1.1/(pow(r.norm(), 3.1));
+
+    // Fall für alpha = 0.9
+    //return -m*G*r*0.9/(pow(r.norm(), 2.9));
 }
 
 
 // Potential des Problems zur Energieüberprüfung
-double pot(VectorXd r, double m, double G){
+double pot(VectorXd r, double m, double G, int Fall){
+  switch(Fall){
+    case 1: return -m*G/r.norm(); break;
+    case 2: return -m*G/(pow(r.norm(), 1.1)); break;
+    case 3: return -m*G/(pow(r.norm(), 0.9)); break;
+    default: return -m*G/r.norm(); // default mäßig den einfachen Fall zurück geben
+  }
     // return 0.5*m*r.dot(r);
-    return -m*G/r.norm();
+    //return -m*G/r.norm();
+
+    // Fall für alpha =
+    //return -m*G/(pow(r.norm(), 0.9));
+    // return -m*G/(pow(r.norm(), 1.1));
 }
 
 
@@ -29,12 +51,12 @@ double pot(VectorXd r, double m, double G){
  * Schreibe die letzten d Einträge von y in die ersten d Einträge von y'
  * und die ersten d Einträge von y in die letzten d Einträge von y'
  */
-VectorXd next_step(VectorXd y, double m, double G){
+VectorXd next_step(VectorXd y, double m, double G, int Fall){
     unsigned int d = y.size()/2;
     VectorXd temp(2*d);
 
     temp.segment(0,d) = y.segment(d,d);
-    temp.segment(d,d) = 1/m*feld(y.segment(0,d),m,G);
+    temp.segment(d,d) = 1/m*feld(y.segment(0,d),m,G, Fall);
 
     return temp;
 }
@@ -43,14 +65,16 @@ VectorXd next_step(VectorXd y, double m, double G){
 // Aus Aufgabe 1 kopiert
 /*
 Funktion zur Implementierung von Runge Kutta
-* T         Obere Grenze des Zeitintervalls
-* h         Schrittweite
-* m         Masse des Planeten
-* G         Gravitationskonstante
-* r0        Anfangswert für r
-* v0        Anfangswert für v
-* file      File, in das geschrieben wird
-* energie   Gesamtenergie des Oszillators
+* T           Obere Grenze des Zeitintervalls
+* h           Schrittweite
+* m           Masse des Planeten
+* G           Gravitationskonstante
+* r0          Anfangswert für r
+* v0          Anfangswert für v
+* file        File, in das geschrieben wird
+* energie     Gesamtenergie des Oszillators
+* drehimpuls  Matrix mit den Drehimpulsvektoren
+* Fall        1: alpha = 1, 2: alpha = 1.1, 3: alpha = 0.9
 */
 void runge_kutta(
         double T,
@@ -60,7 +84,9 @@ void runge_kutta(
         VectorXd r0,
         VectorXd v0,
         ofstream &file,
-        VectorXd &energie
+        VectorXd &energie,
+        MatrixXd &drehimpuls,
+        int Fall
         )
 {
     double h = T/N;
@@ -80,19 +106,25 @@ void runge_kutta(
             y(i) = v0(i-d);
         }
     }
-    energie(0) = 0.5*m*v0.dot(v0) + pot(r0, m, G);
+    energie(0) = 0.5*m*v0.dot(v0) + pot(r0, m, G, Fall);
     // Implementierung des Runge-Kutta-Verfahrens
     // Schritt 0 ist schon gemacht
     for (int i = 1; i < N+1; i++){
-        k1 = h*next_step(y, m, G);
-        k2 = h*next_step(y+0.5*k1, m, G);
-        k3 = h*next_step(y+0.5*k2, m, G);
-        k4 = h*next_step(y+k3, m, G);
+        k1 = h*next_step(y, m, G, Fall);
+        k2 = h*next_step(y+0.5*k1, m, G, Fall);
+        k3 = h*next_step(y+0.5*k2, m, G, Fall);
+        k4 = h*next_step(y+k3, m, G, Fall);
         y_next = y + 1.0/6.0*(k1 + 2*k2 + 2*k3 + k4);
         y = y_next;
         ergebnis.col(i) = y;
         // Gesamtenergie berechnen
-        energie(i) = 0.5*m*y.segment(d,d).dot(y.segment(d,d)) + pot(y.segment(0,d), m, G);
+        energie(i) = 0.5*m*y.segment(d,d).dot(y.segment(d,d)) + pot(y.segment(0,d), m, G, Fall);
+        // Drehimpulserhaltung
+        Vector3d r_l, v_l;
+        r_l = y.segment(0,d);
+        v_l = y.segment(d,d);
+        //cout << setprecision(13) << "Drehimpuls: \n" << m*r_l.cross(v_l) << endl;
+        drehimpuls.col(i) = m*r_l.cross(v_l);
     }
     // cout << "Energie" << endl << energie << endl;
 
@@ -121,7 +153,9 @@ int main() {
     double m = 2.0;       // Masse
     double G = 1;         // Gravitationskonstante
     unsigned int d = 3;   // Dimension
+    int Fall = 1;         // 1: alpha = 1, 2: alpha = 1.1, 3: alpha = 0.9
     VectorXd r(d), v(d), energie(N+1);
+    MatrixXd drehimpuls(d, N+1);
     ofstream file;
 
     // Aufgabenteil a) mit r und v senkrecht
@@ -129,7 +163,28 @@ int main() {
     v << 0, 0.5, 0.8;
 
     file.open("build/aufg2_a_ellipse.txt", ios::trunc);
-    runge_kutta(T, N, m, G, r, v, file, energie);
+    runge_kutta(T, N, m, G, r, v, file, energie, drehimpuls, Fall);
+    file.close();
+    //cout << energie << endl;
+
+    // kleine Anfangsgeschwindigkeiten
+    v << 0, 0.005, 0.008;
+    file.open("build/aufg2_a_schmetterling.txt", ios::trunc);
+    runge_kutta(T, N, m, G, r, v, file, energie, drehimpuls, Fall);
+    file.close();
+
+    // Aufgabenteil c)
+    // alpha = 1.1
+    v << 0, 0.5, 0.8; // nicht vergessen den Vektor wieder zurück zu setzen :D
+    Fall = 2;
+    file.open("build/aufg2_c_11.txt", ios::trunc);
+    runge_kutta(T, N, m, G, r, v, file, energie, drehimpuls, Fall);
+    file.close();
+
+    // alpha = 0.9
+    Fall = 3;
+    file.open("build/aufg2_c_09.txt", ios::trunc);
+    runge_kutta(T, N, m, G, r, v, file, energie, drehimpuls, Fall);
     file.close();
 
     cout << "\nEnde Aufgabe 2!" << endl;

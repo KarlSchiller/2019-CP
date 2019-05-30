@@ -23,4 +23,7 @@ def plot_traje(fname, winkel):
     fig.clf()
 
 
-plot_traje('build/aufg2_a_ellipse.txt', 20)
+plot_traje('build/aufg2_a_ellipse.txt', 70)
+plot_traje('build/aufg2_a_schmetterling.txt', 70)
+plot_traje('build/aufg2_c_11.txt', 70)
+plot_traje('build/aufg2_c_09.txt', 70)
