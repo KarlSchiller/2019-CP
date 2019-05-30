@@ -105,3 +105,28 @@ Eine Verformung der Ellipse bzw. keine geschlossene Bahn ist erkennbar.
     \caption{Trajektorie bei $\alpha = \num{0.9}$.}
     \label{fig:2_alpha09}
 \end{figure}
+
+\subsection*{2.d)}
+Zu dem als Planet interpretierten Teilchen wurde nun ein zweites als Mond interpretiertes
+Teilchen ergänzt.
+Somit ergibt sich als Kraft
+\begin{equation*}
+    \vec{F}\!\left(\vec{r}\right) =
+    -m_\text{P} G \frac{\vec{r}_\text{P}}{r_\text{P}^3}
+    -m_\text{M} G \frac{\vec{r}_\text{M}}{r_\text{M}^3}
+    -m_\text{P} m_\text{M} G \frac{\vec{r}_\text{P}-\vec{r}_\text{M}}{\left(r_\text{P}-r_\text{M}\right)^3}
+    ,
+\end{equation*}
+welche die Gravitation zwischen Sonne und Planet, Sonne und Mond und schließlich
+Planet und Mond enthält.
+Die zugehörigen Methoden haben eine 2 im Namen, um sie von den vorherigen zu unterscheiden.
+Es scheint jedoch ein inhaltlicher Fehler vorzuliegen oder unsere Implementierung instabil
+auf die Startwerte zu reagieren, jedenfalls ergibt sich leider nicht das gewünschte
+Bild eines Planeten mit umkreisenden Mond.
+Das Ergebnis des Algorithmus ist in Abbildung \ref{fig:2_e} dargestellt.
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.7]{build/aufg2_d.jpg}
+    \caption{Trajektorie von Planet und Mond.}
+    \label{fig:2_e}
+\end{figure}
