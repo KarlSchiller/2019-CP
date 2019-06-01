@@ -8,14 +8,14 @@ plt.rc('font', family='serif')
 plt.rc('axes.formatter', use_locale=True)
 
 
-def plot_traje(fname, winkel):
+def plot_traje(fname, winkel1, winkel2):
     """Plotte die Datei, die in fname gegeben ist in einer 3D-Darstellung mit
     dem Azimuth(?)-Winkel winkel."""
     Y = np.genfromtxt(fname)
     print("Plot "+fname)
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    ax.view_init(winkel, 70)
+    ax.view_init(winkel1, winkel2)
     p = ax.scatter3D(Y[1, :], Y[2, :], Y[3, :], c=Y[0, :], cmap='viridis')
     cbar = fig.colorbar(p)
     cbar.set_label(r'Zeitschritte $t_n$', rotation=270, labelpad=10)
@@ -23,4 +23,4 @@ def plot_traje(fname, winkel):
     fig.clf()
 
 
-plot_traje("build/aufg1_a.txt", 70)
+plot_traje("build/aufg1_a.txt", 50, 80)

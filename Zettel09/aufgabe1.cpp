@@ -85,7 +85,7 @@ VectorXd x, VectorXd x_punkt, ofstream &file){
 
   y.segment(0,d) = x;
   y.segment(d,d) = x_punkt;
-  runge = runge_kutta(next_step, T, 3, alpha, x, x_punkt);
+  runge = runge_kutta(next_step, T*3.0/N, 3, alpha, x, x_punkt);
 
   // 0-ter Schritt
   ergebnis.col(0) = y;
