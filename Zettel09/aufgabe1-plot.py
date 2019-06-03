@@ -39,7 +39,7 @@ def plot_energie(fname):
     fig.clf()
 
 
-# plot_traje("build/aufg1_a1.txt", 50, 80)
-# plot_traje("build/aufg1_a2.txt", 50, 80)
-# plot_traje("build/aufg1_a3.txt", 50, 80)
+plot_traje("build/aufg1_a1.txt", 40, 70)
+plot_traje("build/aufg1_a2.txt", 40, 70)
+plot_traje("build/aufg1_a3.txt", 40, 80)
 plot_energie("build/aufg1_b.txt")

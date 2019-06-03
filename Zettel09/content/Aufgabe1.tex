@@ -1,1 +1,49 @@
 \section*{Aufgabe 1}
+\subsection*{a)}
+Die DGL entspricht der eines harmonischen Oszillators mit dem zusätzlichen
+Term $- \alpha \dot{x}$. Für $\alpha > 0$ entspricht das einem gedämpften
+harmonischen Oszillator, so wie in Abbildung \ref{fig:gedämpft} dargestellt.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg1_a1.pdf}
+  \caption{Trajektorie für $\alpha = 0.1$.}
+  \label{fig:gedämpft}
+\end{figure}
+
+Für $\alpha < 0$ entspricht die DGL einem Oszillator mit Motor, sodass eine
+erzwungene Schwingung auftritt, wie in Abbildung \ref{fig:erzwungen}.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg1_a2.pdf}
+  \caption{Trajektorie für $\alpha = -0.1$.}
+  \label{fig:erzwungen}
+\end{figure}
+
+Für $\alpha = 0$ schließlich sollte sich ein harmonischer Oszillator einstellen,
+so wie in Abbildung \ref{fig:harmonisch} dargestellt.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg1_a3.pdf}
+  \caption{Trajektorie für $\alpha = 0$.}
+  \label{fig:harmonisch}
+\end{figure}
+
+Alles in allem beschreibt $\alpha$ die Stärke der Dämpfung bzw. die Stärke des
+Antriebs.
+
+\subsection*{c)}
+Bei einem oberen Zeitintervall von 200 und 3000 Schritten ist die Runge-Kutta-Methode
+leicht schneller mit \SI{0.053875}{\s} gegenüber der AB-Methode mit \SI{0.055906}{\s}.
+
+Wenn das Zeitintervall auf 2000 gestreckt und die Schrittweite auf 30000 erhöht wird,
+dann ist die AB-Methode mit \SI{0.519792}{\s} schneller als die Runge-Kutta-Methode
+mit \SI{0.543176}{\s}.
+
+In der Vorlesung haben wir gelernt, dass die AB-Methode meist schneller ist als
+die RK-Methode, vor allem, wenn die auszuwertende Funktion aufwendig zu berechnen
+ist und keine Schrittweitenanpassung nötig ist. Diese Funktion ist nicht besonders
+schwierig auszuwerten, deswegen wird die AB-Methode erst schneller, wenn man zu
+langen Zeiten und vielen Schritten übergeht.

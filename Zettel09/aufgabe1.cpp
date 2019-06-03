@@ -32,7 +32,7 @@ VectorXd next_step(VectorXd y, double alpha){
   return temp;
 }
 
-
+// Angepasste Runge-Kutta Methode
 MatrixXd runge_kutta(VectorXd (*f)(VectorXd, double), double T, int N, double alpha,
 VectorXd r, VectorXd v){
   //int N = T/h;
@@ -156,7 +156,6 @@ int main() {
   int N = 300;
   VectorXd x(d), x_punkt(d), y(2*d), energie(N+1);
   ofstream file;
-  MatrixXd test;
 
   x << 1, 2, 3;
   x_punkt << 0, 1, 0;
