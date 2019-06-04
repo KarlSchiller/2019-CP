@@ -8,10 +8,10 @@
 using namespace std;
 using namespace Eigen;
 
-// Potential zur DGL in Arbeit
-// double pot(VectorXd x, double alpha){
-//   return 0.5*x.squaredNorm() + alpha*x;
-// }
+// Potential des harmonischen Oszis
+double pot(VectorXd r){
+  return 0.5*r.dot(r);
+}
 
 // DGL wie angegeben
 VectorXd dgl(VectorXd x, VectorXd x_punkt, double alpha){
@@ -97,7 +97,7 @@ void adams_bashfort(VectorXd (*f)(VectorXd, double), double T, int N, double alp
 VectorXd x, VectorXd x_punkt, ofstream &file, VectorXd &energie){
   double h = T/N;
   unsigned int d = x.size();
-  VectorXd y(2*d), y_next(2*d), tn(N+1);
+  VectorXd y(2*d), tn(N+1);
   MatrixXd ergebnis(2*d, N+1), runge(2*d, 4);
 
   y.segment(0,d) = x;
@@ -118,17 +118,18 @@ VectorXd x, VectorXd x_punkt, ofstream &file, VectorXd &energie){
   ergebnis.col(3) = ergebnis.col(2) + h/24.0*(55*f(ergebnis.col(2), alpha) - 59*f(ergebnis.col(1), alpha)
                     +37*f(ergebnis.col(0), alpha) -9*f(runge.col(3), alpha));
 
-  //ToDO: Potential bestimmen
-  energie(0) = 0.5*ergebnis.col(0).segment(d,d).squaredNorm();
-  energie(1) = 0.5*ergebnis.col(1).segment(d,d).squaredNorm();
-  energie(2) = 0.5*ergebnis.col(2).segment(d,d).squaredNorm();
-  energie(3) = 0.5*ergebnis.col(3).segment(d,d).squaredNorm();
+  // Energie für die ersten vier Schritte bestimmen
+  energie(0) = 0.5*ergebnis.col(0).segment(d,d).squaredNorm() + pot(ergebnis.col(0).segment(0,d));
+  energie(1) = 0.5*ergebnis.col(1).segment(d,d).squaredNorm() + pot(ergebnis.col(1).segment(0,d));
+  energie(2) = 0.5*ergebnis.col(2).segment(d,d).squaredNorm() + pot(ergebnis.col(2).segment(0,d));
+  energie(3) = 0.5*ergebnis.col(3).segment(d,d).squaredNorm() + pot(ergebnis.col(3).segment(0,d));
+
   // Ab hier Automatisierung mit ergebnis
   for(int i = 4; i < N+1; i++){
-    y_next = ergebnis.col(i-1) + h/24.0*(55*f(ergebnis.col(i-1), alpha) - 59*f(ergebnis.col(i-2), alpha)
+    y = ergebnis.col(i-1) + h/24.0*(55*f(ergebnis.col(i-1), alpha) - 59*f(ergebnis.col(i-2), alpha)
     + 37*f(ergebnis.col(i-3), alpha) - 9*f(ergebnis.col(i-4), alpha));
-    ergebnis.col(i) = y_next;
-    energie(i) = 0.5*y.segment(d,d).dot(y.segment(d,d));
+    ergebnis.col(i) = y;
+    energie(i) = 0.5*y.segment(d,d).squaredNorm()+ pot(y.segment(0,d));;
   }
 
   // Erstellen der Zeiten tn und schreiben in ein file
@@ -167,7 +168,7 @@ int main() {
   adams_bashfort(next_step, T, N, alpha, x, x_punkt, file, energie);
   file.close();
 
-  // Kurz Aufgabenteil b) eingeschoben :)
+  // Kurz Aufgabenteil b) eingeschoben, da gleiche Parameter alpha und T :)
   file.open("build/aufg1_b.txt", ios::trunc);
   file << "zeit energie" << endl;
   for(int i=0; i<=N; i++)
@@ -188,8 +189,8 @@ int main() {
 
   // Aufgabenteil c)
   double time_a = 0.0, time_r = 0.0, tstart;
-  T = 2000.0, alpha = 0.1;
-  N = 30000;
+  T = 200.0, alpha = 0.1;
+  N = 3000;
   VectorXd energie2(N+1);
 
   tstart = clock();

@@ -28,12 +28,13 @@ def plot_energie(fname):
     print("Plot "+fname)
     df = pd.read_csv(fname, decimal='.',
                      delimiter=' ')
-    df.energie = df.energie - df.energie[0]
+    # df.energie = df.energie - df.energie[0]
 
+    # print(df.energie)
     fig = plt.figure()
     plt.plot(df.zeit, df.energie, 'k-')
-    plt.xlabel('Zeit')
-    plt.ylabel('Energieabweichung')
+    plt.xlabel(r'Zeit')
+    plt.ylabel(r'Energie')
     # plt.yscale('log')
     fig.savefig(fname.split('.')[0]+'.pdf', bbox_inches='tight')
     fig.clf()
