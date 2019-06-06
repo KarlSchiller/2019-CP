@@ -1,1 +1,53 @@
 \section*{Aufgabe 2}
+Der Koordinatenursprung liegt im Kern der Erde, somit ergibt sich der Startvektor für
+r zu
+\begin{equation*}
+  \begin{pmatrix}
+    0 \\
+    R+h_0
+  \end{pmatrix} \, .
+\end{equation*}
+
+Es wurde eine Runge-Kutta-Verfahren 4. Ordnung implementiert, um die
+Bewegungsgleichung der Raumkapsel zu lösen. Dabei wurde das Verfahren solange
+angewendet, bis der errechnete Ortsvektor $\leq$ dem Erdradius war.
+Währenddessen wurde nach Vorschrift in der Vorlesung die Schrittweite angepasst.
+Da die Alternativ-Methode zur \textsc{pow}-Methode leider nicht funktioniert
+hat, dauert das Programm etwas länger zum Durchlaufen. Dieses angepasste
+Runge-Kutta wurde für die verschiedenen $\vec{v}_0$ mit einer Methode
+aufgerufen, die den $2d$-dimensionalen Ergebnisvektor $y$ wieder in die
+Einzelgrößen $r$ und $v$ zerlegt und die Größe
+
+\begin{equation*}
+  \frac{<\vec{r}, \vec{v}>}{|\vec{r}|}
+\end{equation*}
+
+bestimmt. Da nach dem Betrag der vertikalen Geschwindigkeit gefragt ist, wird
+das Skalarprodukt zwischen dem Geschwindigkeitsvektor und dem Normalenvektor gebildet,
+der in unserem Modell der Erde als perfekte Kugel dem Ortsvektor entspricht. Zusätzlich
+wird das ganze mit dem Betrag des Normalenvektors noch normiert. Leider kommen bei
+diesem Vorgehen die in Abbildung \ref{fig:norm} dargestellten Werte heraus.
+Mir erscheint es schwierig, darauf jetzt ein Minimierungsverfahren anzuwenden,
+welches den minimalen Startwert $v_0$ bestimmt. Ich vermute, dass in den bisherigen Schritten
+etwas falsch gelaufen ist, finde aber leider den Fehler nicht.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2_a.pdf}
+  \caption{Betrag der vertikalen Geschwindigkeit.}
+  \label{fig:norm}
+\end{figure}
+
+Prinzipiell hätte ich wohl das Bisektionsverfahren verwendet, um den passenden
+Anfangswert herauszufinden. In der a) für die positive, und in der b) für die negative
+Funktion. Bei der b) wäre wahrscheinlich $v_0 = 0$ nach meiner Schätzung herausgekommen,
+da auf diese Weise der Weg zum Erdboden minimiert wird und somit die Luftreibung
+weniger den Fall bremsen kann.
+
+Der Grund, warum Schrittweitenanpassung sinnvoll ist, ist der, dass die Luftreibung
+höhenabhängig ist und auch die Geschwindigkeit stark variiert und sich somit die
+DGL stark verändert, also an bestimmen Stellen nicht besonders glatt ist. Aus
+diesem Grund ist es sinnvoll, den Vorteil von Runge-Kutta auszunutzen, dass $h$
+zwischen einzelnen Schritten variiert werden kann, um flache Bereiche der
+Funktion schnell (sprich: mit großer Schrittweite) zu durchlaufen und um schnell
+variierende Bereiche langsam (sprich: mit kleiner Schrittweite) zu durchlaufen.
