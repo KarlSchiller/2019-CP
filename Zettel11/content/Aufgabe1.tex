@@ -1,0 +1,63 @@
+\section*{Aufgabe 1}
+\subsection*{1.a)}
+Das Runge-Kutta-Verfahren erster Ordnung wurde implementiert. Dann wurde das
+Programm an einem harmonischen Oszillator getestet.
+Für die Anfangsbedingungen
+\begin{equation*}
+  \vec{r}(0) = \begin{pmatrix}
+  1 \\ 2 \\ 3 \\
+\end{pmatrix} \ \text{und} \
+\vec{v}(0) = \vec{0}
+\end{equation*}
+ergab sich die Trajektorie, die in Abbildung \ref{fig:harm} dargestellt ist. Es
+ist zu sehen, dass eine harmonische Schwingung ausgeführt wird, da die jüngeren
+Zeitschritte die älteren überlagern und dadurch sichtbar wird, dass eine
+harmonische Schwingung auf dieser Trajektorie gegeben ist.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/a_harm.pdf}
+  \caption{Trajektorie des harmonischen Oszillators bei $\vec{v} = \vec{0}$.}
+  \label{fig:harm}
+\end{figure}
+
+Für die Anfangsbedingungen
+\begin{equation*}
+  \vec{r}(0) = \begin{pmatrix}
+  1 \\ 0 \\ 3 \\
+\end{pmatrix} \ \text{und} \
+\vec{v}(0) = \begin{pmatrix}
+  0 \\ 1 \\ 0 \\
+\end{pmatrix}
+\end{equation*}
+ergibt sich die Trajektorie in Abbildung \ref{fig:unharm}. Es ist zu sehen, dass
+sich eine Kreisbewegung einstellt, wie es für einen harmonischen Oszillator
+zu erwarten ist, wenn Orts- und Geschwindigkeitsvektor senkrecht aufeinander stehen.
+An dem Übergang zwischen blau und gelb ist zu sehen, wo die Bewegung beginnt
+und dass sich der Kreis wieder schließt.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/a_unharm.pdf}
+    \caption{Trajektorie des harmonischen Oszillators bei $\vec{v} \perp \vec{r}$.}
+  \label{fig:unharm}
+\end{figure}
+
+\subsection*{1.b)}
+Es stellte sich heraus, dass für 10 Schritte bzw. Schwingungen eine Schrittweite
+von $h = \num{e-7}$ benötigt wurde, damit die angegebene Toleranzgrenze erfüllt
+ist.
+
+\subsection*{1.c)}
+Bei 300 Schritten in einem Zeitintervall von $t = [0, 20]$ ist die Abweichung in
+Abbildung \ref{fig:energie} dargestellt. Es ist zu sehen, dass die Abweichung mit
+steigender Zeit zunimmt. Andere Verfahren bieten da unter Umständen eine bessere
+Energieerhaltung an, auch wenn hier die Abweichung "nur" im Bereich \num{e-7}
+bis \num{e-5} liegt. 
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg1_c_energie.jpg}
+  \caption{Energieabweichung im Zeitraum [0, 20] mit 300 Schritten.}
+  \label{fig:energie}
+\end{figure}
