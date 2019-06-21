@@ -1,0 +1,231 @@
+\section*{Aufgabe 1: 2D Lennard-Jones Fluid}
+
+Für folgenden Simulationen wurden folgende Einstellungen verwendet, sofern nicht anders
+gekennzeichnet:
+\begin{itemize}
+    \item $N = 16$
+    \item $r_\text{c} = \frac{L}{2}$
+    \item $h = \num{0.01}$
+    \item $k_\text{B} = 1$
+    \item $m_\text{i} = 1 \quad \forall i = 1, ..., N$
+    \item Anzahl Freiheitsgrade $N_\text{f} = 2 N - 2$
+\end{itemize}
+Längen werden zudem in Einheiten von $\sigma$ und Zeiten in Einheiten von $\tau$ gemessen.
+Energien und $k_\text{B} T$ werden in Einheiten von $\varepsilon$ gemessen.
+
+\subsection*{a) Initialisierung}
+
+Zu Beginn werden die Orte und Geschwindigkeiten der Teilchen initialisiert.
+Dabei werden die Teilchen auf einem Gitter innerhalb der Box $[0,L] \cdot [0,L]$ verteilt.
+In Abbildung \ref{fig:init} ist die Startkonfiguration dargestellt.
+\begin{figure}
+    \centering
+    \includegraphics[height=6cm]{build/init.jpg}
+    \caption{Startkonfiguration mit 16 Teilchen.}
+    \label{fig:init}
+\end{figure}
+Die Geschwindigkeiten werden zunächst aus einer Gleichverteilung in $[0,1]$ zufällig
+gezogen. Physikalisch interessante Prozesse betreffen jedoch die Relativgeschwindigkeiten
+der Teilchen untereinander, sodass die Schwerpunktsbewegung der Teilchen auf
+Null gesetzt wird.
+Um mit einer beliebigen Temperatur $\tilde{T}$ zu starten, werden die Geschwindigkeiten der
+Teilchen anschließend skaliert. Wird angenommen, dass die Gewschindigkeit der Teilchen
+um den Faktor $a$ zu groß sind, berechnet sich die initiale Temperatur nach
+\begin{align*}
+    T_0 &=
+    \frac{2}{k_\text{B} N_\text{f}} \sum_{i=1}^N \frac{\vec{p}_\text{i}^2}{2 m_\text{i}} \\
+    &= \frac{1}{N_\text{f}} \sum_{i=1}^N \left(v_\text{x}^2 + v_\text{y}^2\right) \\
+    &= \frac{1}{N_\text{f}} \sum_{i=1}^N
+        \left(a^2 \tilde{v}_\text{x}^2 + a^2 \tilde{v}_\text{y}^2\right) \\
+    &= a^2 \frac{1}{N_\text{f}} \sum_{i=1}^N
+        \left(\tilde{v}_\text{x}^2 + \tilde{v}_\text{y}^2\right) \\
+    &= a^2 \tilde{T}
+\end{align*}
+mit den anfangs genannten Bedingungen.
+Daraus ergibt sich, dass die Geschwindigkeiten mit dem Faktor
+\begin{equation*}
+    \frac{1}{a} = \sqrt{\!\left(\frac{\tilde{T}}{T}\right)}
+\end{equation*}
+skaliert werden müssen.
+
+\FloatBarrier
+\subsection*{b) Äquilibrierung}
+
+Nach der Initialisierung wird die Dynamik des Systems unter Verwendung des
+Geschwindigkeits-Verlet-Algorithmus ermittelt.
+Während einer Äquilibrierungsphase nehmen die Teilchen einen "natürlichen" Zustand ein,
+der sich bei Temperaturen $\neq 0$ stark von der Gittersymmetrie unterscheidet.
+
+Die Beschleunigung der einzelnen Teilchen ergibt sich aufgrund normierter Massen von 1
+direkt aus der Kraft.
+Die Kraft auf das Teilchen i berechnet sich wiederum aus dem Lennard-Jones Potential nach
+\begin{align*}
+    \vec{F}_\text{i}
+    &= \sum_{i \neq j} \vec{F}_\text{ij}
+    = - \sum_{i \neq j} \sum_{\vec{n} \in \mathbb{Z}^2}
+        \frac{\vec{r}_\text{ij} + L \vec{n}}{\left|\vec{r}_\text{ij} + L \vec{n}\right|}
+        V'\left(\left|\vec{r}_\text{ij} + L \vec{n}\right|\right) \\
+    \text{Cutoff } r_\text{c}
+    &= \frac{1}{2} L < \left|\vec{r}_\text{ij} + L \vec{n}\right| \\
+    \vec{F}\!\left(\vec{r}\right)
+    &= - \vec{\nabla} V\left(r\right)
+    = - 24 \frac{\vec{r}}{r^2}
+        \left[2 \left(\frac{1}{r}\right)^{-12} - \left(\frac{1}{r}\right)^{-6}\right]
+\end{align*}
+Der Cutoff $r_\text{c}$ ist genau so gesetzt, dass ein Teilchen i nur einmal mit j
+wechselwirkt, also entweder mit dem realen Teilchen j oder mit dem nächstgelegenen
+Bildteilchen j. Ist ein Bildteilchen j näher als $\frac{L}{2}$ am Teilchen i,
+so muss das reale Teilchen sowie alle anderen Bildteilchen weiter als $\frac{L}{2}$
+entfernt sein.
+
+Die Funktion \texttt{nächste Nachbar} geht aufgrund dessen alle anliegenden Bildgebiete durch
+und prüft, welches Bildteilchen oder reale Teilchen der Sorte j am nächsten an i
+liegt. Zwischen diesen beiden wird dann die Lennard-Jones-Kraft berechnet und
+auf die insgesamt wirkende Kraft auf Teilchen i addiert.
+Bei der Funktion \texttt{update\_kraft} wurde noch ausgenutzt, dass der Betrag der
+Kraft symmetrisch ist. Somit kann die eben errechnete Kraft zu Teilchen i und j mit
+unterschiedlichen Vorzeichen addiert werden.
+Schließlich ergibt sich so eine $(2 \times N)$-Matrix mit der Kraft auf Teilchen i
+in Spalte i.
+
+Nach Berechnung der Ortsvektoren im nächsten Zeitschritt müssen die periodischen
+Randbedingungen geprüft werden.
+Teilchen, die aus dem Simulationsvolumen heraus laufen, müssen auf der anderen Seite
+wieder hinein kommen.
+Dies tut die Funktion \texttt{periodische\_RB}.
+Hierbei ist die Verwendung des Modulo-Operators sinnvoll, falls Teilchen sehr viel
+zu schnell sind und nicht nur in einen benachbarten Bildraum laufen, sondern innerhalb
+eines Zeitschrittes in den übernächsten oder weiter.
+Bei der Implementierung wurde darauf jedoch verzichtet, da dies ein eindeutiges
+Zeichen dafür ist, dass die Schrittweite des Algorithmus $h$ zu groß gewählt wurde.
+
+Während der Äquilibrierung wurden die Schwerpunktsgeschwindigkeit $\vec{v}_\text{S}$,
+die Temperatur $T$, die potentielle und die kinetische Energie
+($E_\text{pot}$, $E_\text{kin}$) in Abhängigkeit von der Zeit berechnet.
+In jedem Zeitschritt ergeben sich diese nach
+\begin{align*}
+    \vec{v}_\text{S} &= \frac{1}{N} \sum_{i=1}^N \vec{v}_\text{i} \\
+    E_\text{pot} &= \sum_{i=1}^N \sum_{j=i+1}^N
+        V\!\left(\left|\vec{r}_\text{i} - \vec{r}_\text{j}\right|\right) \\
+    E_\text{kin} &= \sum_{i=1}^N \frac{1}{2} \vec{v}_\text{i} \\
+    T &= \frac{2}{N_\text{f}} E_\text{kin}
+\end{align*}
+mit den anfangs genannten Bedingungen.
+
+In der Abbildung \ref{fig:equilibration_energy} ist der Energieverlauf während der
+Äquilibrierung dargestellt.
+Hierbei zeigt sich die Eigenschaft der Gesamtenergieerhaltung des Verlet-Algorithmus.
+Kinetische und Potentielle Energie fluktuieren hauptsächlich um ihren Mittelwert,
+sodass eine Äquilibrierungsphase nur schwer aus zu machen ist. In den ersten
+Zeitschritten sinkt die potentielle Energie, während die kinetische Energie etwas zunimmt.
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/equilibration_energy.jpg}
+    \caption{Systemenergie während der Äquilibrierungsphase bei $T_\text{init} = 1\:\varepsilon$.}
+    \label{fig:equilibration_energy}
+\end{figure}
+
+Die Temperatur während der Äquilibrierung ist in Abbildung \ref{fig:equilibration_temp}
+dargestellt. Da sich die Temperatur aus der kinetischen Energie berechnet, zeigt sie
+den selben Verlauf.
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/equilibration_temp.jpg}
+    \caption{Temperatur während der Äquilibrierungsphase bei $T_\text{init} = 1\:\varepsilon$.}
+    \label{fig:equilibration_temp}
+\end{figure}
+
+Schließlich ist in den Abbildungen \ref{fig:equilibration_vSx} und
+\ref{fig:equilibration_vSy} die Schwerpunktsbewegung während der Äquilibrierung
+dargestellt. Da bei der Initialisierung diese auf Null gesetzt wurde, verändert sie sich
+auch nicht im Laufe der Zeit und fluktuiert lediglich im numerischen Limit von
+\num{1e-15}.
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/equilibration_vSx.jpg}
+    \caption{X-Komponente der Schwerpunktsbewegung während der Äquilibrierungsphase bei $T_\text{init} = 1\:\varepsilon$.}
+    \label{fig:equilibration_vSx}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/equilibration_vSy.jpg}
+    \caption{Y-Komponente der Schwerpunktsbewegung während der Äquilibrierungsphase bei $T_\text{init} = 1\:\varepsilon$.}
+    \label{fig:equilibration_vSy}
+\end{figure}
+
+\FloatBarrier
+\subsection*{c) Messung}
+
+Nach der Äquilibrierungsphase wird die Dynamik des Systems für \num{5e4} Zeitschritte
+berechnet. Diese Berechnung funktioniert analog zur Äquilibrierung.
+In jedem Schritt wird wieder die Temperatur bestimmt und abgespeichert, das
+python skript ermittelt dann den Mittelwert der Temperatur.
+Aus Zeitgründen wurde auf eine Berechnung der Paarkorrelation verzichtet.
+
+In den Abbildungen \ref{fig:messung_T=1_temp} bis \ref{fig:messung_T=1e-2_temp}
+sind die zeitlichen Verläufe der Temperatur
+bei verschiedenen Starttemperaturen dargestellt.
+Hierbei ist zu beachten, dass bei $T = 100\:\frac{\varepsilon}{k_\text{B}}$
+die Startgeschwindigkeiten so groß sind, dass die Schrittweite von \num{0.01}
+auf \num{0.001} verringert wurde.
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/messung_T1_temp.jpg}
+    \caption{Temperaturverlauf der Messung bei $T_\text{init} = 1\:\varepsilon$.}
+    \label{fig:messung_T=1_temp}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/messung_T1e2_temp.jpg}
+    \caption{Temperaturverlauf der Messung bei $T_\text{init} = 100\:\varepsilon$.}
+    \label{fig:messung_T=1e2_temp}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/messung_T1e-2_temp.jpg}
+    \caption{Temperaturverlauf der Messung bei $T_\text{init} = 0.01\:\varepsilon$.}
+    \label{fig:messung_T=1e-2_temp}
+\end{figure}
+
+Die Mittelwerte der Temperaturen ergaben sich zu
+\begin{align*}
+    T_\text{init} = 10^0: \quad T_\text{mean} &= \num{1.48(13)} \\
+    T_\text{init} = 10^2: \quad T_\text{mean} &= \num{96(5)} \\
+    T_\text{init} = 10^{-2}: \quad T_\text{mean} &= \num{0.7(1)} \\
+\end{align*}
+Die Temperaturen weichen nur wenig von der Starttemperatur ab.
+Dies ist auch sinnvoll, da keine weitere Energie in das System hinein oder aus dem
+System heraus geflossen ist. Aufgrund der surrealen Startkonfiguration verändert sich
+jedoch die potentielle Energie und damit ist aufgrund der Energieerhaltung auch eine
+kleine Abweichung der kinetischen Energie und damit Temperatur von dem initialen Wert
+zu erwarten.
+
+\FloatBarrier
+\subsection*{d) Thermostat}
+
+Der Übergabewert \texttt{thermostat} an die Funktion \texttt{md\_simulation} legt fest,
+ob ein isokinetischer Thermostat in das System eingebaut werden soll.
+Ist dies der Fall, werden nach jedem Schritt die Geschwindigkeiten so skaliert, dass
+das System wieder auf der initialen Temperatur gehalten wird.
+In Abbildung \ref{fig:thermostat_equi_energy} ist der Verlauf der Energien während der
+Äquilibrierungsphase für $T_\text{init} = 0.01$ dargestellt.
+Durch die Anpassung der Geschwindigkeiten gilt keine Energieerhaltung mehr
+und die potentielle Energie wird im Laufe der Zeit minimiert.
+
+Da die Temperatur recht klein gewählt ist, bewegen sich die Teilchen nicht viel
+und sollten eine periodische Anordnung einnehmen.
+In Abbildung \ref{fig:endkonfig} ist die Konfiguration nach der Messung dargestellt.
+Es zeigt sich, dass kleinere Muster erkennbar sind.
+Dies spricht für eine feste Phase der Teilchen.
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/thermostat_equi_energy.jpg}
+    \caption{Energieverlauf während der Äquilibrierungsphase bei isokinetischem Thermostat.}
+    \label{fig:thermostat_equi_energy}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[height=6cm]{build/endkonfig.jpg}
+    \caption{Endkonfiguration mit 16 Teilchen bei isokinetischem Thermostat.}
+    \label{fig:endkonfig}
+\end{figure}
