@@ -35,31 +35,31 @@ int mc(random_device &rd, int alter_Schritt, double magnet){
   // MC-Move anbieten
     zwischen = hamilton(neuer_Schritt, magnet) - hamilton(alter_Schritt, magnet);
     if (zwischen < 0){
-      cout << "Zwischen < 0" << endl;
+      // cout << "Zwischen < 0" << endl;
       accept = true;
     }
     else{
-      cout << "else" << endl;
+      // cout << "else" << endl;
       p = verteilung(generator);
-      cout << "p: " << p << endl;
+      // cout << "p: " << p << endl;
       zwischen = exp(-(hamilton(neuer_Schritt, magnet) - hamilton(alter_Schritt, magnet)));
       if (p < zwischen){
-        cout << "p < zwischen" << endl;
+        // cout << "p < zwischen" << endl;
         accept = true;
       }
       else{
-        cout << "else" << endl;
+        // cout << "else" << endl;
         accept = false;
       }
     }
 
-  cout << "accept: " << accept << endl;
+  // cout << "accept: " << accept << endl;
   // accept überprüfen
   if (accept == true){
     return neuer_Schritt;
   }
   else{
-    cout << "alter_Schritt" << endl;
+    // cout << "alter_Schritt" << endl;
     return alter_Schritt;
   }
 }
@@ -67,8 +67,29 @@ int mc(random_device &rd, int alter_Schritt, double magnet){
 int main() {
   cout << "Beginn des Programms!\n" << endl;
   random_device rd;
-  double H = h(rd);
-  cout << mc(rd, -1, -2) << endl;
+  double schritte = 1e5, alter_Schritt = 1, neuer_Schritt;
+  ofstream file;
+
+  VectorXd spins, magnetfeld;
+  // Initialisieren des Magnetfeld-Vektors
+  magnetfeld = VectorXd::LinSpaced(100, -5, 5);
+
+  file.open("build/aufg2.txt", ios::trunc);
+  // file << alter_Schritt << " ";
+  for (int j = 0; j < magnetfeld.size(); j++){
+    for (int i = 0; i < schritte; i++){
+      neuer_Schritt = mc(rd, alter_Schritt, magnetfeld(j));
+      file << neuer_Schritt << " ";
+      alter_Schritt = neuer_Schritt;
+    }
+    file << endl;
+    cout << j << endl;
+    alter_Schritt = 1;
+    // file << alter_Schritt << " ";
+  }
+  file.close();
+
+  // cout << mc(rd, -1, -2) << endl;
   cout << "\nEnde des Programms!" << endl;
   return 0;
 }
