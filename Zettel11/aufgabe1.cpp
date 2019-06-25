@@ -47,18 +47,50 @@ void sa_init(MatrixXd &r, double delta)
     r.col(5) << 4,0;
     r.col(6) << 4,3;
     r.col(7) << 0,3;
+    index = 8;
 
     // Starte unten links und gehe gegen den Uhrzeigersinn durch
+    // nach rechts
     steps = int(1./delta - 1);
-    r.block(0, 8, 1, steps) = VectorXd::LinSpaced(steps, 0+delta, 1-delta).transpose();
+    r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 0+delta, 1-delta).transpose();
     index = 8+steps;
 
+    // nach oben
     steps = int(2./delta - 1);
     r.block(0, index, 1, steps) = VectorXd::Ones(steps).transpose();
     r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 0+delta, 2-delta).transpose();
     index += steps;
-    cout << r << endl;
-    // TODO: hier weiter
+
+    // nach rechts
+    r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 1+delta, 3-delta).transpose();
+    r.block(1, index, 1, steps) = 2.*VectorXd::Ones(steps).transpose();
+    index += steps;
+
+    // nach unten
+    r.block(0, index, 1, steps) = 3.*VectorXd::Ones(steps).transpose();
+    r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 2-delta, 0+delta).transpose();
+    index += steps;
+
+    // nach rechts
+    steps = int(1./delta - 1);
+    r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 3+delta, 4-delta).transpose();
+    index += steps;
+
+    // nach oben
+    steps = int(3./delta - 1);
+    r.block(0, index, 1, steps) = 4.*VectorXd::Ones(steps).transpose();
+    r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 0+delta, 3-delta).transpose();
+    index += steps;
+
+    // nach links
+    steps = int(4./delta - 1);
+    r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 4-delta, 0+delta).transpose();
+    r.block(1, index, 1, steps) = 3.*VectorXd::Ones(steps).transpose();
+    index += steps;
+
+    // nach unten
+    steps = int(3./delta - 1);
+    r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 3-delta, 0+delta).transpose();
 
     // bestimme initiale Permutation
     // TODO
@@ -90,6 +122,8 @@ int main() {
     double d = 0.1;             // Daempfungsfaktor
     double S = 100;             // angebotene Vertauschungen
     double delta = 0.2;         // Abstand der Ortsvektoren
+
+    cout << "Anzahl an Ortsvektoren:    " << sa_number_of_pos_vecs(delta) << endl;
 
     // Initialisierung der Testumgebung
     ofstream stream;
