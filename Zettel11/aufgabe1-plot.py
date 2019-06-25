@@ -18,13 +18,14 @@ def plot_config(fname):
     #  fig = plt.figure(figsize=(6.4, 4.8))
     fig = plt.figure()
     plt.plot(df.x, df.y, color=tugreen, marker='x', linestyle='', label='Ortsvektoren')
-    plt.plot(df.x, df.y, color='k', linestyle='-', linewidth=0.5, label='Weg')
+    #  plt.plot(df.x, df.y, color='k', linestyle='-', linewidth=0.5, label='Weg')
+    #  TODO: Plot des Weges einbauen mit gegebener Permutation
     #  plt.xlim((0, 8))
     plt.xlabel(r'$x$')
     #  plt.ylim((0, 8))
     plt.ylabel(r'$y$')
     plt.legend(loc='best')
-    fig.savefig(fname.split('.')[0]+'.jpg', bbox_inches='tight')
+    fig.savefig(fname.split('.')[0]+'.pdf', bbox_inches='tight')
     fig.clf()
 
 
