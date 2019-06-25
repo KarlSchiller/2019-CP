@@ -22,14 +22,14 @@ double hamilton(int sigma, double magnet){
 }
 
 // Funktion für einen MC-Schritt, gibt 1 oder -1 zurück
-int mc(random_device &rd, int alter_Schritt, double magnet){
+int mc(int alter_Schritt, double magnet, mt19937 generator,
+       uniform_real_distribution<double> verteilung){
   double zwischen = 0;
   int neuer_Schritt = -alter_Schritt;
   bool accept = false;
 
 
-  mt19937 generator(rd());
-  uniform_int_distribution<int> verteilung(0,1);
+  // mt19937 generator(rd());
   auto p = verteilung(generator);
 
   // MC-Move anbieten
@@ -70,6 +70,9 @@ int main() {
   double schritte = 1e5, alter_Schritt = 1, neuer_Schritt;
   ofstream file;
 
+  mt19937 generator(rd());
+  uniform_real_distribution<double> distribution(0,1);
+
   VectorXd spins, magnetfeld;
   // Initialisieren des Magnetfeld-Vektors
   magnetfeld = VectorXd::LinSpaced(100, -5, 5);
@@ -78,14 +81,14 @@ int main() {
   // file << alter_Schritt << " ";
   for (int j = 0; j < magnetfeld.size(); j++){
     for (int i = 0; i < schritte; i++){
-      neuer_Schritt = mc(rd, alter_Schritt, magnetfeld(j));
+      neuer_Schritt = mc(alter_Schritt, magnetfeld(j), generator, distribution);
       file << neuer_Schritt << " ";
       alter_Schritt = neuer_Schritt;
     }
     file << endl;
     cout << j << endl;
     alter_Schritt = 1;
-    // file << alter_Schritt << " ";
+    file << alter_Schritt << " ";
   }
   file.close();
 
