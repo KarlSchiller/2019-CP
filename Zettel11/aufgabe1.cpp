@@ -25,11 +25,13 @@ unsigned int sa_number_of_pos_vecs(double delta)
 }
 
 
-/* Initialisierung Testumgebung Simulated Annealing
- * INPUT        r       Matrix der Ortsvektoren
+/*  Initialisierung Testumgebung Simulated Annealing
+ *  INPUT       r       Matrix der Ortsvektoren
+ *              perm    Permutation
  *              delta   Abstand der Ortsvektoren
+ *  OUTPUT      r und perm werden ueberschrieben
  */
-void sa_init(MatrixXd &r, double delta)
+void sa_init(MatrixXd &r, VectorXd &perm, double delta)
 {
     // benoetigte Hilfsvariablen
     int steps;      // Anzahl Ortsvektoren fuer den jeweiligen Schritt
@@ -93,7 +95,10 @@ void sa_init(MatrixXd &r, double delta)
     r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 3-delta, 0+delta).transpose();
 
     // bestimme initiale Permutation
-    // TODO
+    perm = VectorXd::LinSpaced(N, 0, N-1);
+    perm(0) = 1;
+    perm(1) = 0;
+    std::random_shuffle(perm.data(), perm.data()+perm.size());
 }
 
 
@@ -101,13 +106,13 @@ void sa_init(MatrixXd &r, double delta)
  *  INPUT       r       Matrix der Ortsvektoren
  *              file    file, in welchen gespeichert wird
  */
-void save_data(MatrixXd &r, ofstream &file)
+void save_data(MatrixXd &r, VectorXd &perm, ofstream &file)
 {
-    file << "x y" << endl;
+    file << "x y perm" << endl;
     file.precision(10);
     for(int n=0; n<r.cols(); n++)
     {
-        file << r(0,n) << " " << r(1,n);
+        file << r(0,n) << " " << r(1,n) << " " << perm(n);
         file << endl;
     }
 }
@@ -128,9 +133,10 @@ int main() {
     // Initialisierung der Testumgebung
     ofstream stream;
     MatrixXd r;
-    sa_init(r, delta);
+    VectorXd perm;
+    sa_init(r, perm, delta);
     stream.open("build/init.txt");
-    save_data(r, stream);
+    save_data(r, perm, stream);
     stream.close();
 
     // random_device rd;
