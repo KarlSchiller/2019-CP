@@ -14,7 +14,7 @@ light: dokument.tex
 	-output-directory=build \
 	dokument.tex
 
-FORCE:
+FORCE: build/aufg2.pdf
 
 build/aufg1: aufgabe1.cpp | build
 	g++ aufgabe1.cpp -pedantic -o build/aufg1
@@ -33,6 +33,12 @@ build/aufg3: aufgabe3.cpp | build
 
 aufg3: build/aufg3 | build
 	build/aufg3
+
+build/aufg2.pdf build/aufg2_100.pdf: build/aufg2.txt build/aufg2_100.txt aufgabe2-plot.py | build
+	python aufgabe2-plot.py
+
+build/aufg2.txt build/aufg2_100.txt: build/aufg2 | build
+	build/aufg2
 
 build:
 	mkdir -p build/
