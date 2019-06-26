@@ -33,3 +33,4 @@ def plot_config(fname):
 
 
 plot_config('build/init.txt')
+plot_config('build/test.txt')
