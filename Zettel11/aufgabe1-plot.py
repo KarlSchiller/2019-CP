@@ -1,7 +1,7 @@
-import numpy as np
+#  import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
+import os
 
 tugreen = '#80BA26'
 tuorange = '#E36913'
@@ -22,6 +22,7 @@ def plot_config(fname):
     #  fig = plt.figure(figsize=(6.4, 4.8))
     fig = plt.figure()
     plt.plot(df.x, df.y, color=tugreen, marker='x', linestyle='', label='Ortsvektoren')
+    plt.plot(df.x[0], df.y[0], color=tuorange, marker='x', linestyle='', label='Start')
     plt.plot(df.x, df.y, color='k', linestyle='-', linewidth=0.5, label='Weg')
     #  plt.xlim((0, 8))
     plt.xlabel(r'$x$')
@@ -33,4 +34,12 @@ def plot_config(fname):
 
 
 plot_config('build/init.txt')
-plot_config('build/test.txt')
+files = os.listdir('build')
+files.sort()
+for index,item in enumerate(files):
+    if item[0] != 'd':
+        files.pop(index)
+    if item[-1] != 't':
+        files.pop(index)
+for name in files:
+    plot_config('build/'+name)
