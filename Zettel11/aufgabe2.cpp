@@ -104,7 +104,6 @@ int main() {
   for (int j = 0; j < magnetfeld100.size(); j++){
       mc(alter_Schritt, magnetfeld100(j), generator, distribution, file, schritte);
       file << endl;
-      cout << j << endl;
       alter_Schritt = 1;
   }
   file.close();
@@ -113,7 +112,10 @@ int main() {
   for (int j = 0; j < magnetfeld.size(); j++){
       mc(alter_Schritt, magnetfeld(j), generator, distribution, file, schritte);
       file << endl;
-      cout << j << endl;
+      if(j%1000==0)
+      {
+          cout << j << endl;
+      }
       alter_Schritt = 1;
   }
   file.close();
