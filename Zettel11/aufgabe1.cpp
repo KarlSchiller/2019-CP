@@ -115,8 +115,6 @@ void sa_init(MatrixXd &r, VectorXi &perm, double delta)
 
     // bestimme initiale Permutation
     perm = VectorXi::LinSpaced(N, 0, N-1);
-    // perm(0) = 1;
-    // perm(1) = 0;
     std::random_shuffle(perm.data(), perm.data()+perm.size());
 }
 
@@ -137,14 +135,91 @@ void save_data(MatrixXd &r, VectorXi &perm, ofstream &file)
 }
 
 
+/*  Stimulated Annealing / Travelling Salesman Problem
+ *  INPUT       r       Matrix der Ortsvektoren
+ *              perm    Permutation
+ *              Tstart  Initiale Temperatur
+ *              Tend    ungefaehre Endtemperatur
+ *              d       Daempfungsfaktor, mit welchem T multipliziert wird
+ *              S       Anzahl angebotener Vertauschungen vor Verringerung von T
+ *              file    file, in welchen optimale Konfiguration gespeichert wird
+ */
+void stimulated_annealing(
+        MatrixXd &r,
+        VectorXi &perm,
+        double Tstart,
+        double Tend,
+        double d,
+        unsigned int S,
+        ofstream &file)
+{
+    // Benoetigte Hilfsvariablen
+    VectorXi opti_perm = perm;  // beste ermittelte Permutation
+    double T = Tstart; // Temperatur des Systems
+    double ort_1; // erster vorgeschlagener Ortsvektor zum tauschen
+    double ort_2; // zweiter vorgeschlagener Ortsvektor zum tauschen
+    double zwischenspeicher;   // zwischenspeicher zum vertauschen
+    VectorXi sugg_perm = perm;  // jeweils vorgeschlagene Permutation
+    double differenz;   // Weglaengendifferenz
+
+    // Ziehe Ortsvektor-index mit ziehe_index()
+    std::default_random_engine gen_index;
+    std::uniform_int_distribution<int> indices(0,r.cols()-1);
+    auto ziehe_index = std::bind(indices, gen_index);
+    // Ziehe Zufallszahl in [0,1]
+    std::default_random_engine gen_number;
+    std::uniform_real_distribution<double> numbers(0.,1.);
+    auto ziehe_zahl = std::bind(numbers, gen_number);
+
+    while(T >= Tend)
+    {
+        for(int i=0; i<S; i++)  // Schlage MC-Schritt vor
+        {
+            sugg_perm = perm;
+
+            // Waehle Vertauschung
+            ort_1 = ziehe_index();
+            ort_2 = ziehe_index();
+            zwischenspeicher = sugg_perm(ort_1);
+            sugg_perm(ort_1) = sugg_perm(ort_2);
+            sugg_perm(ort_2) = zwischenspeicher;
+            differenz = weglaenge(r, sugg_perm) - weglaenge(r, perm);
+
+            // Pruefe Akzeptanz der Vertauschung
+            if (differenz < 0)
+            {
+                perm = sugg_perm;
+                opti_perm = perm;
+            }
+            else    // Weglaenge durch Vertauschung verlaengert
+            {
+                if(ziehe_zahl() < exp(-differenz/T))
+                {
+                    perm = sugg_perm;
+                }
+            }
+            // cout << weglaenge(r, perm) << endl;
+        }
+        T *= d; // Absenkung der Temperatur
+        cout << T << endl;
+    }
+
+    cout << endl << weglaenge(r, opti_perm) << endl;
+    cout << perm.transpose() << endl;
+
+    // Speichere die beste gefundene Permutation
+    save_data(r, opti_perm, file);
+}
+
+
 int main() {
     cout << "Beginn des Programms!\n" << endl;
 
     // Einstellbare Parameter
-    double Tstart = 0.;         // initiale Temperatur
-    double Tend = 0.;           // ungefaehre Endtemperatur
-    double d = 0.1;             // Daempfungsfaktor
-    double S = 100;             // angebotene Vertauschungen
+    double Tstart = 10.;         // initiale Temperatur
+    double Tend = 1e-2;           // ungefaehre Endtemperatur
+    double d = 0.9;             // Daempfungsfaktor
+    unsigned int S = 10000;             // angebotene Vertauschungen
     double delta = 0.2;         // Abstand der Ortsvektoren
 
     cout << "Anzahl an Ortsvektoren:    " << sa_number_of_pos_vecs(delta) << endl;
@@ -162,6 +237,10 @@ int main() {
     // mt19937 generator(rd());
     // uniform_int_distribution<int> distribution(1,6);
     // auto randomNumber = distribution(generator);
+
+    stream.open("build/test.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, d, S, stream);
+    stream.close();
 
     // Test der Funktion sa_number_of_pos_vecs
     // cout << "Hier sollte 90 stehen: " << sa_number_of_pos_vecs(0.2) << endl;
