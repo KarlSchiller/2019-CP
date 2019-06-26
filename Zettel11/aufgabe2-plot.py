@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
@@ -10,6 +11,8 @@ plt.rc('figure', figsize=(6.4, 4.8))  # default 6.4, 4.8
 def plot(fname, num_werte):
     """plotte die Magnetisierung mit Vergleichsplot."""
     print("Plot "+fname)
+    # df = pd.read_csv(fname, decimal='.', delimiter=' ')
+    # print(df.head())
     Y = np.genfromtxt(fname)
     print(Y.shape)
     Y = Y.T
@@ -26,7 +29,7 @@ def plot(fname, num_werte):
     maximum = max(magnet)
     magnet /= maximum
     h = np.linspace(-5, 5, num_werte)
-    plt.plot(h, magnet, label='Numerisch')
+    plt.plot(h, magnet, linewidth=5, label='Numerisch')
     plt.plot(h, np.tanh(h), label='Analytisch')
     plt.xlabel(r'Äußeres Magnetfeld $H$')
     plt.ylabel(r'Magnetisierung $m$')
