@@ -15,11 +15,14 @@ plt.rc('axes.formatter', use_locale=True)
 def plot_config(fname):
     '''2D Plot aller Ortsvektoren und der Permutation'''
     df = pd.read_csv(fname, decimal='.', delimiter=' ')
+    # sortiere Ortsvektoren gemaess gegebener permutation
+    df = df.reindex(index=df.perm)
+    df.drop(labels='perm', axis='columns', inplace=True)
+
     #  fig = plt.figure(figsize=(6.4, 4.8))
     fig = plt.figure()
     plt.plot(df.x, df.y, color=tugreen, marker='x', linestyle='', label='Ortsvektoren')
-    #  plt.plot(df.x, df.y, color='k', linestyle='-', linewidth=0.5, label='Weg')
-    #  TODO: Plot des Weges einbauen mit gegebener Permutation
+    plt.plot(df.x, df.y, color='k', linestyle='-', linewidth=0.5, label='Weg')
     #  plt.xlim((0, 8))
     plt.xlabel(r'$x$')
     #  plt.ylim((0, 8))
