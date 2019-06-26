@@ -25,13 +25,32 @@ unsigned int sa_number_of_pos_vecs(double delta)
 }
 
 
+/*  Berechne Weglaenge einer Permutation
+ *  INPUT       r       Matrix der Ortsvektoren
+ *              perm    Permutation
+ *  OUTPUT      L       Weglaenge
+ */
+double weglaenge(MatrixXd &r, VectorXi &perm)
+{
+    double L = 0;
+    double N = r.cols();
+    for(int i=0; i<N-1; i++)  // bis zum vorletzten Element
+    {
+        L += (r.col(perm(i))-r.col(perm(i+1))).norm();
+    }
+    // Ende der Kette, verbinde mit Start
+    L += (r.col(0)-r.col(N-1)).norm();
+    return L;
+}
+
+
 /*  Initialisierung Testumgebung Simulated Annealing
  *  INPUT       r       Matrix der Ortsvektoren
  *              perm    Permutation
  *              delta   Abstand der Ortsvektoren
  *  OUTPUT      r und perm werden ueberschrieben
  */
-void sa_init(MatrixXd &r, VectorXd &perm, double delta)
+void sa_init(MatrixXd &r, VectorXi &perm, double delta)
 {
     // benoetigte Hilfsvariablen
     int steps;      // Anzahl Ortsvektoren fuer den jeweiligen Schritt
@@ -95,9 +114,9 @@ void sa_init(MatrixXd &r, VectorXd &perm, double delta)
     r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 3-delta, 0+delta).transpose();
 
     // bestimme initiale Permutation
-    perm = VectorXd::LinSpaced(N, 0, N-1);
-    perm(0) = 1;
-    perm(1) = 0;
+    perm = VectorXi::LinSpaced(N, 0, N-1);
+    // perm(0) = 1;
+    // perm(1) = 0;
     std::random_shuffle(perm.data(), perm.data()+perm.size());
 }
 
@@ -106,7 +125,7 @@ void sa_init(MatrixXd &r, VectorXd &perm, double delta)
  *  INPUT       r       Matrix der Ortsvektoren
  *              file    file, in welchen gespeichert wird
  */
-void save_data(MatrixXd &r, VectorXd &perm, ofstream &file)
+void save_data(MatrixXd &r, VectorXi &perm, ofstream &file)
 {
     file << "x y perm" << endl;
     file.precision(10);
@@ -133,7 +152,7 @@ int main() {
     // Initialisierung der Testumgebung
     ofstream stream;
     MatrixXd r;
-    VectorXd perm;
+    VectorXi perm;
     sa_init(r, perm, delta);
     stream.open("build/init.txt");
     save_data(r, perm, stream);
@@ -146,6 +165,16 @@ int main() {
 
     // Test der Funktion sa_number_of_pos_vecs
     // cout << "Hier sollte 90 stehen: " << sa_number_of_pos_vecs(0.2) << endl;
+
+    // Test der Berechnung der Weglaenge
+    // cout << endl << "Test der Weglaengenberechnung" << endl;
+    // MatrixXd test(2,3);
+    // test << 0, 1, 1, -3, 0, 2;
+    // cout << "Matrix:" << endl << test << endl;
+    // VectorXi test_perm(3);
+    // test_perm << 0, 1, 2;
+    // cout << "Permutation: " << test_perm.transpose() << endl;
+    // cout << "Wert der Funktion (sollte 10.26129717 sein): " << weglaenge(test, test_perm) << endl;
 
     cout << "\nEnde des Programms!" << endl;
     return 0;
