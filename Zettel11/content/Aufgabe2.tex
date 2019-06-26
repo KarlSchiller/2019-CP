@@ -1,1 +1,25 @@
 \section*{Aufgabe 2}
+Die Monte-Carlo-Simulation wurde implementiert. Zur Bestimmung der
+Magnetisierung wurde
+\begin{equation*}
+  m = m_s \cdot \symup{tanh}(H)
+\end{equation*}
+genutzt, wobei $m_s$ die Sättigungsmagnetisierung, also maximale Magnetisierung
+ist. Beim Durchlaufen des \texttt{C++}-Skriptes wird die Differenz zwischen
+spin-up und spin-down in eine Datei geschrieben. diese wird dann normiert auf
+den größten Wert, also die Sättigungsmagnetisierung. Damit ergibt sich die Kurve
+in Abbildung \ref{fig:100000}
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2.pdf}
+  \caption{Magnetisierung bei 100000 Werten von $H$.}
+  \label{fig:100000}
+\end{figure}
+Tatsächlich reichen auch schon 100 Werte von H, um zu einen vergleichbaren
+Ergebnis zu kommen, wie Abbildung \ref{fig:100} zeigt.
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.7]{build/aufg2_100.pdf}
+  \caption{Magnetisierung bei 100 Werten von $H$.}
+  \label{fig:100}
+\end{figure}
