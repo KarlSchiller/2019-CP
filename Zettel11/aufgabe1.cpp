@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <math.h>  // sqrt()
 #include <random>
+#include <chrono>  // get elapsed time
 
 using namespace std;
 using namespace Eigen;
@@ -30,7 +31,7 @@ unsigned int sa_number_of_pos_vecs(double delta)
  *              perm    Permutation
  *  OUTPUT      L       Weglaenge
  */
-double weglaenge(MatrixXd &r, VectorXi &perm)
+inline double weglaenge(MatrixXd &r, VectorXi &perm)
 {
     double L = 0;
     double N = r.cols();
@@ -135,6 +136,14 @@ void save_data(MatrixXd &r, VectorXi &perm, ofstream &file)
 }
 
 
+/* Generate pseudo random numbers for simulated annealing
+ * INPUT        
+ */
+void gen_randoms()
+{
+}
+
+
 /*  Stimulated Annealing / Travelling Salesman Problem
  *  INPUT       r       Matrix der Ortsvektoren
  *              perm    Permutation
@@ -161,6 +170,7 @@ void stimulated_annealing(
     double zwischenspeicher;   // zwischenspeicher zum vertauschen
     VectorXi sugg_perm = perm;  // jeweils vorgeschlagene Permutation
     double differenz;   // Weglaengendifferenz
+    unsigned int counter = 0;
 
     // Ziehe Ortsvektor-index mit ziehe_index()
     std::default_random_engine gen_index;
@@ -171,6 +181,7 @@ void stimulated_annealing(
     std::uniform_real_distribution<double> numbers(0.,1.);
     auto ziehe_zahl = std::bind(numbers, gen_number);
 
+    auto start = std::chrono::system_clock::now();
     while(T >= Tend)
     {
         for(int i=0; i<S; i++)  // Schlage MC-Schritt vor
@@ -198,14 +209,17 @@ void stimulated_annealing(
                     perm = sugg_perm;
                 }
             }
-            // cout << weglaenge(r, perm) << endl;
+            counter ++;
         }
         T *= d; // Absenkung der Temperatur
-        cout << T << endl;
     }
 
-    cout << endl << weglaenge(r, opti_perm) << endl;
-    cout << perm.transpose() << endl;
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+
+    cout << "Benoetigte Zeit: " << elapsed_seconds.count() << "s" << endl;
+    cout << "Anzahl Angebotener Vertauschungen: " << counter << endl;
+    cout << "Beste gefundene Weglaenge: " << weglaenge(r, opti_perm) << endl;
 
     // Speichere die beste gefundene Permutation
     save_data(r, opti_perm, file);
@@ -218,8 +232,8 @@ int main() {
     // Einstellbare Parameter
     double Tstart = 10.;         // initiale Temperatur
     double Tend = 1e-2;           // ungefaehre Endtemperatur
-    double d = 0.9;             // Daempfungsfaktor
-    unsigned int S = 10000;             // angebotene Vertauschungen
+    double d = 0.99;             // Daempfungsfaktor
+    unsigned int S = 100;             // angebotene Vertauschungen
     double delta = 0.2;         // Abstand der Ortsvektoren
 
     cout << "Anzahl an Ortsvektoren:    " << sa_number_of_pos_vecs(delta) << endl;
@@ -233,13 +247,52 @@ int main() {
     save_data(r, perm, stream);
     stream.close();
 
-    // random_device rd;
-    // mt19937 generator(rd());
-    // uniform_int_distribution<int> distribution(1,6);
-    // auto randomNumber = distribution(generator);
+    // d=0.9    S=100
+    cout << endl << "d=0,9      S=1e2" << endl;
+    stream.open("build/d9S1e2.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.9, 100, stream);
+    stream.close();
 
-    stream.open("build/test.txt");
-    stimulated_annealing(r, perm, Tstart, Tend, d, S, stream);
+    // d=0.9    S=1000
+    cout << endl << "d=0,9      S=1e3" << endl;
+    stream.open("build/d9S1e3.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.9, 1000, stream);
+    stream.close();
+
+    // d=0.9    S=10000
+    cout << endl << "d=0,9      S=1e4" << endl;
+    stream.open("build/d9S1e4.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.9, 10000, stream);
+    stream.close();
+
+    // d=0.99   S=10
+    cout << endl << "d=0,99     S=1e1" << endl;
+    stream.open("build/d99S1e1.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.99, 10, stream);
+    stream.close();
+
+    // d=0.99   S=100
+    cout << endl << "d=0,99     S=1e2" << endl;
+    stream.open("build/d99S1e2.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.99, 100, stream);
+    stream.close();
+
+    // d=0.99   S=1000
+    cout << endl << "d=0,99     S=1e3" << endl;
+    stream.open("build/d99S1e3.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.99, 1000, stream);
+    stream.close();
+
+    // d=0.999  S=10
+    cout << endl << "d=0,999    S=1e1" << endl;
+    stream.open("build/d999S1e1.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.999, 10, stream);
+    stream.close();
+
+    // d=0.999  S=100
+    cout << endl << "d=0,999    S=1e2" << endl;
+    stream.open("build/d999S1e2.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.999, 100, stream);
     stream.close();
 
     // Test der Funktion sa_number_of_pos_vecs
