@@ -254,6 +254,12 @@ int main() {
     save_data(r, perm, stream);
     stream.close();
 
+    // d=0.9    S=10
+    cout << endl << "d=0,9      S=1e1" << endl;
+    stream.open("build/d9S1e1.txt");
+    stimulated_annealing(r, perm, Tstart, Tend, 0.9, 10, stream);
+    stream.close();
+
     // d=0.9    S=100
     cout << endl << "d=0,9      S=1e2" << endl;
     stream.open("build/d9S1e2.txt");
