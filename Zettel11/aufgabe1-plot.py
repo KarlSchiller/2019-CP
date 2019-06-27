@@ -34,12 +34,24 @@ def plot_config(fname):
 
 
 plot_config('build/init.txt')
-files = os.listdir('build')
-files.sort()
-for index,item in enumerate(files):
-    if item[0] != 'd':
-        files.pop(index)
-    if item[-1] != 't':
-        files.pop(index)
-for name in files:
-    plot_config('build/'+name)
+
+plot_config('build/d9S1e2.txt')
+plot_config('build/d9S1e3.txt')
+plot_config('build/d9S1e4.txt')
+
+plot_config('build/d99S1e1.txt')
+plot_config('build/d99S1e2.txt')
+plot_config('build/d99S1e3.txt')
+
+plot_config('build/d999S1e1.txt')
+plot_config('build/d999S1e2.txt')
+
+#  files = os.listdir('build')
+#  files.sort()
+#  for index,item in enumerate(files):
+    #  if item[0] != 'd':
+        #  files.pop(index)
+    #  if item[-1] != 't':
+        #  files.pop(index)
+#  for name in files:
+    #  plot_config('build/'+name)
