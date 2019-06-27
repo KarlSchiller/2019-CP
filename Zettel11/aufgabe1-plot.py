@@ -33,6 +33,7 @@ def plot_config(fname):
 
 
 plot_config('build/init.txt')
+plot_config('build/orte.txt')
 
 plot_config('build/d9S1e2.txt')
 plot_config('build/d9S1e3.txt')
