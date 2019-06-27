@@ -1,1 +1,120 @@
 \section*{Aufgabe 1}
+
+\subsection*{1.a) und b)}
+Das Travelling Salesman Problem wurde unter Verwendung einer Variante des Metropolis-
+Algorithmus gelöst.
+
+Hierzu sind die Ortsvektoren in einer Matrix \texttt{r} gespeichert, wobei jede
+Spalte einen Ortsvektor enthält.
+Die Reihenfolge der Ortsvektoren ist in einem Vektor \texttt{perm} gespeichert,
+wobei \texttt{perm(i)} den Platz von Ortsvektor \texttt{i} kennzeichnet.
+
+Zunächst wird das Programm wie gefordert mit der Funktion \texttt{sa\_init} initialisiert.
+Der Abstand $\delta$ der Ortsvektoren ist dabei frei einstellbar, bei einem Abstand von
+\num{0.2} ergibt sich die in Abbildung \ref{fig:orte} dargestellte Konfiguration.
+Aus dem gegebenen Abstand $\delta$ wird zur Initialisierung die Anzahl an Ortsvektoren
+mit der Funktion \texttt{sa\_number\_of\_pos\_vecs} bestimmt.
+\begin{figure}
+  \centering
+  \includegraphics[height=8cm]{build/orte.pdf}
+  \caption{Optimale Reihenfolge der Ortsvektoren.}
+  \label{fig:orte}
+\end{figure}
+Die Reihenfolge der Ortsvektoren zufällig initialisiert.
+Dies ergibt den in Abbildung \ref{fig:init} dargestellten Weg.
+\begin{figure}
+  \centering
+  \includegraphics[height=8cm]{build/init.pdf}
+  \caption{Initiale Reihenfolge der Ortsvektoren.}
+  \label{fig:init}
+\end{figure}
+
+Für jeden vorgeschlagenen MC-Schritt muss die Weglänge berechnet werden.
+Diese berechnet sich nach
+\begin{equation*}
+    L\!\left(\pi\right) =
+    \sum_{i=2}^N \left|\vec{r}_{\pi\left(i\right)} - \vec{r}_{\pi\left(i-1\right)}\right|
+    + \left|\vec{r}_{\pi\left(1\right)}-\vec{r}_{\pi\left(N\right)}\right|
+\end{equation*}
+in der Funktion \texttt{weglaenge}.
+
+Schließlich wird in der Funktion \texttt{stimulated\_annealing} das Problem gelöst.
+Dabei wird nach dem Metropolis-Algorithmus jeweils eine Vertauschung von zwei
+Ortsvektoren in der Reihenfolge vorgeschlagen und angenommen,
+wenn die neue Weglänge kleiner als die alte ist oder
+$\exp\left(-\beta \: \increment L\right)$ kleiner als eine Zufallszahl
+$x \in \left[0, 1\right]$ ist.
+Hierbei ist besonders bei kleinen Abständen der Ortsvektoren $\delta$ die Anzahl an
+Ortsvektoren groß und damit die Berechnung der Weglänge rechenintensiv.
+Deshalb wird in jedem Schritt nur die neue Weglänge der vorgeschlagenen
+Permutation berechnet.
+Schließlich werden die Ortsvektoren und die beste gefundene Permutation in einer
+Datei gespeichert.
+
+\FloatBarrier
+\subsection*{1.c)}
+
+Bei der Lösung des Problems können vor allem zwei Parameter variiert werden.
+Erstens ist dies die Anzahl an angebotenen Vertauschungen zweier Orte $S$ pro Temperatur
+und zum anderen der Dämpfungsfaktor $d$,
+mit welchem die Temperatur nach $S$ Vertauschungen multipliziert wird.
+In Tabelle \ref{tab:Parametervariation} ist die optimale ermittelte Weglänge
+für einen Durchlauf dargestellt.
+Da der Seed nicht fest gesetzt ist, ergeben sich bei einem erneuten Ausführen des
+Programms andere Werte.
+Ebenso entsprechen die nachfolgenden Abbildungen der Endkonfigurationen
+\ref{fig:d9S1e3} bis \ref{fig:d999S1e2}
+nicht dem Durchlauf, bei welchem die Tabelle erstellt wurde.
+\begin{table}
+    \centering
+    \caption{Optimale Weglängen bei Variation der Parameter.}
+    \label{tab:Parametervariation}
+    \begin{tabular}{
+        c
+        S[table-format=2.2]
+        S[table-format=2.2]
+        S[table-format=2.2]
+        S[table-format=2.2]
+        }
+    \toprule
+        {$d$} &
+        \multicolumn{4}{c}{$S$} \\
+        {} & {10} & {100} & {1000} & {10000} \\
+    \midrule
+        \num{0.9}   & 111.39 & 57.74 & 36.68 & 28.51 \\
+        \num{0.99}  &  28.51 & 38.36 & 25.68 &       \\
+        \num{0.999} &  25.68 & 30.38 &       &       \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+Es zeigt sich, dass mit steigendem $d$ und $S$ die Weglänge immer weiter sinkt,
+wie es auch zu erwarten war.
+Aufgrund der zufällig gewählten Vertauschungen ist die gefundene Weglänge jedoch nicht
+automatisch besser.
+Um Rechenzeit zu sparen, wurden nicht alle Konfigurationen berechnet.
+
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/d9S1e3.pdf}
+    \caption{Endkonfiguration bei $d = \num{0.9}$ und $S = \num{1000}$.}
+    \label{fig:d9S1e3}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/d9S1e4.pdf}
+    \caption{Endkonfiguration bei $d = \num{0.9}$ und $S = \num{10000}$.}
+    \label{fig:d9S1e4}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/d99S1e3.pdf}
+    \caption{Endkonfiguration bei $d = \num{0.99}$ und $S = \num{1000}$.}
+    \label{fig:d99S1e3}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[height=8cm]{build/d999S1e2.pdf}
+    \caption{Endkonfiguration bei $d = \num{0.999}$ und $S = \num{100}$.}
+    \label{fig:d999S1e2}
+\end{figure}
