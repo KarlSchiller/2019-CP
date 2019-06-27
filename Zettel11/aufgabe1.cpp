@@ -61,56 +61,62 @@ void sa_init(MatrixXd &r, VectorXi &perm, double delta)
     unsigned int N = sa_number_of_pos_vecs(delta);
     r = MatrixXd::Zero(2, N);
 
-    // Eckvektoren
-    r.col(1) << 1,0;
-    r.col(2) << 1,2;
-    r.col(3) << 3,2;
-    r.col(4) << 3,0;
-    r.col(5) << 4,0;
-    r.col(6) << 4,3;
-    r.col(7) << 0,3;
-    index = 8;
+    index = 1;
 
     // Starte unten links und gehe gegen den Uhrzeigersinn durch
     // nach rechts
     steps = int(1./delta - 1);
     r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 0+delta, 1-delta).transpose();
-    index = 8+steps;
+    index += steps;
 
     // nach oben
+    r.col(index) << 1,0;
+    index ++;
     steps = int(2./delta - 1);
     r.block(0, index, 1, steps) = VectorXd::Ones(steps).transpose();
     r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 0+delta, 2-delta).transpose();
     index += steps;
 
     // nach rechts
+    r.col(index) << 1,2;
+    index ++;
     r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 1+delta, 3-delta).transpose();
     r.block(1, index, 1, steps) = 2.*VectorXd::Ones(steps).transpose();
     index += steps;
 
     // nach unten
+    r.col(index) << 3,2;
+    index ++;
     r.block(0, index, 1, steps) = 3.*VectorXd::Ones(steps).transpose();
     r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 2-delta, 0+delta).transpose();
     index += steps;
 
     // nach rechts
+    r.col(index) << 3,0;
+    index ++;
     steps = int(1./delta - 1);
     r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 3+delta, 4-delta).transpose();
     index += steps;
 
     // nach oben
+    r.col(index) << 4,0;
+    index ++;
     steps = int(3./delta - 1);
     r.block(0, index, 1, steps) = 4.*VectorXd::Ones(steps).transpose();
     r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 0+delta, 3-delta).transpose();
     index += steps;
 
     // nach links
+    r.col(index) << 4,3;
+    index ++;
     steps = int(4./delta - 1);
     r.block(0, index, 1, steps) = VectorXd::LinSpaced(steps, 4-delta, 0+delta).transpose();
     r.block(1, index, 1, steps) = 3.*VectorXd::Ones(steps).transpose();
     index += steps;
 
     // nach unten
+    r.col(index) << 0,3;
+    index ++;
     steps = int(3./delta - 1);
     r.block(1, index, 1, steps) = VectorXd::LinSpaced(steps, 3-delta, 0+delta).transpose();
 
@@ -164,11 +170,11 @@ void stimulated_annealing(
     double weg_opti = weg_alt;    // bisherige optimale Weglaenge
     unsigned int counter = 0;  // Anzahl Vertauschungen insgesamt
 
-    // Ziehe Ortsvektor-index mit ziehe_index()
+    // Ziehe Ortsvektor-index [0, N-1] mit ziehe_index()
     std::default_random_engine gen_index;
     std::uniform_int_distribution<int> indices(0,r.cols()-1);
     auto ziehe_index = std::bind(indices, gen_index);
-    // Ziehe Zufallszahl in [0,1]
+    // Ziehe Zufallszahl in [0,1] mit ziehe_zahl()
     std::default_random_engine gen_number;
     std::uniform_real_distribution<double> numbers(0.,1.);
     auto ziehe_zahl = std::bind(numbers, gen_number);
@@ -185,7 +191,6 @@ void stimulated_annealing(
             weg_sugg = weglaenge(r, sugg_perm);
 
             // Schlage Vertauschung vor
-            // differenz = weglaenge(r, sugg_perm) - weglaenge(r, perm);
             weg_diff = weg_sugg - weg_alt;
             if(weg_diff < 0)
             {
@@ -240,7 +245,12 @@ int main() {
     MatrixXd r;
     VectorXi perm;
     sa_init(r, perm, delta);
-    stream.open("build/init.txt");
+
+    stream.open("build/orte.txt");  // Perfekter Weg ohne shuffle
+    VectorXi best_perm = VectorXi::LinSpaced(r.cols(), 0, r.cols()-1);
+    save_data(r, best_perm, stream);
+    stream.close();
+    stream.open("build/init.txt");  // Initialisierung
     save_data(r, perm, stream);
     stream.close();
 
