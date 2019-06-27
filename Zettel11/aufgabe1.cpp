@@ -136,14 +136,6 @@ void save_data(MatrixXd &r, VectorXi &perm, ofstream &file)
 }
 
 
-/* Generate pseudo random numbers for simulated annealing
- * INPUT        
- */
-void gen_randoms()
-{
-}
-
-
 /*  Stimulated Annealing / Travelling Salesman Problem
  *  INPUT       r       Matrix der Ortsvektoren
  *              perm    Permutation
@@ -164,13 +156,13 @@ void stimulated_annealing(
 {
     // Benoetigte Hilfsvariablen
     VectorXi opti_perm = perm;  // beste ermittelte Permutation
-    double T = Tstart; // Temperatur des Systems
-    double ort_1; // erster vorgeschlagener Ortsvektor zum tauschen
-    double ort_2; // zweiter vorgeschlagener Ortsvektor zum tauschen
-    double zwischenspeicher;   // zwischenspeicher zum vertauschen
     VectorXi sugg_perm = perm;  // jeweils vorgeschlagene Permutation
-    double differenz;   // Weglaengendifferenz
-    unsigned int counter = 0;
+    double T = Tstart; // Temperatur des Systems
+    double weg_alt = weglaenge(r, perm);     // Weglaengendifferenz des vorherigen Schrittes
+    double weg_sugg;    // vorgeschlagene Weglaenge
+    double weg_diff;   // Weglaengendifferenz
+    double weg_opti = weg_alt;    // bisherige optimale Weglaenge
+    unsigned int counter = 0;  // Anzahl Vertauschungen insgesamt
 
     // Ziehe Ortsvektor-index mit ziehe_index()
     std::default_random_engine gen_index;
@@ -184,33 +176,38 @@ void stimulated_annealing(
     auto start = std::chrono::system_clock::now();
     while(T >= Tend)
     {
-        for(int i=0; i<S; i++)  // Schlage MC-Schritt vor
+        for(int i=0; i<S; i++)
         {
             sugg_perm = perm;
 
             // Waehle Vertauschung
-            ort_1 = ziehe_index();
-            ort_2 = ziehe_index();
-            zwischenspeicher = sugg_perm(ort_1);
-            sugg_perm(ort_1) = sugg_perm(ort_2);
-            sugg_perm(ort_2) = zwischenspeicher;
-            differenz = weglaenge(r, sugg_perm) - weglaenge(r, perm);
+            sugg_perm.row(ziehe_index()).swap(sugg_perm.row(ziehe_index()));
+            weg_sugg = weglaenge(r, sugg_perm);
 
-            // Pruefe Akzeptanz der Vertauschung
-            if (differenz < 0)
+            // Schlage Vertauschung vor
+            // differenz = weglaenge(r, sugg_perm) - weglaenge(r, perm);
+            weg_diff = weg_sugg - weg_alt;
+            if(weg_diff < 0)
             {
                 perm = sugg_perm;
-                opti_perm = perm;
+                weg_alt = weg_sugg;
+
+                if(weg_sugg < weg_opti)    // Ist Neuer Weg auch das Optimum?
+                {
+                    opti_perm = perm;
+                    weg_opti = weg_sugg;
+                }
             }
             else    // Weglaenge durch Vertauschung verlaengert
             {
-                if(ziehe_zahl() < exp(-differenz/T))
+                if(ziehe_zahl() < exp(-weg_diff/T))
                 {
                     perm = sugg_perm;
+                    weg_alt = weg_sugg;
                 }
             }
-            counter ++;
         }
+        counter += S;
         T *= d; // Absenkung der Temperatur
     }
 
@@ -219,7 +216,7 @@ void stimulated_annealing(
 
     cout << "Benoetigte Zeit: " << elapsed_seconds.count() << "s" << endl;
     cout << "Anzahl Angebotener Vertauschungen: " << counter << endl;
-    cout << "Beste gefundene Weglaenge: " << weglaenge(r, opti_perm) << endl;
+    cout << "Beste gefundene Weglaenge: " << weg_opti << endl;
 
     // Speichere die beste gefundene Permutation
     save_data(r, opti_perm, file);
